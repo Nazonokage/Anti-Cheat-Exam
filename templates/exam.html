@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}{% if done %}Exam Complete{% else %}Question {{ q_number }}{% endif %}{% endblock %}
+
+{% block content %}
+{% if done %}
+<div class="w-full max-w-md text-center">
+  <div class="glass rounded-3xl shadow-2xl p-10">
+    <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-4">
+      <span class="text-examaccent text-2xl">✓</span>
+    </div>
+    <h1 class="text-2xl font-semibold text-white mb-2">
+      {% if no_questions %}Exam Not Ready{% else %}Exam Submitted{% endif %}
+    </h1>
+    <p class="text-sm text-examtext/70">
+      {% if no_questions %}
+        This exam doesn't have any questions loaded yet. Please tell your teacher.
+      {% elif submission.tab_attempts >= 10 %}
+        Your exam was automatically closed due to repeated tab switching.
+      {% else %}
+        Thanks, {{ submission.student_name }} — your answers have been recorded.
+      {% endif %}
+    </p>
+
+    {% if not no_questions %}
+    <div class="my-6 p-6 rounded-2xl bg-white/5 border border-white/10">
+      <p class="text-5xl font-mono text-white">{{ score }}<span class="text-examtext/40 text-2xl"> / {{ total_questions }}</span></p>
+      <p class="text-xl mt-1 text-examaccent">{{ percentage }}%</p>
+      <p class="text-xs text-examtext/40 mt-2">{{ answered }} of {{ total_questions }} questions answered</p>
+    </div>
+    {% if submission.tab_attempts > 0 %}
+    <p class="text-xs text-red-300/80">Tab-switch / focus-loss attempts recorded: {{ submission.tab_attempts }}</p>
+    {% endif %}
+    {% endif %}
+
+    <p class="text-xs text-examtext/40 mt-6">You may close this window.</p>
+  </div>
+</div>
+
+{% else %}
+<div class="w-full max-w-xl"
+     id="exam-root"
+     data-status-url="{% url 'status_api' %}"
+     data-tab-url="{% url 'tab_violation' %}"
+     data-answer-url="{% url 'submit_answer' %}"
+     data-locked-url="{% url 'locked' %}"
+     data-exam-url="{% url 'exam' %}"
+     data-review-url="{% url 'review' %}"
+     data-remaining="{{ remaining_seconds }}"
+     data-total="{{ total_seconds }}">
+
+  <div class="flex items-center justify-between mb-4">
+    <span class="text-xs uppercase tracking-widest text-examtext/50">Question {{ q_number }} of {{ q_total }}</span>
+    <div class="flex items-center gap-2">
+      <div id="timer-bar-track" class="w-28 h-1.5 rounded-full bg-white/10 overflow-hidden">
+        <div id="timer-bar" class="h-full bg-examprimary transition-all duration-1000 linear" style="width:100%"></div>
+      </div>
+      <span id="timer-text" class="text-sm font-mono text-examaccent w-10 text-right">{{ remaining_seconds }}s</span>
+    </div>
+  </div>
+
+  <div class="glass rounded-3xl shadow-2xl p-8">
+    <p class="text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
+
+    <form method="post" action="{% url 'submit_answer' %}" id="answer-form" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" id="action-field" value="submit">
+
+      {% if choices %}
+        <div class="space-y-2">
+        {% for c in choices %}
+          <label class="choice-option flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 cursor-pointer hover:bg-examprimary/10 hover:border-examprimary/40 transition-colors">
+            <input type="radio" name="answer_text" value="{{ c.id }}" required class="accent-examprimary">
+            <span class="text-white/90">{{ c.text }}</span>
+          </label>
+        {% endfor %}
+        </div>
+      {% else %}
+        <input type="text" name="answer_text" autocomplete="off"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="Type your answer">
+      {% endif %}
+
+      {% if hints_enabled and question.hint %}
+      <details class="text-sm text-examtext/60">
+        <summary class="cursor-pointer select-none hover:text-examaccent">Show hint</summary>
+        <p class="mt-1 pl-1">{{ question.hint }}</p>
+      </details>
+      {% endif %}
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" id="submit-btn"
+                class="flex-1 rounded-xl bg-examprimary hover:bg-examaccent transition-colors text-black font-semibold py-2.5">
+          Submit Answer
+        </button>
+        <button type="button" id="skip-btn"
+                class="rounded-xl border border-white/20 text-white/80 hover:bg-white/5 px-5 py-2.5 text-sm">
+          Skip for Now
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <p class="text-center text-xs text-examtext/40 mt-4">Unused time is banked for the review round. Switching tabs is logged.</p>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_head %}
+{% load static %}
+<script src="{% static 'js/exam.js' %}" defer></script>
+{% endblock %}
+
+{% block body_class %} select-none{% endblock %}
+{% block body_attrs %}oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false"{% endblock %}

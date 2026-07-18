@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Live Monitor — {{ exam.title }}{% endblock %}
+{% block content %}
+<div class="w-full max-w-4xl">
+  <div class="flex items-center justify-between mb-4">
+    <div>
+      <h1 class="text-xl font-semibold text-white">{{ exam.title }}</h1>
+      <p class="text-xs text-examtext/50">Live student monitor &middot; ranked by score &middot; refreshes every 5s</p>
+    </div>
+    <span class="flex items-center gap-2 text-xs text-examtext/60">
+      <span class="h-2 w-2 rounded-full bg-examaccent animate-pulse"></span> Live
+    </span>
+  </div>
+
+  <div class="glass rounded-3xl shadow-2xl overflow-hidden">
+    <table class="w-full text-sm">
+      <thead>
+        <tr class="text-left text-examtext/50 text-xs uppercase tracking-wide border-b border-white/10">
+          <th class="px-5 py-3">#</th>
+          <th class="px-5 py-3">Student</th>
+          <th class="px-5 py-3">Score</th>
+          <th class="px-5 py-3">Current Q</th>
+          <th class="px-5 py-3">Phase</th>
+          <th class="px-5 py-3">Tab Attempts</th>
+          <th class="px-5 py-3">Violations</th>
+          <th class="px-5 py-3">Status</th>
+          <th class="px-5 py-3">Last Seen</th>
+        </tr>
+      </thead>
+      <tbody id="monitor-body">
+        <tr><td colspan="9" class="px-5 py-6 text-center text-examtext/40">Loading…</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="text-xs text-examtext/40 mt-3">
+    Score is correct / answered so far out of the exam's total questions, ranked live (most correct first).
+    "Violations" includes copy/paste attempts and idle time in addition to tab-switch attempts —
+    only tab-switch/window-blur attempts count toward the lock/close schedule.
+  </p>
+</div>
+
+<script>
+  const dataUrl = "{% url 'teacher_monitor_data' exam.id %}";
+  const body = document.getElementById('monitor-body');
+
+  function render(rows) {
+    if (!rows.length) {
+      body.innerHTML = '<tr><td colspan="9" class="px-5 py-6 text-center text-examtext/40">No students have started yet.</td></tr>';
+      return;
+    }
+    body.innerHTML = rows.map((r, i) => {
+      const statusColor = r.closed ? 'text-examtext/40' : (r.stale ? 'text-red-300' : 'text-examaccent');
+      const statusLabel = r.closed ? 'Closed' : (r.stale ? 'Disconnected' : 'Live');
+      const seen = r.seconds_ago === null ? '—' : (r.seconds_ago + 's ago');
+      const tabColor = r.tab_attempts >= 8 ? 'text-red-300' : (r.tab_attempts >= 1 ? 'text-yellow-300' : 'text-examtext/70');
+      const violColor = r.violation_count >= 5 ? 'text-red-300' : (r.violation_count >= 1 ? 'text-yellow-300' : 'text-examtext/70');
+      const violBadge = r.recent_violation && !r.closed
+        ? '<span class="ml-1 inline-block h-1.5 w-1.5 rounded-full bg-red-400 animate-pulse" title="Recent violation"></span>' : '';
+      return `<tr class="border-b border-white/5 ${r.stale && !r.closed ? 'bg-red-500/5' : ''}">
+        <td class="px-5 py-3 text-examtext/50">${i + 1}</td>
+        <td class="px-5 py-3 text-white/90">${r.student_name}</td>
+        <td class="px-5 py-3 font-mono text-examaccent">${r.correct}/${r.answered} <span class="text-examtext/40">of ${r.total_questions}</span></td>
+        <td class="px-5 py-3">${r.current_question}</td>
+        <td class="px-5 py-3 capitalize">${r.phase}</td>
+        <td class="px-5 py-3 ${tabColor}">${r.tab_attempts}</td>
+        <td class="px-5 py-3 ${violColor}">${r.violation_count}${violBadge}</td>
+        <td class="px-5 py-3 ${statusColor}">${statusLabel}</td>
+        <td class="px-5 py-3 text-examtext/50">${seen}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  async function poll() {
+    try {
+      const res = await fetch(dataUrl);
+      const data = await res.json();
+      render(data.students); // already ranked by the backend: most correct first
+    } catch (e) { /* keep last good render on transient errors */ }
+  }
+  poll();
+  setInterval(poll, 5000);
+</script>
+{% endblock %}

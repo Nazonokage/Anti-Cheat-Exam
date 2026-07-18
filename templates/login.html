@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Exam Login{% endblock %}
+{% block content %}
+<div class="w-full max-w-md">
+  <div class="glass rounded-3xl shadow-2xl p-8">
+    <div class="mb-6 text-center">
+      <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-3">
+        <span class="text-examaccent text-xl">✓</span>
+      </div>
+      <h1 class="text-2xl font-semibold text-white">
+        Exam Login<span id="subject-suffix"></span>
+      </h1>
+      <p class="text-sm text-examtext/70 mt-1" id="subject-tagline">Select your subject and name to begin.</p>
+    </div>
+
+    {% if not exams %}
+      <p class="text-center text-examtext/70 text-sm py-6">No exam is currently active. Ask your teacher.</p>
+    {% else %}
+      {% if error %}
+      <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-sm px-4 py-2">
+        {{ error }}
+      </div>
+      {% endif %}
+
+      <form method="post" class="space-y-4" id="login-form">
+        {% csrf_token %}
+        <div>
+          <label class="block text-sm mb-1 text-examtext/80">Subject</label>
+          <select name="exam_id" id="exam-select" required
+                  class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-examprimary">
+            <option value="" disabled selected class="bg-examsurface">-- select your subject --</option>
+            {% for exam in exams %}
+            <option value="{{ exam.id }}" class="bg-examsurface"
+                    data-subject="{{ exam.subject|escapejs }}"
+                    data-students='[{% for s in exam.students.all %}{"id": {{ s.id }}, "name": "{{ s.name|escapejs }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'
+                    {% if selected_exam_id|stringformat:"s" == exam.id|stringformat:"s" %}selected{% endif %}>
+              {{ exam.title }}
+            </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1 text-examtext/80">Your name</label>
+          <select name="student_id" id="student-select" required disabled
+                  class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-examprimary disabled:opacity-50">
+            <option value="" class="bg-examsurface">-- select your subject first --</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-sm mb-1 text-examtext/80">Login code (given by your teacher)</label>
+          <input type="text" name="passcode" inputmode="numeric" required autocomplete="off"
+                 class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+                 placeholder="e.g. 4821">
+        </div>
+
+        <button type="submit"
+                class="w-full rounded-xl bg-examprimary hover:bg-examaccent transition-colors text-black font-semibold py-2.5">
+          Start / Resume Exam
+        </button>
+      </form>
+    {% endif %}
+  </div>
+  <p class="text-center text-xs text-examtext/40 mt-4">Tab switching and devtools use are monitored during the exam.</p>
+</div>
+
+<script>
+  const examSelect = document.getElementById('exam-select');
+  const studentSelect = document.getElementById('student-select');
+  const subjectSuffix = document.getElementById('subject-suffix');
+  const subjectTagline = document.getElementById('subject-tagline');
+
+  function populateStudents() {
+    const opt = examSelect.options[examSelect.selectedIndex];
+    if (!opt || !opt.value) return;
+    const students = opt.dataset.students ? JSON.parse(opt.dataset.students) : [];
+    subjectSuffix.textContent = opt.dataset.subject ? ' — ' + opt.dataset.subject : '';
+    subjectTagline.textContent = 'Now pick your name from the roster.';
+
+    if (!students.length) {
+      studentSelect.innerHTML = '<option value="" class="bg-examsurface">No students on this roster yet</option>';
+      studentSelect.disabled = true;
+      return;
+    }
+    studentSelect.innerHTML = '<option value="" disabled selected class="bg-examsurface">-- select your name --</option>' +
+      students.map(s => `<option value="${s.id}" class="bg-examsurface">${s.name}</option>`).join('');
+    studentSelect.disabled = false;
+  }
+
+  if (examSelect) {
+    examSelect.addEventListener('change', populateStudents);
+    if (examSelect.value) populateStudents();
+  }
+</script>
+{% endblock %}

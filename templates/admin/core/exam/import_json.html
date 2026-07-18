@@ -1,0 +1,13 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Import Exam from JSON</h1>
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Import" class="default">
+</form>
+<p>Expected format matches <code>data/sampletopic.json</code>: keys
+<code>subject</code>, <code>title</code>, <code>secondsPerQuestion</code>,
+<code>hintsEnabled</code>, <code>multipleChoice</code>, <code>boolean</code>,
+<code>identification</code>.</p>
+{% endblock %}

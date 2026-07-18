@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Locked{% endblock %}
+{% block content %}
+<div class="w-full max-w-md text-center" id="lock-root" data-remaining="{{ remaining_seconds }}" data-exam-url="{% url 'exam' %}">
+  <div class="glass rounded-3xl shadow-2xl p-10">
+    <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 border border-red-400/40 mb-4">
+      <span class="text-red-300 text-2xl">⏸</span>
+    </div>
+    <h1 class="text-2xl font-semibold text-white mb-2">Exam Temporarily Locked</h1>
+    <p class="text-sm text-examtext/70">Repeated tab switching was detected. Please stay on this tab.</p>
+    <p class="text-4xl font-mono text-red-300 mt-6" id="lock-timer">{{ remaining_seconds }}s</p>
+    <p class="text-xs text-examtext/40 mt-6">The exam will resume automatically.</p>
+  </div>
+</div>
+<script>
+  const root = document.getElementById('lock-root');
+  let remaining = parseInt(root.dataset.remaining, 10);
+  const timerEl = document.getElementById('lock-timer');
+  const tick = () => {
+    remaining -= 1;
+    if (remaining <= 0) {
+      window.location.href = root.dataset.examUrl;
+      return;
+    }
+    timerEl.textContent = remaining + 's';
+  };
+  setInterval(tick, 1000);
+</script>
+{% endblock %}

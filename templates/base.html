@@ -1,0 +1,35 @@
+{% load static %}<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Exam{% endblock %}</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<style type="text/tailwindcss">
+  @theme {
+    --color-exambg: #061511;
+    --color-examsurface: #0B2A22;
+    --color-examcard: #102F27;
+    --color-examprimary: #10B981;
+    --color-examaccent: #34D399;
+    --color-examtext: #A7F3D0;
+  }
+</style>
+<style>
+  body { background: radial-gradient(circle at 20% -10%, #103a2c 0%, #061511 55%); }
+  .glass {
+    background: rgba(255,255,255,0.06);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen text-examtext font-sans antialiased{% block body_class %}{% endblock %}"
+      {% block body_attrs %}{% endblock %}>
+  <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

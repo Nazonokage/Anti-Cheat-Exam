@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Review Phase{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-xl"
+     id="exam-root"
+     data-status-url="{% url 'status_api' %}"
+     data-tab-url="{% url 'tab_violation' %}"
+     data-answer-url="{% url 'submit_review_answer' %}"
+     data-locked-url="{% url 'locked' %}"
+     data-exam-url="{% url 'exam' %}"
+     data-review-url="{% url 'review' %}"
+     data-remaining="{{ remaining_seconds }}"
+     data-total="{{ bank_seconds }}"
+     data-review="1">
+
+  <div class="flex items-center justify-between mb-4">
+    <span class="text-xs uppercase tracking-widest text-examtext/50">Review Phase &middot; {{ remaining_count }} left</span>
+    <div class="flex items-center gap-2">
+      <span class="text-[10px] uppercase tracking-wide text-examtext/40">Bank</span>
+      <span id="timer-text" class="text-sm font-mono text-examaccent w-12 text-right">{{ remaining_seconds }}s</span>
+    </div>
+  </div>
+
+  <div class="glass rounded-3xl shadow-2xl p-8">
+    <div class="mb-3 inline-block text-[11px] px-2 py-0.5 rounded-full bg-examprimary/15 text-examaccent border border-examprimary/30">
+      Skipped question
+    </div>
+    <p class="text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
+
+    <form method="post" action="{% url 'submit_review_answer' %}" id="answer-form" class="space-y-3">
+      {% csrf_token %}
+      <input type="hidden" name="action" id="action-field" value="submit">
+
+      {% if choices %}
+        <div class="space-y-2">
+        {% for c in choices %}
+          <label class="choice-option flex items-center gap-3 rounded-xl border border-white/15 bg-white/5 px-4 py-3 cursor-pointer hover:bg-examprimary/10 hover:border-examprimary/40 transition-colors">
+            <input type="radio" name="answer_text" value="{{ c.id }}" required class="accent-examprimary">
+            <span class="text-white/90">{{ c.text }}</span>
+          </label>
+        {% endfor %}
+        </div>
+      {% else %}
+        <input type="text" name="answer_text" autocomplete="off"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="Type your answer">
+      {% endif %}
+
+      {% if hints_enabled and question.hint %}
+      <details class="text-sm text-examtext/60">
+        <summary class="cursor-pointer select-none hover:text-examaccent">Show hint</summary>
+        <p class="mt-1 pl-1">{{ question.hint }}</p>
+      </details>
+      {% endif %}
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" id="submit-btn"
+                class="flex-1 rounded-xl bg-examprimary hover:bg-examaccent transition-colors text-black font-semibold py-2.5">
+          Submit Answer
+        </button>
+        <button type="button" id="skip-btn"
+                class="rounded-xl border border-white/20 text-white/80 hover:bg-white/5 px-5 py-2.5 text-sm">
+          Leave for Later
+        </button>
+      </div>
+    </form>
+
+    <form method="post" action="{% url 'finalize_submission' %}" class="mt-4 pt-4 border-t border-white/10">
+      {% csrf_token %}
+      <button type="submit" class="w-full text-sm text-examtext/60 hover:text-red-300 transition-colors">
+        Final Submit Exam Now
+      </button>
+    </form>
+  </div>
+
+  <p class="text-center text-xs text-examtext/40 mt-4">
+    The review bank is shared across all remaining questions — once it runs out, the exam auto-submits.
+  </p>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+{% load static %}
+<script src="{% static 'js/exam.js' %}" defer></script>
+{% endblock %}
+
+{% block body_class %} select-none{% endblock %}
+{% block body_attrs %}oncopy="return false" oncut="return false" onpaste="return false" oncontextmenu="return false"{% endblock %}
