@@ -63,10 +63,67 @@ def _score_summary(submission):
     return {"score": correct, "total_questions": total, "answered": answered, "percentage": percentage}
 
 
+def _game_context(submission):
+    """Buff state for game-mode exams, plus a POP of any pending one-shot
+    checkpoint notice (shown once, then cleared)."""
+    if not submission.exam.game_mode:
+        return {}
+    ctx = {
+        "game_mode": True,
+        "attack_charges": submission.attack_charges,
+        "defense_charges": submission.defense_charges,
+        "time_boost_charges": submission.time_boost_charges,
+        "pending_buff_choice": submission.pending_buff_choice,
+    }
+    if submission.pending_checkpoint_notice:
+        ctx["checkpoint_notice"] = json.dumps(submission.pending_checkpoint_notice)
+        submission.pending_checkpoint_notice = None
+        submission.save(update_fields=["pending_checkpoint_notice"])
+    return ctx
+
+
+def _missed_questions(submission):
+    """Questions the student got wrong OR never answered, in their own
+    question order, with human-readable answer text (not raw Choice ids)."""
+    order = submission.question_order or list(
+        submission.exam.questions.order_by("order").values_list("id", flat=True)
+    )
+    answers_by_qid = {a.question_id: a for a in submission.answers.select_related("question")}
+    missed = []
+    for qid in order:
+        a = answers_by_qid.get(qid)
+        if not a or a.is_correct:
+            continue
+        q = a.question
+        if q.qtype == "identification":
+            your_answer = a.answer_text or "(no answer)"
+            correct_answer = q.identification_answer
+        else:
+            correct_choice = q.choices.filter(is_correct=True).first()
+            correct_answer = correct_choice.text if correct_choice else ""
+            your_choice = None
+            if a.answer_text:
+                try:
+                    your_choice = q.choices.filter(id=int(a.answer_text)).first()
+                except (ValueError, TypeError):
+                    your_choice = None
+            your_answer = your_choice.text if your_choice else "(no answer)"
+        missed.append({
+            "question_text": q.text,
+            "your_answer": your_answer,
+            "correct_answer": correct_answer,
+            "was_answered": a.answered,
+        })
+    return missed
+
+
 def _done_context(submission, no_questions=False):
     ctx = {"submission": submission, "done": True, "no_questions": no_questions}
     if not no_questions:
         ctx.update(_score_summary(submission))
+        ctx.update(_game_context(submission))
+        ctx["missed_questions"] = _missed_questions(submission)
+        ctx["missed_questions_json"] = json.dumps(ctx["missed_questions"])
     return ctx
 
 
@@ -187,6 +244,7 @@ def exam_view(request):
         "q_total": total,
         "hints_enabled": exam.hints_enabled,
         "done": False,
+        **_game_context(submission),
     })
 
 
@@ -215,8 +273,53 @@ def _advance_past_expired_questions(submission, questions):
         _move_to_next_question(submission, questions)
 
 
+def _effective_score(submission):
+    """Game Mode leaderboard score = real correct-answer count minus any
+    attack penalties. Never touches Answer.is_correct or the real grade."""
+    correct = submission.answers.filter(is_correct=True).count()
+    return correct - submission.score_penalty
+
+
+def _compute_rank(submission):
+    exam = submission.exam
+    scored = [(s.id, _effective_score(s)) for s in exam.submissions.all()]
+    scored.sort(key=lambda t: -t[1])
+    rank = next((i for i, (sid, _) in enumerate(scored, start=1) if sid == submission.id), len(scored))
+    return rank, len(scored)
+
+
+def _decay_defense_on_question_finish(submission):
+    """Defense decays by 1 every time a question is finished (answered,
+    skipped, or auto-skipped) — independent of the buff-choice milestone
+    below, and independent of whether any attack was blocked."""
+    if not submission.exam.game_mode:
+        return
+    submission.defense_charges = max(0, submission.defense_charges - 1)
+
+
+def _check_buff_milestone(submission):
+    """Skill-based buff trigger: every 5th CORRECT answer (not every 5th
+    question attempted) queues a buff CHOICE for the student to make —
+    see game_choose_buff. Call this right after grading an answer correct."""
+    if not submission.exam.game_mode:
+        return
+    correct_count = submission.answers.filter(is_correct=True).count()
+    milestone = (correct_count // 5) * 5
+    if milestone > 0 and milestone > submission.last_buff_milestone:
+        submission.last_buff_milestone = milestone
+        submission.pending_buff_choice = True
+        rank, total = _compute_rank(submission)
+        submission.pending_checkpoint_notice = {
+            "correct_count": correct_count,
+            "rank": rank,
+            "total": total,
+        }
+
+
 def _move_to_next_question(submission, questions):
     total = len(questions)
+    _decay_defense_on_question_finish(submission)
+
     if submission.current_question >= total:
         submission.phase = "review"
         submission.save()
@@ -269,6 +372,8 @@ def submit_answer(request):
         answer.time_spent_seconds = elapsed
         answer.save()
         submission.review_bank_seconds += int(remaining)
+        if answer.is_correct:
+            _check_buff_milestone(submission)
     else:
         return HttpResponseBadRequest("Unknown action")
 
@@ -347,6 +452,7 @@ def review_view(request):
         "remaining_count": len(pending),
         "hints_enabled": submission.exam.hints_enabled,
         "done": False,
+        **_game_context(submission),
     })
 
 
@@ -377,6 +483,9 @@ def submit_review_answer(request):
     # "skip" (leave for later / out of time): stays skipped, unanswered.
     answer.question_started_at = None
     answer.save()
+
+    if action == "submit" and answer.is_correct:
+        _check_buff_milestone(submission)
 
     submission.review_bank_seconds = max(0, int(submission.review_bank_seconds - spent))
     submission.save()
@@ -569,3 +678,151 @@ def teacher_monitor_data(request, exam_id):
     # Rank live: most correct first, ties broken by most answered so far.
     rows.sort(key=lambda r: (-r["correct"], -r["answered"], r["student_name"]))
     return JsonResponse({"exam": exam.title, "total_questions": total_questions, "students": rows})
+
+
+# --- Game Mode: student-facing leaderboard + buffs -------------------------
+
+def game_leaderboard(request):
+    """Live-ranked leaderboard for the 'realtime ranking tab' students see
+    during the exam. Uses the game score (correct - score_penalty), NOT the
+    real grade — attacks never touch actual grading."""
+    submission = _get_submission(request)
+    if not submission:
+        return JsonResponse({"error": "no session"}, status=400)
+    exam = submission.exam
+    if not exam.game_mode:
+        return JsonResponse({"error": "game mode not enabled for this exam"}, status=400)
+
+    rows = [
+        {"id": s.id, "name": s.student_name, "score": _effective_score(s), "is_you": s.id == submission.id}
+        for s in exam.submissions.all()
+    ]
+    rows.sort(key=lambda r: -r["score"])
+    for i, r in enumerate(rows, start=1):
+        r["rank"] = i
+    return JsonResponse({"leaderboard": rows})
+
+
+def game_opponents(request):
+    """Attackable targets: other still-active students in the same exam."""
+    submission = _get_submission(request)
+    if not submission:
+        return JsonResponse({"error": "no session"}, status=400)
+    exam = submission.exam
+    if not exam.game_mode:
+        return JsonResponse({"error": "game mode not enabled for this exam"}, status=400)
+
+    opponents = exam.submissions.exclude(id=submission.id).filter(closed=False)
+    return JsonResponse({"opponents": [{"id": s.id, "name": s.student_name} for s in opponents]})
+
+
+@require_POST
+def game_attack(request):
+    """Spend 1 attack charge to hit another player: -1 to their game score,
+    UNLESS they have a defense charge, in which case it's blocked and
+    consumes one of THEIR defense charges instead. Never touches real
+    grading (Answer.is_correct) — this only affects score_penalty, the
+    Game Mode leaderboard number."""
+    submission = _get_submission(request)
+    if not submission or submission.closed:
+        return JsonResponse({"error": "no session"}, status=400)
+    exam = submission.exam
+    if not exam.game_mode:
+        return JsonResponse({"error": "game mode not enabled for this exam"}, status=400)
+    if submission.attack_charges <= 0:
+        return JsonResponse({"error": "no attack charges available"}, status=400)
+
+    try:
+        payload = json.loads(request.body or b"{}")
+    except json.JSONDecodeError:
+        payload = {}
+    target = Submission.objects.filter(
+        id=payload.get("target_id"), exam=exam, closed=False,
+    ).exclude(id=submission.id).first()
+    if not target:
+        return JsonResponse({"error": "invalid or unavailable target"}, status=400)
+
+    submission.attack_charges -= 1
+    submission.save(update_fields=["attack_charges"])
+
+    blocked = target.defense_charges > 0
+    if blocked:
+        target.defense_charges -= 1
+        target.save(update_fields=["defense_charges"])
+    else:
+        target.score_penalty += 1
+        target.save(update_fields=["score_penalty"])
+
+    return JsonResponse({
+        "status": "ok", "blocked": blocked, "target_name": target.student_name,
+        "attack_charges_left": submission.attack_charges,
+    })
+
+
+@require_POST
+def game_time_boost(request):
+    """Spend 1 time-boost charge to add 30s to the CURRENT question's
+    remaining time (question phase only — server-authoritative, same
+    mechanism as the normal timer: shifts question_started_at back)."""
+    submission = _get_submission(request)
+    if not submission or submission.closed:
+        return JsonResponse({"error": "no session"}, status=400)
+    exam = submission.exam
+    if not exam.game_mode:
+        return JsonResponse({"error": "game mode not enabled for this exam"}, status=400)
+    if submission.time_boost_charges <= 0:
+        return JsonResponse({"error": "no time-boost charges available"}, status=400)
+    if submission.phase != "question":
+        return JsonResponse({"error": "time boost is only usable during the question phase"}, status=400)
+
+    questions = _get_ordered_questions(submission)
+    if submission.current_question > len(questions):
+        return JsonResponse({"error": "no active question"}, status=400)
+    current_q = questions[submission.current_question - 1]
+    answer = Answer.objects.filter(submission=submission, question=current_q).first()
+    if answer and answer.question_started_at:
+        # To INCREASE remaining time, move question_started_at FORWARD
+        # (closer to "now"), which reduces elapsed = now - question_started_at.
+        answer.question_started_at += timedelta(seconds=30)
+        answer.save(update_fields=["question_started_at"])
+
+    submission.time_boost_charges -= 1
+    submission.save(update_fields=["time_boost_charges"])
+    return JsonResponse({"status": "ok", "time_boost_charges_left": submission.time_boost_charges})
+
+
+@require_POST
+def game_choose_buff(request):
+    """Spend a pending buff-choice (earned every 5 correct answers) on
+    exactly ONE of attack / defense / time_boost — not all three."""
+    submission = _get_submission(request)
+    if not submission or submission.closed:
+        return JsonResponse({"error": "no session"}, status=400)
+    if not submission.exam.game_mode:
+        return JsonResponse({"error": "game mode not enabled for this exam"}, status=400)
+    if not submission.pending_buff_choice:
+        return JsonResponse({"error": "no buff choice available right now"}, status=400)
+
+    try:
+        payload = json.loads(request.body or b"{}")
+    except json.JSONDecodeError:
+        payload = {}
+    choice = payload.get("buff")
+
+    if choice == "attack":
+        submission.attack_charges += 1
+    elif choice == "defense":
+        submission.defense_charges = 5
+    elif choice == "time_boost":
+        submission.time_boost_charges += 1
+    else:
+        return JsonResponse({"error": "invalid buff choice"}, status=400)
+
+    submission.pending_buff_choice = False
+    submission.save()
+    return JsonResponse({
+        "status": "ok", "chosen": choice,
+        "attack_charges": submission.attack_charges,
+        "defense_charges": submission.defense_charges,
+        "time_boost_charges": submission.time_boost_charges,
+    })

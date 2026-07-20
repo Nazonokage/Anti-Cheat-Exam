@@ -17,11 +17,141 @@
 </style>
 <style>
   body { background: radial-gradient(circle at 20% -10%, #103a2c 0%, #061511 55%); }
+
+  @keyframes holo-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* --- Holographic-emerald glass: base surface + a slow iridescent sheen --- */
   .glass {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
     background: rgba(255,255,255,0.06);
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.14);
+  }
+  .glass::after {
+    content: '';
+    position: absolute; inset: 0;
+    z-index: -1;
+    background: linear-gradient(115deg,
+      transparent 15%,
+      rgba(167,243,208,0.10) 30%,
+      rgba(103,232,249,0.12) 45%,
+      rgba(196,181,253,0.10) 60%,
+      transparent 80%);
+    background-size: 250% 250%;
+    animation: holo-shift 9s ease-in-out infinite;
+    mix-blend-mode: screen;
+    pointer-events: none;
+  }
+
+  /* Animated holographic gradient border, used sparingly for emphasis
+     (buff chips, the leaderboard toggle, primary buttons). */
+  .holo-edge {
+    position: relative;
+    border: 1px solid transparent;
+    background-clip: padding-box, border-box;
+    background-origin: padding-box, border-box;
+    background-image:
+      linear-gradient(#0B2A22, #0B2A22),
+      linear-gradient(120deg, #10B981, #67e8f9, #a78bfa, #34D399, #10B981);
+  }
+  .holo-edge, .holo-btn {
+    background-size: auto, 300% 300%;
+  }
+  .holo-edge { animation: holo-shift 6s ease infinite; }
+
+  .holo-btn {
+    background-image: linear-gradient(120deg, #10B981, #34D399, #67e8f9, #10B981);
+    background-size: 300% 300%;
+    animation: holo-shift 5s ease infinite;
+  }
+  .holo-btn:hover { filter: brightness(1.12); }
+
+  /* --- 3D glass-emerald image frame (question images) --- */
+  .img-3d-frame {
+    position: relative;
+    border-radius: 1.25rem;
+    padding: 5px;
+    background: linear-gradient(135deg, rgba(52,211,153,0.45), rgba(16,185,129,0.08) 45%, rgba(167,243,208,0.3));
+    box-shadow:
+      0 22px 45px -18px rgba(0,0,0,0.65),
+      0 10px 20px -10px rgba(16,185,129,0.4),
+      inset 0 1px 0 rgba(255,255,255,0.25);
+    transform: perspective(900px) rotateX(1.2deg);
+  }
+  .img-3d-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 260px;
+    object-fit: cover;
+    border-radius: 0.95rem;
+    box-shadow: inset 0 0 40px rgba(0,0,0,0.3);
+  }
+
+  /* --- Game Mode buff chips --- */
+  .buff-chip {
+    display: inline-flex; align-items: center; gap: 0.3rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-family: ui-monospace, monospace;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.03));
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 6px 14px -8px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.12);
+  }
+  .buff-chip.active {
+    cursor: pointer;
+    border-color: rgba(52,211,153,0.5);
+    background: linear-gradient(135deg, rgba(52,211,153,0.25), rgba(16,185,129,0.08));
+  }
+  .buff-chip.active:hover { border-color: rgba(52,211,153,0.9); }
+  .buff-chip:disabled, .buff-chip.disabled { opacity: 0.35; cursor: not-allowed; }
+
+  /* --- Floating checkpoint / buff-result toast --- */
+  @keyframes toast-in {
+    0% { opacity: 0; transform: translate(-50%, 14px) scale(0.96); }
+    100% { opacity: 1; transform: translate(-50%, 0) scale(1); }
+  }
+  .toast-float {
+    position: fixed; left: 50%; bottom: 1.5rem; z-index: 60;
+    animation: toast-in 0.35s cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  /* --- Loading overlay (pedro.gif) --- */
+  @keyframes pedro-glow {
+    0%, 100% { box-shadow: 0 0 30px 6px rgba(52,211,153,0.35), inset 0 0 25px rgba(0,0,0,0.6); }
+    50% { box-shadow: 0 0 46px 12px rgba(103,232,249,0.35), inset 0 0 25px rgba(0,0,0,0.6); }
+  }
+  .loading-overlay {
+    position: fixed; inset: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(6,21,17,0.88);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: opacity 0.25s ease;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .loading-gif-frame {
+    width: 132px; height: 132px;
+    border-radius: 9999px;
+    overflow: hidden;
+    background: radial-gradient(circle at 40% 35%, #0B2A22, #061511 70%);
+    animation: pedro-glow 2.4s ease-in-out infinite;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .loading-gif-frame img {
+    width: 100%; height: 100%; object-fit: cover;
+    /* The gif has a black background — 'screen' blend makes black pixels
+       vanish into our dark theme while the lighter subject stays visible. */
+    mix-blend-mode: screen;
+    filter: saturate(0.85) hue-rotate(-6deg);
   }
 </style>
 {% block extra_head %}{% endblock %}
@@ -31,5 +161,15 @@
   <div class="min-h-screen flex flex-col items-center justify-center p-4">
     {% block content %}{% endblock %}
   </div>
+
+  <div id="exam-loading-overlay" class="loading-overlay hidden">
+    <div class="text-center">
+      <div class="loading-gif-frame mx-auto mb-4">
+        <img src="{% static 'img/pedro.gif' %}" alt="">
+      </div>
+      <p id="loading-text" class="text-sm text-examaccent tracking-wide">Loading…</p>
+    </div>
+  </div>
+  <script src="{% static 'js/ui.js' %}"></script>
 </body>
 </html>

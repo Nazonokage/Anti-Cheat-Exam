@@ -1,0 +1,50 @@
+{% if game_mode %}
+<div id="game-bar" class="flex flex-wrap items-center gap-2 mb-4"
+     data-attack-charges="{{ attack_charges }}"
+     data-defense-charges="{{ defense_charges }}"
+     data-time-boost-charges="{{ time_boost_charges }}"
+     data-pending-buff-choice="{{ pending_buff_choice|yesno:'1,0' }}"
+     data-leaderboard-url="{% url 'game_leaderboard' %}"
+     data-opponents-url="{% url 'game_opponents' %}"
+     data-attack-url="{% url 'game_attack' %}"
+     data-time-boost-url="{% url 'game_time_boost' %}"
+     data-choose-buff-url="{% url 'game_choose_buff' %}"
+     {% if checkpoint_notice %}data-checkpoint-notice='{{ checkpoint_notice|safe }}'{% endif %}>
+  <button type="button" id="buff-attack" class="buff-chip {% if attack_charges > 0 %}active{% else %}disabled{% endif %}" {% if attack_charges == 0 %}disabled{% endif %}>
+    ⚔️ Attack <span id="buff-attack-count">{{ attack_charges }}</span>
+  </button>
+  <span class="buff-chip">🛡️ Defense <span id="buff-defense-count">{{ defense_charges }}</span></span>
+  <button type="button" id="buff-timeboost" class="buff-chip {% if time_boost_charges > 0 %}active{% else %}disabled{% endif %}" {% if time_boost_charges == 0 %}disabled{% endif %}>
+    ⏱️ +30s <span id="buff-timeboost-count">{{ time_boost_charges }}</span>
+  </button>
+  <button type="button" id="rank-toggle" class="buff-chip active ml-auto">
+    🏆 Leaderboard
+  </button>
+</div>
+
+{% if pending_buff_choice %}
+<div id="buff-choice-banner" class="holo-edge rounded-2xl p-4 mb-4">
+  <p class="text-sm text-white font-semibold mb-1">🎁 5 correct! Pick a buff:</p>
+  <div class="flex flex-wrap gap-2 mt-2">
+    <button type="button" class="buff-choice-option buff-chip active" data-buff="attack">⚔️ +1 Attack</button>
+    <button type="button" class="buff-choice-option buff-chip active" data-buff="defense">🛡️ Defense → 5</button>
+    <button type="button" class="buff-choice-option buff-chip active" data-buff="time_boost">⏱️ +1 Time Boost</button>
+  </div>
+</div>
+{% endif %}
+
+<div id="leaderboard-panel" class="hidden glass rounded-2xl p-4 mb-4">
+  <p class="text-xs uppercase tracking-widest text-examtext/50 mb-2">Live Ranking</p>
+  <div id="leaderboard-rows" class="space-y-1 text-sm">
+    <p class="text-examtext/40 text-xs">Loading…</p>
+  </div>
+</div>
+
+<div id="opponent-picker" class="hidden glass rounded-2xl p-4 mb-4">
+  <p class="text-xs uppercase tracking-widest text-examtext/50 mb-2">Attack who?</p>
+  <div id="opponent-rows" class="space-y-1 text-sm"></div>
+  <button type="button" id="opponent-cancel" class="mt-2 text-xs text-examtext/50 hover:text-examtext">Cancel</button>
+</div>
+
+<div id="toast-root"></div>
+{% endif %}

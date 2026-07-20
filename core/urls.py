@@ -14,4 +14,9 @@ urlpatterns = [
     path("status/", views.status_api, name="status_api"),
     path("teacher/monitor/<int:exam_id>/", views.teacher_monitor, name="teacher_monitor"),
     path("teacher/monitor/<int:exam_id>/data/", views.teacher_monitor_data, name="teacher_monitor_data"),
+    path("game/leaderboard/", views.game_leaderboard, name="game_leaderboard"),
+    path("game/opponents/", views.game_opponents, name="game_opponents"),
+    path("game/attack/", views.game_attack, name="game_attack"),
+    path("game/time-boost/", views.game_time_boost, name="game_time_boost"),
+    path("game/choose-buff/", views.game_choose_buff, name="game_choose_buff"),
 ]

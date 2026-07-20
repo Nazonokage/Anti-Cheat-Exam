@@ -22,10 +22,19 @@
     </div>
   </div>
 
+  {% include "_game_ui.html" %}
+
   <div class="glass rounded-3xl shadow-2xl p-8">
     <div class="mb-3 inline-block text-[11px] px-2 py-0.5 rounded-full bg-examprimary/15 text-examaccent border border-examprimary/30">
       Skipped question
     </div>
+    <div class="flex flex-col md:flex-row md:items-start gap-6">
+      {% if question.image_url %}
+      <div class="img-3d-frame md:w-2/5 md:shrink-0">
+        <img src="{{ question.image_url }}" alt="" loading="lazy">
+      </div>
+      {% endif %}
+      <div class="flex-1 min-w-0">
     <p class="text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
 
     <form method="post" action="{% url 'submit_review_answer' %}" id="answer-form" class="space-y-3">
@@ -56,7 +65,7 @@
 
       <div class="flex gap-3 pt-2">
         <button type="submit" id="submit-btn"
-                class="flex-1 rounded-xl bg-examprimary hover:bg-examaccent transition-colors text-black font-semibold py-2.5">
+                class="flex-1 rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
           Submit Answer
         </button>
         <button type="button" id="skip-btn"
@@ -65,8 +74,10 @@
         </button>
       </div>
     </form>
+      </div>
+    </div>
 
-    <form method="post" action="{% url 'finalize_submission' %}" class="mt-4 pt-4 border-t border-white/10">
+    <form method="post" action="{% url 'finalize_submission' %}" id="final-submit-form" class="mt-4 pt-4 border-t border-white/10">
       {% csrf_token %}
       <button type="submit" class="w-full text-sm text-examtext/60 hover:text-red-300 transition-colors">
         Final Submit Exam Now
@@ -83,6 +94,17 @@
 {% block extra_head %}
 {% load static %}
 <script src="{% static 'js/exam.js' %}" defer></script>
+<script src="{% static 'js/game.js' %}" defer></script>
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const finalForm = document.getElementById('final-submit-form');
+    if (finalForm) {
+      finalForm.addEventListener('submit', () => {
+        if (window.ExamUI) window.ExamUI.showLoading('Submitting your exam…');
+      });
+    }
+  });
+</script>
 {% endblock %}
 
 {% block body_class %} select-none{% endblock %}

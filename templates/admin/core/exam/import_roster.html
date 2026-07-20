@@ -1,0 +1,40 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Import Roster — {{ exam.title }}</h1>
+
+<p>Upload a <code>.txt</code> file (one student name per line, e.g.
+<code>Doe, Jane</code>) or a <code>.json</code> file (a list of names, or a
+list of <code>{"name": ..., "passcode": ...}</code> objects). Passcodes are
+auto-generated (random 6-digit numbers) for anyone who doesn't already have
+one — make sure to note them down below, since they won't be shown again
+here (though you can always look them up or change them later in the
+Students list).</p>
+
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <input type="submit" value="Import" class="default">
+</form>
+
+{% if results %}
+<h2>Result</h2>
+<table>
+  <thead>
+    <tr><th>Name</th><th>Passcode</th><th>Status</th></tr>
+  </thead>
+  <tbody>
+    {% for r in results %}
+    <tr>
+      <td>{{ r.name }}</td>
+      <td><code>{{ r.passcode }}</code></td>
+      <td>{{ r.status }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endif %}
+
+<p style="margin-top: 1.5em;">
+  <a href="{% url 'admin:core_exam_change' exam.pk %}">&larr; Back to {{ exam.title }}</a>
+</p>
+{% endblock %}

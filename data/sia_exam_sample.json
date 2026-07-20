@@ -1,0 +1,209 @@
+{
+  "subject": "sia_exam_m1_m2",
+  "title": "System Integration & Architecture — Comprehensive Exam",
+  "secondsPerQuestion": 45,
+  "hintsEnabled": true,
+  "gameMode": true,
+  "questions": [
+    {
+      "id": "q1",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which enterprise system acts as an organization-wide application that unifies and integrates diverse business functions into a single system?",
+      "options": ["Transaction Processing System (TPS)", "Enterprise Resource Planning (ERP)", "Expert System (ES)", "Decision Support System (DSS)"],
+      "answerIndex": 1,
+      "imageLink": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=600&q=80",
+      "hint": "It is often considered the crown jewel of system integration."
+    },
+    {
+      "id": "q2",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "When a system is described as 'heterogeneous' in the context of System Integration and Architecture, what does it mean?",
+      "options": ["It consists of components that are identical in nature.", "It is diverse in content, character, platform, or language.", "It runs exclusively on a single local server.", "It does not require any form of network connectivity."],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Think about systems running on entirely different operating systems or platforms needing to speak to each other."
+    },
+    {
+      "id": "q3",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which organizational benefit of an Information System enables management to analyze historical impacts and prepare accurate cost estimates or forecasts?",
+      "options": ["Behavioral Change", "Information Storage", "Real-Time Automation", "Employee Motivation"],
+      "answerIndex": 1,
+      "imageLink": "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=600&q=80",
+      "hint": "This benefit removes the heavy time penalties associated with manual record searches."
+    },
+    {
+      "id": "q4",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "In the horizontal view of an enterprise, which of the following represents a collection of independent functional areas often referred to as 'silos'?",
+      "options": ["Strategic, Middle, and Operational Management", "Hardware, Software, and Middleware", "Accounting, Marketing, Human Resources, and Operations", "Requirements, Feasibility, Implementation, and Evaluation"],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "These represent cross-departmental divisions executing primary and secondary activities."
+    },
+    {
+      "id": "q5",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "What vertical level of management handles long-term vision, competitive positioning, and enterprise strategy?",
+      "options": ["Operational Level", "Tactical Level", "Middle Level", "Strategic Level"],
+      "answerIndex": 3,
+      "imageLink": "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=80",
+      "hint": "This is the executive light guiding the organization's overarching destination."
+    },
+    {
+      "id": "q6",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Complete the statement regarding real-world business realities: 'No matter how well you create an IoT system, a parking counter, or a game, it cannot succeed if it doesn't...'",
+      "options": ["Use a relational database", "Win the market", "Have optimized runtime threads", "Utilize microservices architecture"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Technical excellence alone does not guarantee success without client validation and demand alignment."
+    },
+    {
+      "id": "q7",
+      "module": "M1",
+      "type": "true_false",
+      "text": "Systems integration only addresses pure technical software engineering and has no influence on employee motivation or internal communication paths.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Recall the 'Behavioral Change' benefit where transparent fluid information flows motivate lower levels."
+    },
+    {
+      "id": "q8",
+      "module": "M1",
+      "type": "true_false",
+      "text": "System Integration creates a symbiosis that allows scattered subsystems to function together as a cohesive whole to achieve overarching enterprise functionality.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": "https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=600&q=80",
+      "hint": "Think about how individual components combine into an all-encompassing system."
+    },
+    {
+      "id": "q9",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which core benefit of SIA focuses on the fluid movement of information upward and downward, thereby increasing engagement and transparency?",
+      "options": ["Information Storage", "Hardware Diagnostic Optimization", "Behavioral Change", "Feasibility Analysis"],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It directly impacts how employers and employees interact and stay motivated."
+    },
+    {
+      "id": "q10",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which architectural component provides connectivity to suppliers, customers, and shareholders while displaying real-time visibility?",
+      "options": ["Local File Systems", "Supply Chain Connectivity Dashboards", "Isolated Batch Applications", "Manual Record Summarizations"],
+      "answerIndex": 1,
+      "imageLink": "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=600&q=80",
+      "hint": "It links internal subsystems to the broader external commercial environment."
+    },
+    {
+      "id": "q11",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "What is defined as the operational model that determines how a company communicates internally and handles external client interactions?",
+      "options": ["Feasibility Analysis", "Software Architecture", "Business Culture", "Database Schema"],
+      "answerIndex": 2,
+      "imageLink": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=600&q=80",
+      "hint": "Before deploying ice cream in a hot climate, you must understand the target environment."
+    },
+    {
+      "id": "q12",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "In the context of the Integration Lifecycle, which phase focuses heavily on listing detailed custom operational specifications directly provided by the client?",
+      "options": ["Phase 1: Requirement & Specification", "Phase 2: Feasibility Analysis", "Phase 4: Management Plan", "Phase 7: Evaluation"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "It is the preliminary baseline phase where all parameters are itemized."
+    },
+    {
+      "id": "q13",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "Which phase of the System Integration Lifecycle entails long-term monitoring, maintenance routines, updates, and active system modifications?",
+      "options": ["Phase 3: Architecture & Development", "Phase 5: System Integration Design", "Phase 6: Implementation", "Phase 7: Evaluation"],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "This phase checks the system's ongoing health after deployment."
+    },
+    {
+      "id": "q14",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "Look at the hierarchy of Information Systems. Which system sits at the lowest foundation layer, managing raw daily store-keeping data, payroll, and stock control tools?",
+      "options": ["Management Information System (MIS)", "Transaction Processing System (TPS)", "Decision Support System (DSS)", "Expert System (ES)"],
+      "answerIndex": 1,
+      "imageLink": "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=600&q=80",
+      "hint": "It operates in either Batch Processing or Online Transaction modes."
+    },
+    {
+      "id": "q15",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "Which Information System category extracts raw data from a TPS and converts it into structured, summarized clean reports targeted at mid-level management?",
+      "options": ["Expert System (ES)", "Decision Support System (DSS)", "Management Information System (MIS)", "Point-of-Sale (POS) System"],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Examples include sales management metrics and administrative operational reports."
+    },
+    {
+      "id": "q16",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "Which AI-driven Information System embeds specialized human knowledge and tools to assist professionals in parsing complex diagnostic scenarios?",
+      "options": ["Expert System (ES)", "Transaction Processing System (TPS)", "Management Information System (MIS)", "Batch Processing Scheduler"],
+      "answerIndex": 0,
+      "imageLink": "https://images.unsplash.com/photo-1677442136019-21780efad99a?auto=format&fit=crop&w=600&q=80",
+      "hint": "It relies on a dedicated knowledge base and an inference engine."
+    },
+    {
+      "id": "q17",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "Review the Python program execution structure in the Skill-Building activity (`sia1.py`). What is the explicit declared name of the class object?",
+      "options": ["cashier", "cashieringsystem", "foods", "main"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It houses the `__init__` constructor and the primary operational loop."
+    },
+    {
+      "id": "q18",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "In the `sia1.py` source script, what specific identifier is instantiated in the execution step to execute the application workflow loop?",
+      "options": ["x", "temp", "a", "d"],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Look closely at the script's entry method logic: `___ = cashieringsystem()`."
+    },
+    {
+      "id": "q19",
+      "module": "M2",
+      "type": "true_false",
+      "text": "According to Module 2 foundations, a 'System' refers to the individual pieces with a variety of distinct behaviors which, when assembled together along functional lines, creates a unified framework.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Assembling heterogeneous components simplifies a complicated operational environment."
+    },
+    {
+      "id": "q20",
+      "module": "M2",
+      "type": "true_false",
+      "text": "Decision Support Systems (DSS) are static platforms that process rigid daily store transactions and are completely incapable of running predictive data model scenarios.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=600&q=80",
+      "hint": "Recall that a DSS provides interactive toolsets specifically to help parse unstructured choices."
+    }
+  ]
+}

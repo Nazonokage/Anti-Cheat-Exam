@@ -56,7 +56,7 @@
         </div>
 
         <button type="submit"
-                class="w-full rounded-xl bg-examprimary hover:bg-examaccent transition-colors text-black font-semibold py-2.5">
+                class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
           Start / Resume Exam
         </button>
       </form>
@@ -91,6 +91,13 @@
   if (examSelect) {
     examSelect.addEventListener('change', populateStudents);
     if (examSelect.value) populateStudents();
+  }
+
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', () => {
+      if (window.ExamUI) window.ExamUI.showLoading('Preparing your exam…');
+    });
   }
 </script>
 {% endblock %}

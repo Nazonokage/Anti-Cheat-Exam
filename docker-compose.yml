@@ -1,9 +1,17 @@
 services:
-  exam-app:
+  web:
     build: .
-    container_name: anti-cheat-exam
     ports:
       - "8000:8000"
+    environment:
+      # Override these for a real deployment — see README.
+      DJANGO_DEBUG: "False"
+      DJANGO_ALLOWED_HOSTS: "localhost,127.0.0.1,.ngrok-free.app"
+      DJANGO_DB_PATH: "/app/data/db.sqlite3"
+      # DJANGO_SECRET_KEY: "generate-a-real-one-for-anything-beyond-a-closed-LAN"
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - exam_data:/app/data
     restart: unless-stopped
+
+volumes:
+  exam_data:

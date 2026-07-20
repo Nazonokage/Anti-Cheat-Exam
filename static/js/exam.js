@@ -61,13 +61,18 @@
   // getting miscounted as a tab-switch violation immediately after posting
   // an answer. Any real <form> submit on this page (capture phase, so it
   // runs before the browser starts navigating) marks this as intentional.
-  document.addEventListener('submit', () => {
+  function markIntentionalNav() {
     suppressFocusEvents = true;
-    // Safety net: if the submit doesn't actually navigate away (e.g. a
-    // required field blocked it client-side), don't leave tab-switch
-    // detection disabled for the rest of the exam.
+    // Safety net: if navigation doesn't actually happen (e.g. a required
+    // field blocked a submit, or a buff call failed), don't leave
+    // tab-switch detection disabled for the rest of the exam.
     setTimeout(() => { suppressFocusEvents = false; }, 3000);
-  }, true);
+  }
+  // Exposed so other scripts on this page (e.g. game.js reloading after a
+  // buff action) can mark their own navigation as intentional too.
+  window.__examMarkIntentionalNav = markIntentionalNav;
+
+  document.addEventListener('submit', markIntentionalNav, true);
 
   function reportViolation(type) {
     if (suppressFocusEvents) return; // ignore blur/hidden caused by our own alert() or a form submit

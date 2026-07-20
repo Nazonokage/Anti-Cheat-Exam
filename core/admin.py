@@ -12,6 +12,9 @@ from django.utils import timezone
 
 from .models import Exam, Question, Choice, Submission, Answer, Student, Violation
 from .services.importer import import_exam_from_dict, ImportError_
+from .services.roster_importer import (
+    parse_roster_txt, parse_roster_json, import_roster, RosterImportError,
+)
 from .views import SUSPICIOUSLY_FAST_SECONDS
 
 
@@ -23,12 +26,21 @@ class ChoiceInline(admin.TabularInline):
 class QuestionInline(admin.TabularInline):
     model = Question
     extra = 0
-    fields = ("order", "qtype", "text", "identification_answer")
+    fields = ("order", "module", "qtype", "text", "image_url", "identification_answer")
     show_change_link = True
 
 
 class JSONImportForm(forms.Form):
     json_file = forms.FileField(label="Exam JSON file")
+
+
+class RosterImportForm(forms.Form):
+    roster_file = forms.FileField(
+        label="Roster file (.txt or .json)",
+        help_text="One name per line for .txt (e.g. 'Doe, Jane'), or a JSON "
+                   "list of names / {name, passcode} objects. Passcodes are "
+                   "auto-generated when not provided.",
+    )
 
 
 class StudentInline(admin.TabularInline):
@@ -39,15 +51,18 @@ class StudentInline(admin.TabularInline):
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "subject", "is_active", "is_archived", "seconds_per_question",
-                     "hints_enabled", "created_by", "question_count", "student_count", "created_at")
-    list_filter = ("is_active", "is_archived", "subject")
+    list_display = ("id", "title", "subject", "is_active", "is_archived", "game_mode",
+                     "seconds_per_question", "hints_enabled", "created_by",
+                     "question_count", "student_count", "created_at")
+    list_editable = ("game_mode",)
+    list_filter = ("is_active", "is_archived", "game_mode", "subject")
     inlines = [QuestionInline, StudentInline]
     readonly_fields = ("id",)
-    fields = ("id", "subject", "title", "seconds_per_question", "hints_enabled",
+    fields = ("id", "subject", "title", "seconds_per_question", "hints_enabled", "game_mode",
               "created_by", "is_active", "is_archived")
-    actions = ["activate_exams", "deactivate_exams", "archive_exams", "export_results_csv"]
+    actions = ["activate_exams", "deactivate_exams", "archive_exams", "toggle_game_mode", "export_results_csv"]
     change_list_template = "admin/core/exam/change_list.html"
+    change_form_template = "admin/core/exam/change_form.html"
 
     def question_count(self, obj):
         return obj.questions.count()
@@ -68,6 +83,12 @@ class ExamAdmin(admin.ModelAdmin):
     def archive_exams(self, request, queryset):
         queryset.update(is_active=False, is_archived=True)
     archive_exams.short_description = "Archive selected exams (deactivates too)"
+
+    def toggle_game_mode(self, request, queryset):
+        for exam in queryset:
+            exam.game_mode = not exam.game_mode
+            exam.save(update_fields=["game_mode"])
+    toggle_game_mode.short_description = "Toggle Game Mode on/off for selected exams"
 
     def export_results_csv(self, request, queryset):
         timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
@@ -109,6 +130,8 @@ class ExamAdmin(admin.ModelAdmin):
         custom = [
             path("import-json/", self.admin_site.admin_view(self.import_json_view),
                  name="core_exam_import_json"),
+            path("<int:exam_id>/import-roster/", self.admin_site.admin_view(self.import_roster_view),
+                 name="core_exam_import_roster"),
         ]
         return custom + urls
 
@@ -131,17 +154,49 @@ class ExamAdmin(admin.ModelAdmin):
             form = JSONImportForm()
         return render(request, "admin/core/exam/import_json.html", {"form": form})
 
+    def import_roster_view(self, request, exam_id):
+        exam = self.get_object(request, exam_id)
+        if exam is None:
+            messages.error(request, "Exam not found.")
+            return redirect("admin:core_exam_changelist")
+
+        results = None
+        if request.method == "POST":
+            form = RosterImportForm(request.POST, request.FILES)
+            if form.is_valid():
+                f = request.FILES["roster_file"]
+                raw = f.read()
+                try:
+                    if f.name.lower().endswith(".json"):
+                        entries = parse_roster_json(raw)
+                    else:
+                        entries = parse_roster_txt(raw.decode("utf-8-sig"))
+                    if not entries:
+                        messages.warning(request, "No names found in that file.")
+                    else:
+                        results = import_roster(exam, entries)
+                        messages.success(request, f"Processed {len(results)} student(s) for '{exam.title}'.")
+                except (RosterImportError, UnicodeDecodeError) as e:
+                    messages.error(request, f"Import failed: {e}")
+        else:
+            form = RosterImportForm()
+
+        return render(request, "admin/core/exam/import_roster.html", {
+            "form": form, "exam": exam, "results": results,
+        })
+
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
     list_display = ("id", "name", "exam", "passcode")
+    list_editable = ("passcode",)
     list_filter = ("exam",)
     search_fields = ("name",)
 
 
 @admin.register(Question)
 class QuestionAdmin(admin.ModelAdmin):
-    list_display = ("order", "exam", "qtype", "text")
+    list_display = ("order", "exam", "module", "qtype", "text")
     list_filter = ("exam", "qtype")
     inlines = [ChoiceInline]
 

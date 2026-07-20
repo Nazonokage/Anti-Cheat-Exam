@@ -10,6 +10,10 @@ class Exam(models.Model):
     created_by = models.ForeignKey(User, on_delete=models.CASCADE)
     is_active = models.BooleanField(default=False)
     is_archived = models.BooleanField(default=False)
+    # Game Mode: live leaderboard + attack/defense/time-boost buffs granted
+    # every 5 questions. Purely a competitive layer — the real grade
+    # (Answer.is_correct / CSV export) is never touched by buffs.
+    game_mode = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -28,6 +32,8 @@ class Question(models.Model):
     text = models.TextField()
     hint = models.TextField(blank=True)
     order = models.IntegerField()
+    image_url = models.URLField(max_length=500, blank=True)
+    module = models.CharField(max_length=50, blank=True)  # optional section label, e.g. "M1"
     # For identification questions, the correct answer is stored directly
     # (avoids needing a Choice row for a free-text question).
     identification_answer = models.CharField(max_length=255, blank=True)
@@ -90,6 +96,21 @@ class Submission(models.Model):
     last_heartbeat = models.DateTimeField(null=True, blank=True)
     closed = models.BooleanField(default=False)
     started_at = models.DateTimeField(auto_now_add=True)
+
+    # --- Game Mode state (only meaningful when exam.game_mode is True) ---
+    # Buffs are skill-based: every 5th CORRECT answer (not every 5th question
+    # attempted) queues a buff CHOICE — the student picks one of
+    # attack/defense/time-boost, not all three. Defense still decays by 1
+    # on every completed question regardless of attacks.
+    attack_charges = models.IntegerField(default=0)
+    defense_charges = models.IntegerField(default=0)
+    time_boost_charges = models.IntegerField(default=0)
+    score_penalty = models.IntegerField(default=0)  # accumulated from being attacked
+    last_buff_milestone = models.IntegerField(default=0)  # last multiple-of-5 CORRECT count processed
+    pending_buff_choice = models.BooleanField(default=False)  # awaiting the student's pick
+    # One-shot "you just hit a checkpoint" payload, shown once then cleared —
+    # see views.py::exam_view and the floating notification in exam.html.
+    pending_checkpoint_notice = models.JSONField(null=True, blank=True)
 
     class Meta:
         unique_together = ("student_name", "exam")

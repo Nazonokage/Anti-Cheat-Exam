@@ -1,0 +1,260 @@
+{
+  "subject": "web_sys_m2",
+  "title": "Web Systems M2 — Node.js, Express, MongoDB & Docker",
+  "secondsPerQuestion": 45,
+  "hintsEnabled": true,
+  "multipleChoice": [
+    {
+      "id": "mc1",
+      "text": "Which JavaScript runtime is built on Chrome's V8 engine and allows JavaScript to run outside the browser?",
+      "options": ["Node.js", "Deno", "Bun", "Express.js"],
+      "answerIndex": 0,
+      "hint": "It's the environment that made server-side JavaScript possible."
+    },
+    {
+      "id": "mc2",
+      "text": "What does WAMP stand for?",
+      "options": ["Windows Apache MySQL PHP", "Web Apache MariaDB Python", "Windows Access MySQL Perl", "Web Access MariaDB PHP"],
+      "answerIndex": 0,
+      "hint": "Common web development stack on Windows."
+    },
+    {
+      "id": "mc3",
+      "text": "Which Node.js core module is used to read and write files?",
+      "options": ["http", "os", "fs", "path"],
+      "answerIndex": 2,
+      "hint": "Short for File System."
+    },
+    {
+      "id": "mc4",
+      "text": "In a Dockerfile, which instruction sets the base image?",
+      "options": ["BASE", "FROM", "USE", "IMAGE"],
+      "answerIndex": 1,
+      "hint": "This is always the first line of most Dockerfiles."
+    },
+    {
+      "id": "mc5",
+      "text": "Which MongoDB method is used to insert a single document?",
+      "options": ["insertOne", "insert", "createOne", "addDocument"],
+      "answerIndex": 0,
+      "hint": "The method name clearly indicates inserting a single item."
+    },
+    {
+      "id": "mc6",
+      "text": "What is the default port for MySQL?",
+      "options": ["80", "3306", "27017", "443"],
+      "answerIndex": 1,
+      "hint": "MySQL's standard port number."
+    },
+    {
+      "id": "mc7",
+      "text": "Which SQL command is used to retrieve data from a database?",
+      "options": ["INSERT", "UPDATE", "SELECT", "DELETE"],
+      "answerIndex": 2,
+      "hint": "Most common command for fetching records."
+    },
+    {
+      "id": "mc8",
+      "text": "Which Express method is used to handle HTTP GET requests?",
+      "options": ["app.post()", "app.put()", "app.get()", "app.use()"],
+      "answerIndex": 2,
+      "hint": "Corresponds to the most common HTTP method for fetching resources."
+    },
+    {
+      "id": "mc9",
+      "text": "What is a Docker container?",
+      "options": ["A virtual machine", "A running instance of a Docker image", "A Dockerfile", "A package registry"],
+      "answerIndex": 1,
+      "hint": "An image is the blueprint; this is what you run."
+    },
+    {
+      "id": "mc10",
+      "text": "Which Node.js object provides access to environment variables?",
+      "options": ["global", "process", "module", "require"],
+      "answerIndex": 1,
+      "hint": "It also has properties like .argv and .exit."
+    },
+    {
+      "id": "mc11",
+      "text": "Which MySQL statement is used to add new records?",
+      "options": ["ADD", "INSERT", "APPEND", "CREATE"],
+      "answerIndex": 1,
+      "hint": "Commonly used with INTO."
+    },
+    {
+      "id": "mc12",
+      "text": "In Node.js, what is the purpose of npm?",
+      "options": ["To run the server", "To manage JavaScript packages", "To compile TypeScript", "To debug code"],
+      "answerIndex": 1,
+      "hint": "Node Package Manager."
+    },
+    {
+      "id": "mc13",
+      "text": "Which SQL clause is used to filter rows?",
+      "options": ["GROUP BY", "ORDER BY", "WHERE", "LIMIT"],
+      "answerIndex": 2,
+      "hint": "It appears after FROM and before ORDER BY."
+    },
+    {
+      "id": "mc14",
+      "text": "What is the role of the Express framework in a Node.js application?",
+      "options": ["To manage databases", "To build web applications and APIs", "To compile JavaScript", "To package the application"],
+      "answerIndex": 1,
+      "hint": "It is a minimal and flexible Node.js framework."
+    },
+    {
+      "id": "mc15",
+      "text": "What does the `docker build` command do?",
+      "options": ["Starts a container", "Builds an image from a Dockerfile", "Pushes an image to a registry", "Stops a container"],
+      "answerIndex": 1,
+      "hint": "It creates an image based on instructions."
+    },
+    {
+      "id": "mc16",
+      "text": "Which PHP extension is commonly used to connect to MySQL?",
+      "options": ["mysqli", "curl", "gd", "json"],
+      "answerIndex": 0,
+      "hint": "Improved MySQL extension."
+    },
+    {
+      "id": "mc17",
+      "text": "What does AUTO_INCREMENT do in MySQL?",
+      "options": ["Deletes old records", "Automatically generates sequential numbers", "Encrypts data", "Sorts rows"],
+      "answerIndex": 1,
+      "hint": "Used with primary keys for unique IDs."
+    },
+    {
+      "id": "mc18",
+      "text": "Which Docker command is used to map a host port to a container port?",
+      "options": ["-p", "-v", "-e", "-d"],
+      "answerIndex": 0,
+      "hint": "P for port mapping."
+    },
+    {
+      "id": "mc19",
+      "text": "What is phpMyAdmin primarily used for?",
+      "options": ["Editing PHP code", "Managing MySQL databases", "Compiling programs", "Running Apache"],
+      "answerIndex": 1,
+      "hint": "Web interface for database administration."
+    },
+    {
+      "id": "mc20",
+      "text": "Which Node.js method is used to create a readable stream from a file?",
+      "options": ["fs.readFile", "fs.createReadStream", "fs.open", "stream.read"],
+      "answerIndex": 1,
+      "hint": "Creates a stream object, not loading all data at once."
+    }
+  ],
+  "boolean": [
+    {
+      "id": "tf1",
+      "text": "Node.js is single-threaded for JavaScript execution.",
+      "answer": true,
+      "hint": "It uses one main thread for the event loop."
+    },
+    {
+      "id": "tf2",
+      "text": "Express is a database management system.",
+      "answer": false,
+      "hint": "Express is for building web applications, not databases."
+    },
+    {
+      "id": "tf3",
+      "text": "The `npm install` command installs dependencies listed in package.json.",
+      "answer": true,
+      "hint": "It reads dependencies from package.json."
+    },
+    {
+      "id": "tf4",
+      "text": "A Docker container is the same as a virtual machine.",
+      "answer": false,
+      "hint": "Containers share the host kernel, VMs have their own OS."
+    },
+    {
+      "id": "tf5",
+      "text": "The `package.json` file is used to configure Docker containers.",
+      "answer": false,
+      "hint": "package.json is for Node.js, Docker uses Dockerfiles."
+    },
+    {
+      "id": "tf6",
+      "text": "WAMP includes Node.js by default.",
+      "answer": false,
+      "hint": "WAMP stands for Windows, Apache, MySQL, PHP."
+    },
+    {
+      "id": "tf7",
+      "text": "MongoDB stores data in JSON-like documents.",
+      "answer": true,
+      "hint": "BSON (binary JSON) is used internally."
+    },
+    {
+      "id": "tf8",
+      "text": "The `docker run` command builds a Docker image.",
+      "answer": false,
+      "hint": "docker build builds, docker run runs a container."
+    }
+  ],
+  "identification": [
+    {
+      "id": "id1",
+      "text": "The Node.js pattern using .on() and .emit() for custom events.",
+      "answer": "EventEmitter",
+      "hint": "Core module in Node.js for event-driven programming."
+    },
+    {
+      "id": "id2",
+      "text": "The JavaScript engine inside Node.js.",
+      "answer": "V8",
+      "hint": "Developed by Google for Chrome."
+    },
+    {
+      "id": "id3",
+      "text": "The file that defines the steps to build a Docker image.",
+      "answer": "Dockerfile",
+      "hint": "Instructions like FROM and COPY."
+    },
+    {
+      "id": "id4",
+      "text": "The web-based tool used to manage MySQL databases in WAMP.",
+      "answer": "phpMyAdmin",
+      "hint": "Usually accessed via localhost/phpmyadmin."
+    },
+    {
+      "id": "id5",
+      "text": "The Node.js global object that provides command-line arguments.",
+      "answer": "process",
+      "hint": "Also gives access to environment variables."
+    },
+    {
+      "id": "id6",
+      "text": "The SQL command used to remove all records from a table.",
+      "answer": "DELETE",
+      "hint": "Can be dangerous without a WHERE clause."
+    },
+    {
+      "id": "id7",
+      "text": "The protocol used to serve web pages and resources.",
+      "answer": "HTTP",
+      "hint": "Stands for HyperText Transfer Protocol."
+    },
+    {
+      "id": "id8",
+      "text": "The file containing the dependencies and scripts for a Node.js project.",
+      "answer": "package.json",
+      "hint": "Used by npm."
+    },
+    {
+      "id": "id9",
+      "text": "The C library that provides the Node.js event loop and thread pool.",
+      "answer": "libuv",
+      "hint": "Handles asynchronous I/O at the OS level."
+    },
+    {
+      "id": "id10",
+      "text": "The MongoDB shell command to list all databases.",
+      "answer": "show dbs",
+      "hint": "Displays a list of databases."
+    }
+  ]
+}

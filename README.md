@@ -3,6 +3,76 @@
 Server-authoritative, one-question-at-a-time classroom exam system built with
 Django + Tailwind + SQLite, per `plan.md`. Tested end-to-end (see below).
 
+## Flowcharts
+
+These render automatically on GitHub/most Markdown viewers (Mermaid). If
+your viewer doesn't support Mermaid, the code blocks are still readable as
+plain step-by-step diagrams.
+
+### Student exam flow
+
+```mermaid
+flowchart TD
+    A[Login: pick exam + name from roster + passcode] --> B{Passcode correct<br/>and exam has questions?}
+    B -- no --> A
+    B -- yes --> C[Question phase: one question at a time<br/>server-authoritative timer]
+    C --> D{Submit / Skip /<br/>time runs out}
+    D -- more questions left --> C
+    D -- last question done --> E[Review phase:<br/>shared time-bank pool]
+    E --> F{Answer a skipped question,<br/>leave it, or Final Submit}
+    F -- bank still has time --> E
+    F -- bank empty OR Final Submit --> G[Done: score,<br/>missed-questions review, CSV export]
+```
+
+### Server-authoritative timer (why disconnects are safe)
+
+```mermaid
+flowchart LR
+    S[Question served] --> T["question_started_at = now()"]
+    T --> P[Client shows a countdown<br/>— display only]
+    P --> R["On any request: remaining =<br/>seconds_per_question − (now − question_started_at)"]
+    R --> Q{remaining <= 0?}
+    Q -- yes --> X[Auto-skip, move to next question]
+    Q -- no --> P
+    W[Wi-Fi drops mid-question] -.no writes needed.-> R
+```
+
+### Tab-switch / anti-cheat escalation
+
+```mermaid
+flowchart TD
+    V[visibilitychange hidden<br/>OR window blur] --> Sup{Caused by our own alert()<br/>or a form submit?}
+    Sup -- yes --> Ignore[Ignored — not a real violation]
+    Sup -- no --> Rep[POST /tab-violation/]
+    Rep --> N[attempts += 1, logged to Violation table]
+    N --> C1{attempts}
+    C1 -- 1 to 6 --> Warn[alert warning with running count]
+    C1 -- 7 / 8 / 9 --> Lock[Locked 10s / 20s / 30s<br/>redirect to /locked/]
+    C1 -- 10 --> Close[Exam force-closed & submitted<br/>as-is, finished or not]
+```
+
+### Game Mode: buff milestone + attack
+
+```mermaid
+flowchart TD
+    Ans[Answer graded] --> Cor{Correct?}
+    Cor -- no --> Done1[No milestone check]
+    Cor -- yes --> Cnt[correct_count = total correct so far]
+    Cnt --> M{Crossed a new<br/>multiple of 5?}
+    M -- no --> Done2[Nothing — keep going]
+    M -- yes --> Pend[pending_buff_choice = True<br/>toast: rank + correct_count]
+    Pend --> Pick{Student picks ONE}
+    Pick -- Attack --> A1[attack_charges += 1]
+    Pick -- Defense --> A2[defense_charges = 5]
+    Pick -- "+30s" --> A3[time_boost_charges += 1]
+
+    Fin[Any question finished] --> Dec[defense_charges = max 0, defense-1]
+
+    Atk[Attack fired at target] --> Def{Target has<br/>defense_charges > 0?}
+    Def -- yes --> Blk[Blocked: target defense -= 1<br/>no score penalty]
+    Def -- no --> Hit[target score_penalty += 1<br/>never touches real grading]
+```
+
 ## Quickstart
 
 ```bash
@@ -22,9 +92,11 @@ Then:
 1. Go to `http://<your-ip>:8000/admin/`, log in, open **Exams**, and tick
    **is_active** on the imported exam (or select it and use the *Activate
    selected exams* action). Exams import as inactive by default.
-2. On the same exam's edit page, scroll to the **Students** inline and add
-   each student's name and a passcode you choose (there's no student
-   self-registration — you control the roster and who can get in).
+2. On the same exam's edit page, use the **Import Roster** button (top
+   right) to bulk-add students from a `.txt` or `.json` file — see
+   "Bulk student roster import" below — or add them one by one in the
+   **Students** inline. There's no student self-registration — you
+   control the roster and who can get in.
 3. Students go to `http://<your-ip>:8000/`, pick their exam, pick their
    name from the roster dropdown, and type the passcode you gave them.
 4. You can watch them live at
@@ -36,6 +108,83 @@ Then:
 You can also import more exams straight from the admin UI: **Exams → Import
 JSON** (top-right button on the changelist page), using the same JSON shape
 as `data/sampletopic.json`.
+
+### Bulk student roster import
+
+Open an exam in admin and click **Import Roster** (next to Import JSON, on
+the exam's own edit page — it's per-exam since rosters are per-exam).
+Upload either:
+
+**`.txt`** — one name per line:
+```
+Doe, Jane
+Dela Cruz, Juan
+Alonso, Martin
+Reyes, Juanito
+Doe, John
+```
+Passcodes are auto-generated (random 6-digit numbers) since none are given
+— the import result page shows you every generated code so you can copy
+them out to distribute. To set your own codes instead, add a `|`:
+```
+Doe, Jane|482113
+Dela Cruz, Juan|990201
+```
+
+**`.json`** — a plain list of names (auto-generated codes), or a list of
+`{"name": ..., "passcode": ...}` objects for explicit codes:
+```json
+["Doe, Jane", "Dela Cruz, Juan"]
+```
+```json
+[{"name": "Doe, Jane", "passcode": "482113"}, {"name": "Dela Cruz, Juan"}]
+```
+
+Re-uploading the same file is safe — existing students (same name, same
+exam) are left alone (their passcode isn't regenerated) unless the file
+gives them an explicit new code.
+
+You can also change any student's passcode any time, or toggle **Game
+Mode** on/off per exam, directly from the admin list pages — both
+`passcode` (Students) and `game_mode` (Exams) are inline-editable columns,
+no need to open each record. There's also a **Toggle Game Mode** bulk
+action on the Exams list for flipping several at once.
+
+### Docker
+
+```bash
+docker compose up --build
+```
+That builds the image (installing `requirements.txt`, which now includes
+`whitenoise` and `gunicorn`, and running `collectstatic`), runs migrations
+automatically on start (`docker-entrypoint.sh`), and serves the app on
+`http://localhost:8000` via gunicorn, with the SQLite database persisted in
+a named volume (`exam_data`) so it survives rebuilds.
+
+Then create your teacher account inside the running container:
+```bash
+docker compose exec web python manage.py createsuperuser
+```
+
+Environment variables (set in `docker-compose.yml`, all optional):
+- `DJANGO_DEBUG` — defaults to `False` in Docker (vs. `True` for local
+  `manage.py runserver`, unchanged from before).
+- `DJANGO_ALLOWED_HOSTS` — comma-separated, defaults to `*`.
+- `DJANGO_SECRET_KEY` — set a real one if this ever leaves a closed LAN.
+- `DJANGO_DB_PATH` — defaults to `/app/data/db.sqlite3`, matching the
+  mounted volume; change both together if you move it.
+
+I don't have Docker available in the environment I built this in, so I
+couldn't literally run `docker build`/`docker compose up` — but I did
+validate every step the container actually performs against the real app:
+installed `whitenoise`+`gunicorn` from `requirements.txt`, ran
+`collectstatic` with `DEBUG=False` (whitenoise's manifest storage needs
+this to succeed at build time), booted the real WSGI app under gunicorn
+and confirmed pages and static assets (including `pedro.gif`) serve
+correctly, and ran `docker-entrypoint.sh` itself with a custom
+`DJANGO_DB_PATH` to confirm migrations apply and the database file lands
+in the right place. Worth a real `docker compose up` on your end as a
+final check, but the pieces it depends on are confirmed working.
 
 ### Styling uses the Tailwind CDN
 
@@ -92,6 +241,65 @@ say the word and it can be swapped back.
   signal worth a manual look, not an automatic penalty.
 - Answers now record `time_spent_seconds` (server-computed elapsed time),
   which powers the fast-answer CSV flag above.
+
+## Game Mode + image support + polish (latest round)
+
+- **Question images**: `Question.image_url`, shown in a "3D glass emerald"
+  frame, laid out **side-by-side with the question text on desktop**
+  (`md:flex-row` — image left, text/form right) and stacked vertically on
+  mobile, since that already looked good as-is. The importer supports the
+  newer flat `questions[]` JSON schema (with `imageLink`, `module`, `type`,
+  and a top-level `gameMode` flag) *alongside* the original grouped-array
+  schema — both work, auto-detected by the presence of a `"questions"`
+  key. See `data/sia_exam_sample.json`.
+- **Holographic-emerald theme**: `.glass` surfaces now carry a slow,
+  low-opacity iridescent sheen (`::after` with a moving `screen`-blended
+  gradient), and an animated `.holo-edge` / `.holo-btn` gradient (emerald →
+  cyan → violet) accents primary buttons and buff highlights. I couldn't
+  visually proof this in a real browser from here (no browser available in
+  this environment) — it's built from solid CSS techniques and checked for
+  correct markup/class output, but take a look and tell me if it needs
+  tuning.
+- **Game Mode is now skill-based, not attempt-based**: a buff is earned
+  every **5th correct answer** (not every 5th question attempted — wrong
+  or skipped answers don't count, matching "5 pts in 8 questions" from the
+  spec). Verified: a pattern of correct/correct/**wrong**/correct/correct/
+  **correct**/skip/correct hits the milestone exactly on the 6th correct
+  answer (question 8 overall), not the 5th question.
+  - **The student picks ONE buff, not all three** — a persistent banner
+    (`pending_buff_choice`) appears with three options and stays up until
+    claimed via `/game/choose-buff/`. Verified: choosing "defense" grants
+    only defense charges; attack/time-boost stay untouched, and you can't
+    double-claim the same milestone.
+  - **Defense** still decays by 1 on every question *finished* (answered,
+    skipped, or auto-skipped) regardless of the correct-answer milestone —
+    that part was unchanged from before.
+  - **Attack** (⚔️) and **time boost** (⏱️, server-authoritative, same
+    mechanism as the base countdown) are unchanged from before.
+  - **Live leaderboard tab**, ranked by game score (correct − attack
+    penalties), never touches real grading.
+- **Missed-questions review + CSV export** on the done screen: every
+  question the student got wrong or never answered, with their answer and
+  the correct one, plus a client-side "Export CSV" button (built from the
+  same data already on the page, no extra server round-trip).
+- **Loading overlay** using `pedro.gif`: shown right when the login form
+  is submitted, and as a 2.5s entrance flourish on the done screen
+  (`templates/exam.html`, easy to retune — it's a single `setTimeout`).
+  The gif's black background is removed via `mix-blend-mode: screen`
+  inside a glowing circular frame, so it blends into the dark theme
+  instead of showing a black box.
+- **Sound effects** for checkpoints, buff claims, attacks (hit vs.
+  blocked), and time-boosts — synthesized in-browser via the Web Audio API
+  (short generated tones), not external audio files, so there's nothing to
+  host or license. Note: browsers block audio before the first user
+  gesture on a page, so the very first sound (e.g. a checkpoint toast right
+  on page load) may be silent until the student clicks/taps something —
+  that's a browser policy, not a bug here.
+
+**Design call worth knowing about:** attack penalties can push a student's
+game score below zero (not floored), so relative ranking stays meaningful
+even after multiple hits. That's a single, clearly isolated line in
+`views.py::_effective_score` to change if you'd rather floor it at 0.
 
 ## What's implemented
 
@@ -185,6 +393,26 @@ say the word and it can be swapped back.
 - Keyboard shortcuts (number/letter choice selection, Enter-to-submit,
   Ctrl+S-to-skip) and copy-attempt detail logging verified via a headless
   DOM (jsdom) simulation of real key/copy events against the actual script.
+- Game Mode: buff checkpoint (attack/defense/time-boost granted exactly at
+  question 5), defense decay on the following question, attack
+  blocked-vs-unblocked outcomes, and live leaderboard ranking all verified
+  against the real backend. Caught and fixed a real sign error in the
+  time-boost math during testing — it was *subtracting* 30s of remaining
+  time instead of adding it (44s → 14s) until corrected (confirmed
+  44s → 74s after the fix). The full Game Mode UI (checkpoint toast,
+  leaderboard toggle, opponent picker + attack flow, time-boost reload
+  guard) was verified in a headless DOM simulation of the real script.
+  Both JSON schemas (grouped-array and the newer flat `questions[]` with
+  images) were confirmed importing and running side by side.
+- Skill-based buff milestone reconfirmed after the rework: a mixed
+  correct/wrong/skip pattern hits the buff-choice trigger exactly on the
+  6th correct answer (not the 6th question), and claiming one buff type
+  leaves the other two untouched — verified against the real backend, plus
+  the picker UI verified in a headless DOM simulation.
+- Missed-questions review data confirmed against a real mixed-answer run
+  (correct/wrong/skipped) — right count, right question text, right
+  "your answer" vs. "correct answer" pairing, including unanswered
+  questions showing "(no answer)".
 - Identification normalization trace matches the plan exactly: "PHP My
   Admin" and "phpmyadmin" both match; "phpmyadmim" is correctly rejected.
 - CSV export, Django Admin JSON import, and the live teacher dashboard JSON
