@@ -1,6 +1,6 @@
 {
-  "subject": "Websystems",
-  "title": "MySQL + WAMP + PHP — Prelim Exam",
+  "subject": "mysql_wamp_php",
+  "title": "MySQL + WAMP + PHP — Midterm Exam",
   "secondsPerQuestion": 60,
   "hintsEnabled": true,
   "multipleChoice": [

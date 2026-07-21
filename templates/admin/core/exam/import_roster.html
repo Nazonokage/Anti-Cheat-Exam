@@ -2,13 +2,14 @@
 {% block content %}
 <h1>Import Roster — {{ exam.title }}</h1>
 
-<p>Upload a <code>.txt</code> file (one student name per line, e.g.
-<code>Doe, Jane</code>) or a <code>.json</code> file (a list of names, or a
-list of <code>{"name": ..., "passcode": ...}</code> objects). Passcodes are
-auto-generated (random 6-digit numbers) for anyone who doesn't already have
-one — make sure to note them down below, since they won't be shown again
-here (though you can always look them up or change them later in the
-Students list).</p>
+<p>Upload a <code>.txt</code> or <code>.md</code> file (one student name per
+line, e.g. <code>Doe, Jane</code> — markdown bullet lists like
+<code>- Doe, Jane</code> also work) or a <code>.json</code> file (a list of
+names, or a list of <code>{"name": ..., "passcode": ...}</code> objects).
+Passcodes are auto-generated (random 6-digit numbers) for anyone who
+doesn't already have one — make sure to note them down below, since they
+won't be shown again here (though you can always look them up or change
+them later in the Students list).</p>
 
 <form method="post" enctype="multipart/form-data">
   {% csrf_token %}

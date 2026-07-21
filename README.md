@@ -41,7 +41,7 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    V[visibilitychange hidden<br/>OR window blur] --> Sup{Caused by our own alert()<br/>or a form submit?}
+    V["visibilitychange hidden<br/>OR window blur"] --> Sup{"Caused by our own alert()<br/>or a form submit?"}
     Sup -- yes --> Ignore[Ignored — not a real violation]
     Sup -- no --> Rep[POST /tab-violation/]
     Rep --> N[attempts += 1, logged to Violation table]
@@ -63,7 +63,7 @@ flowchart TD
     M -- yes --> Pend[pending_buff_choice = True<br/>toast: rank + correct_count]
     Pend --> Pick{Student picks ONE}
     Pick -- Attack --> A1[attack_charges += 1]
-    Pick -- Defense --> A2[defense_charges = 5]
+    Pick -- Defense --> A2[defense_charges = 3]
     Pick -- "+30s" --> A3[time_boost_charges += 1]
 
     Fin[Any question finished] --> Dec[defense_charges = max 0, defense-1]
@@ -138,6 +138,16 @@ Dela Cruz, Juan|990201
 ```
 ```json
 [{"name": "Doe, Jane", "passcode": "482113"}, {"name": "Dela Cruz, Juan"}]
+```
+
+**`.md`** — same rules as `.txt`, but markdown-aware: leading list markers
+(`-`, `*`, `1.`) are stripped, headings (`#...`) and horizontal rules
+(`---`) are skipped. So a normal markdown bullet-list roster just works:
+```markdown
+# Class 10A
+- Doe, Jane
+- Dela Cruz, Juan|990201
+1. Alonso, Martin
 ```
 
 Re-uploading the same file is safe — existing students (same name, same
@@ -271,11 +281,17 @@ say the word and it can be swapped back.
     claimed via `/game/choose-buff/`. Verified: choosing "defense" grants
     only defense charges; attack/time-boost stay untouched, and you can't
     double-claim the same milestone.
-  - **Defense** still decays by 1 on every question *finished* (answered,
-    skipped, or auto-skipped) regardless of the correct-answer milestone —
-    that part was unchanged from before.
-  - **Attack** (⚔️) and **time boost** (⏱️, server-authoritative, same
-    mechanism as the base countdown) are unchanged from before.
+  - **Defense** (nerfed from 5 → 3 charges per pick, per feedback) still
+    decays by 1 on every question *finished* (answered, skipped, or
+    auto-skipped) regardless of the correct-answer milestone — that part
+    was unchanged.
+  - **Attack** (⚔️) unchanged. **Time boost** (⏱️) is server-authoritative
+    (same mechanism as the base countdown) and deliberately allowed to
+    push remaining time *past* the exam's base `seconds_per_question` —
+    stacking two +30s boosts on a 45s question reached 104s in testing.
+    The countdown UI now visibly shows this "overboosted" state (timer
+    text turns cyan, the progress bar goes holographic) instead of just
+    looking like it topped out at 100%.
   - **Live leaderboard tab**, ranked by game score (correct − attack
     penalties), never touches real grading.
 - **Missed-questions review + CSV export** on the done screen: every

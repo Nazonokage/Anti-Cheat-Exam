@@ -13,9 +13,21 @@ from django.utils import timezone
 from .models import Exam, Question, Choice, Submission, Answer, Student, Violation
 from .services.importer import import_exam_from_dict, ImportError_
 from .services.roster_importer import (
-    parse_roster_txt, parse_roster_json, import_roster, RosterImportError,
+    parse_roster_txt, parse_roster_md, parse_roster_json, import_roster, RosterImportError,
 )
 from .views import SUSPICIOUSLY_FAST_SECONDS
+
+
+def _parse_roster_upload(uploaded_file):
+    """Dispatches to the right parser based on file extension. Returns a
+    list of (name, passcode_or_None) entries."""
+    raw = uploaded_file.read()
+    filename = uploaded_file.name.lower()
+    if filename.endswith(".json"):
+        return parse_roster_json(raw)
+    if filename.endswith(".md") or filename.endswith(".markdown"):
+        return parse_roster_md(raw.decode("utf-8-sig"))
+    return parse_roster_txt(raw.decode("utf-8-sig"))
 
 
 class ChoiceInline(admin.TabularInline):
@@ -36,11 +48,21 @@ class JSONImportForm(forms.Form):
 
 class RosterImportForm(forms.Form):
     roster_file = forms.FileField(
-        label="Roster file (.txt or .json)",
-        help_text="One name per line for .txt (e.g. 'Doe, Jane'), or a JSON "
+        label="Roster file (.txt, .md, or .json)",
+        help_text="One name per line for .txt/.md (e.g. 'Doe, Jane' — .md "
+                   "bullet lists like '- Doe, Jane' also work), or a JSON "
                    "list of names / {name, passcode} objects. Passcodes are "
                    "auto-generated when not provided.",
     )
+
+
+class RosterImportGenericForm(RosterImportForm):
+    """Same as RosterImportForm, but with an exam picker — used on the
+    Student changelist's Import Roster link, where there's no exam in the
+    URL already (unlike the per-exam link on the Exam change page)."""
+    exam = forms.ModelChoiceField(queryset=Exam.objects.all(), label="Exam")
+
+    field_order = ["exam", "roster_file"]
 
 
 class StudentInline(admin.TabularInline):
@@ -164,13 +186,8 @@ class ExamAdmin(admin.ModelAdmin):
         if request.method == "POST":
             form = RosterImportForm(request.POST, request.FILES)
             if form.is_valid():
-                f = request.FILES["roster_file"]
-                raw = f.read()
                 try:
-                    if f.name.lower().endswith(".json"):
-                        entries = parse_roster_json(raw)
-                    else:
-                        entries = parse_roster_txt(raw.decode("utf-8-sig"))
+                    entries = _parse_roster_upload(request.FILES["roster_file"])
                     if not entries:
                         messages.warning(request, "No names found in that file.")
                     else:
@@ -192,6 +209,38 @@ class StudentAdmin(admin.ModelAdmin):
     list_editable = ("passcode",)
     list_filter = ("exam",)
     search_fields = ("name",)
+    change_list_template = "admin/core/student/change_list.html"
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path("import-roster/", self.admin_site.admin_view(self.import_roster_view),
+                 name="core_student_import_roster"),
+        ]
+        return custom + urls
+
+    def import_roster_view(self, request):
+        results = None
+        exam = None
+        if request.method == "POST":
+            form = RosterImportGenericForm(request.POST, request.FILES)
+            if form.is_valid():
+                exam = form.cleaned_data["exam"]
+                try:
+                    entries = _parse_roster_upload(request.FILES["roster_file"])
+                    if not entries:
+                        messages.warning(request, "No names found in that file.")
+                    else:
+                        results = import_roster(exam, entries)
+                        messages.success(request, f"Processed {len(results)} student(s) for '{exam.title}'.")
+                except (RosterImportError, UnicodeDecodeError) as e:
+                    messages.error(request, f"Import failed: {e}")
+        else:
+            form = RosterImportGenericForm()
+
+        return render(request, "admin/core/student/import_roster.html", {
+            "form": form, "exam": exam, "results": results,
+        })
 
 
 @admin.register(Question)

@@ -22,6 +22,9 @@ TAB_CLOSE_AT = 10
 # "suspiciously fast" (informational only — doesn't block or penalize).
 SUSPICIOUSLY_FAST_SECONDS = 3.0
 
+# Game Mode: how many defense charges the "defense" buff choice grants.
+DEFENSE_BUFF_AMOUNT = 3
+
 
 def _get_submission(request):
     sub_id = request.session.get("submission_id")
@@ -812,7 +815,7 @@ def game_choose_buff(request):
     if choice == "attack":
         submission.attack_charges += 1
     elif choice == "defense":
-        submission.defense_charges = 5
+        submission.defense_charges = DEFENSE_BUFF_AMOUNT
     elif choice == "time_boost":
         submission.time_boost_charges += 1
     else:

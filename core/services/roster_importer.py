@@ -22,10 +22,22 @@ Supported formats:
 
     [{"name": "Doe, Jane", "passcode": "482113"}, ...]
 
+3. .md — same one-name-per-line (with optional |passcode) rules as .txt,
+   but markdown-aware: leading list markers (-, *, +, "1.", "1)") are
+   stripped, and heading lines (#...) and horizontal rules (---, ***) are
+   skipped. So a roster written as a normal markdown bullet list just
+   works:
+
+    # Class 10A
+    - Doe, Jane
+    - Dela Cruz, Juan|990201
+    1. Alonso, Martin
+
 Existing students (same name, same exam) are left alone unless the import
 provides an explicit passcode for them, in which case it's updated.
 """
 import json
+import re
 import secrets
 
 from core.models import Student
@@ -35,11 +47,24 @@ class RosterImportError(Exception):
     pass
 
 
+_MD_LIST_PREFIX_RE = re.compile(r"^\s*(?:[-*+]|\d+[.)])\s+")
+_MD_RULE_RE = re.compile(r"^\s*([-*_])\1{2,}\s*$")
+
+
 def _generate_passcode(existing_codes, length=6):
     while True:
         code = "".join(secrets.choice("0123456789") for _ in range(length))
         if code not in existing_codes:
             return code
+
+
+def _split_name_and_code(line: str):
+    if "|" in line:
+        name, code = line.split("|", 1)
+        name, code = name.strip(), code.strip()
+    else:
+        name, code = line, ""
+    return name, (code or None)
 
 
 def parse_roster_txt(text: str):
@@ -48,13 +73,28 @@ def parse_roster_txt(text: str):
         line = raw_line.strip()
         if not line:
             continue
-        if "|" in line:
-            name, code = line.split("|", 1)
-            name, code = name.strip(), code.strip()
-        else:
-            name, code = line, ""
+        name, code = _split_name_and_code(line)
         if name:
-            entries.append((name, code or None))
+            entries.append((name, code))
+    return entries
+
+
+def parse_roster_md(text: str):
+    entries = []
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        if line.startswith("#"):
+            continue  # markdown heading
+        if _MD_RULE_RE.match(line):
+            continue  # horizontal rule (---, ***, ___)
+        line = _MD_LIST_PREFIX_RE.sub("", line).strip()
+        if not line:
+            continue
+        name, code = _split_name_and_code(line)
+        if name:
+            entries.append((name, code))
     return entries
 
 

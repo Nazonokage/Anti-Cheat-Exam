@@ -150,12 +150,22 @@
   let navigating = false;
 
   function renderTimer() {
-    if (timerText) timerText.textContent = Math.max(0, remaining) + 's';
+    if (timerText) {
+      timerText.textContent = Math.max(0, remaining) + 's';
+      // remaining CAN exceed `total` (the exam's base seconds_per_question)
+      // — that's intentional: the +30s time-boost buff is meant to push
+      // past the normal max, not just top it back up. Make that state
+      // visibly obvious rather than looking like a rendering glitch.
+      timerText.classList.toggle('text-cyan-300', remaining > total);
+      timerText.classList.toggle('text-examaccent', remaining <= total);
+    }
     if (timerBar && total > 0) {
+      const boosted = remaining > total;
       const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
       timerBar.style.width = pct + '%';
-      timerBar.classList.toggle('bg-red-400', pct < 20);
-      timerBar.classList.toggle('bg-examprimary', pct >= 20);
+      timerBar.classList.toggle('bg-red-400', !boosted && pct < 20);
+      timerBar.classList.toggle('bg-examprimary', !boosted && pct >= 20);
+      timerBar.classList.toggle('holo-btn', boosted); // shimmering gradient while boosted past max
     }
   }
   renderTimer();

@@ -1,0 +1,212 @@
+{
+  "subject": "mysql_wamp_php",
+  "title": "MySQL + WAMP + PHP — Midterm Exam",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "multipleChoice": [
+    {
+      "id": "mc1",
+      "text": "What does WAMP stand for?",
+      "options": ["Windows Apache MySQL PHP", "Web Apache MySQL Perl", "Windows Access MySQL Python", "Web Access MariaDB PHP"],
+      "answerIndex": 0,
+      "hint": "Think about the common web development stack on Windows."
+    },
+    {
+      "id": "mc2",
+      "text": "Which SQL command is used to retrieve data from a table?",
+      "options": ["INSERT", "UPDATE", "SELECT", "DELETE"],
+      "answerIndex": 2,
+      "hint": "It's the most fundamental query command."
+    },
+    {
+      "id": "mc3",
+      "text": "Which command creates a new database?",
+      "options": ["NEW DATABASE", "CREATE DATABASE", "ADD DATABASE", "MAKE DATABASE"],
+      "answerIndex": 1,
+      "hint": "SQL uses CREATE for defining structures."
+    },
+    {
+      "id": "mc4",
+      "text": "What is the default MySQL username in WAMP?",
+      "options": ["admin", "mysql", "root", "user"],
+      "answerIndex": 2,
+      "hint": "It's the superuser account."
+    },
+    {
+      "id": "mc5",
+      "text": "Which SQL statement is used to add new records?",
+      "options": ["ADD", "INSERT", "APPEND", "CREATE"],
+      "answerIndex": 1,
+      "hint": "Commonly abbreviated as INSERT INTO."
+    },
+    {
+      "id": "mc6",
+      "text": "What is the default MySQL port used by WAMP?",
+      "options": ["80", "8080", "3306", "443"],
+      "answerIndex": 2,
+      "hint": "MySQL's standard port number."
+    },
+    {
+      "id": "mc7",
+      "text": "Which SQL clause filters rows?",
+      "options": ["GROUP BY", "ORDER BY", "WHERE", "LIMIT"],
+      "answerIndex": 2,
+      "hint": "It comes after FROM in a SELECT statement."
+    },
+    {
+      "id": "mc8",
+      "text": "Which PHP extension is commonly used to connect to MySQL?",
+      "options": ["mysqli", "curl", "gd", "json"],
+      "answerIndex": 0,
+      "hint": "Improved MySQL Improved extension."
+    },
+    {
+      "id": "mc9",
+      "text": "What does AUTO_INCREMENT do?",
+      "options": ["Deletes old records", "Automatically generates sequential numbers", "Encrypts data", "Sorts rows"],
+      "answerIndex": 1,
+      "hint": "Used with primary keys for unique IDs."
+    },
+    {
+      "id": "mc10",
+      "text": "Which SQL command modifies existing data?",
+      "options": ["CHANGE", "ALTER", "UPDATE", "MODIFY"],
+      "answerIndex": 2,
+      "hint": "It's the DML command for changing values."
+    },
+    {
+      "id": "mc11",
+      "text": "Which folder stores PHP files in WAMP by default?",
+      "options": ["C:\\\\xampp\\\\htdocs", "C:\\\\wamp64\\\\www", "C:\\\\php\\\\www", "C:\\\\mysql\\\\data"],
+      "answerIndex": 1,
+      "hint": "Look for the www directory in WAMP installation."
+    },
+    {
+      "id": "mc12",
+      "text": "Which SQL statement removes records from a table?",
+      "options": ["REMOVE", "DROP", "DELETE", "ERASE"],
+      "answerIndex": 2,
+      "hint": "Be careful with this one — it can be dangerous without WHERE."
+    },
+    {
+      "id": "mc13",
+      "text": "What is phpMyAdmin primarily used for?",
+      "options": ["Editing PHP code", "Managing MySQL databases", "Compiling programs", "Running Apache"],
+      "answerIndex": 1,
+      "hint": "It's a web interface for database administration."
+    },
+    {
+      "id": "mc14",
+      "text": "Which data type stores variable-length text?",
+      "options": ["INT", "DATE", "VARCHAR", "FLOAT"],
+      "answerIndex": 2,
+      "hint": "Varying character type."
+    },
+    {
+      "id": "mc15",
+      "text": "What happens if UPDATE is executed without a WHERE clause?",
+      "options": ["Only one row updates", "An error occurs", "All rows update", "No rows update"],
+      "answerIndex": 2,
+      "hint": "It affects every row in the table."
+    },
+    {
+      "id": "mc16",
+      "text": "Which SQL command creates a table?",
+      "options": ["MAKE TABLE", "ADD TABLE", "CREATE TABLE", "NEW TABLE"],
+      "answerIndex": 2,
+      "hint": "The DDL command for defining tables."
+    },
+    {
+      "id": "mc17",
+      "text": "What is the purpose of PRIMARY KEY?",
+      "options": ["Store passwords", "Identify each row uniquely", "Sort data", "Create backups"],
+      "answerIndex": 1,
+      "hint": "Ensures uniqueness and is often used for referencing."
+    },
+    {
+      "id": "mc18",
+      "text": "Which clause is used to sort query results?",
+      "options": ["GROUP BY", "ORDER BY", "WHERE", "LIMIT"],
+      "answerIndex": 1,
+      "hint": "ASC or DESC can be specified."
+    },
+    {
+      "id": "mc19",
+      "text": "Which SQL operator is used for pattern matching?",
+      "options": ["MATCH", "COMPARE", "LIKE", "SEARCH"],
+      "answerIndex": 2,
+      "hint": "Used with wildcards like % and _."
+    },
+    {
+      "id": "mc20",
+      "text": "Which statement selects all columns from the users table?",
+      "options": ["SELECT users;", "SELECT ALL FROM users;", "SELECT * FROM users;", "GET * FROM users;"],
+      "answerIndex": 2,
+      "hint": "The asterisk (*) means all columns."
+    }
+  ],
+  "boolean": [
+    {
+      "id": "tf1",
+      "text": "WAMP includes Apache, MySQL, and PHP.",
+      "answer": true,
+      "hint": "WAMP is a stack of these components."
+    },
+    {
+      "id": "tf2",
+      "text": "The DELETE statement is used to create a table.",
+      "answer": false,
+      "hint": "DELETE is for removing data, not structure."
+    },
+    {
+      "id": "tf3",
+      "text": "The default WAMP root password is usually blank.",
+      "answer": true,
+      "hint": "For fresh installations, it's often empty."
+    },
+    {
+      "id": "tf4",
+      "text": "A PRIMARY KEY can contain duplicate values.",
+      "answer": false,
+      "hint": "It enforces uniqueness."
+    },
+    {
+      "id": "tf5",
+      "text": "SELECT is a Data Manipulation Language (DML) command.",
+      "answer": true,
+      "hint": "DML handles data retrieval and modification."
+    }
+  ],
+  "identification": [
+    {
+      "id": "id1",
+      "text": "The web-based tool used to manage MySQL databases in WAMP.",
+      "answer": "phpMyAdmin",
+      "hint": "Commonly accessed via http://localhost/phpmyadmin"
+    },
+    {
+      "id": "id2",
+      "text": "The SQL command used to retrieve records from a table.",
+      "answer": "SELECT",
+      "hint": "Basic query command."
+    },
+    {
+      "id": "id3",
+      "text": "The default folder where PHP projects are stored in WAMP.",
+      "answer": "www",
+      "hint": "Inside the WAMP installation directory."
+    },
+    {
+      "id": "id4",
+      "text": "The SQL clause used to filter rows in a query.",
+      "answer": "WHERE",
+      "hint": "Used in SELECT, UPDATE, DELETE."
+    },
+    {
+      "id": "id5",
+      "text": "The MySQL data type commonly used for variable-length text.",
+      "answer": "VARCHAR",
+      "hint": "Stands for variable character."
+    }
+  ]
+}
