@@ -76,7 +76,7 @@ flowchart TD
 ## Quickstart
 
 ```bash
-python3 -m venv venv && source venv/bin/activate      # optional but recommended
+python3 -m venv venv && source venv/Scripts/activate      # optional but recommended
 pip install -r requirements.txt
 
 python3 manage.py migrate
