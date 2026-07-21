@@ -1,7 +1,27 @@
 # Anti-Cheat Exam App
 
-Server-authoritative, one-question-at-a-time classroom exam system built with
-Django + Tailwind + SQLite, per `plan.md`. Tested end-to-end (see below).
+A server-authoritative, one-question-at-a-time classroom exam system built
+with **Django + Tailwind + SQLite**, per `plan.md`.
+
+- ✅ Server owns the timer — a dropped Wi-Fi connection can't buy extra time
+- ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, redundant client-side guards
+- ✅ Optional **Game Mode** — buffs, attacks, and a live leaderboard on top of real grading
+- ✅ Live teacher dashboard + one-click CSV export
+- ✅ Tested end-to-end with the Django test client (see [Smoke-tested during the build](#smoke-tested-during-the-build-django-test-client))
+
+## Table of contents
+
+- [Flowcharts](#flowcharts)
+- [Quickstart](#quickstart)
+  - [Exam JSON format](#exam-json-format)
+  - [Bulk student roster import](#bulk-student-roster-import)
+  - [Docker](#docker)
+  - [Styling uses the Tailwind CDN](#styling-uses-the-tailwind-cdn)
+- [Newer additions (this round)](#newer-additions-this-round)
+- [Game Mode + image support + polish (latest round)](#game-mode--image-support--polish-latest-round)
+- [What's implemented](#whats-implemented)
+- [Smoke-tested during the build](#smoke-tested-during-the-build-django-test-client)
+- [Notes before a real exam](#notes--things-to-double-check-before-a-real-exam)
 
 ## Flowcharts
 
@@ -76,7 +96,8 @@ flowchart TD
 ## Quickstart
 
 ```bash
-python3 -m venv venv && source venv/Scripts/activate      # optional but recommended
+python3 -m venv venv
+venv/Scripts/activate                                   # optional but recommended
 pip install -r requirements.txt
 
 python3 manage.py migrate
@@ -160,6 +181,71 @@ Mode** on/off per exam, directly from the admin list pages — both
 no need to open each record. There's also a **Toggle Game Mode** bulk
 action on the Exams list for flipping several at once.
 
+### Exam JSON format
+
+Exams are imported via `manage.py import_exam <file> --teacher <username>` or
+the admin's **Import JSON** button. Here's the shape, trimmed to one
+question of each type — see `data/sia_exam_sample.json` for a full
+20-question example:
+
+```json
+{
+  "subject": "sia_exam_m1_m2",
+  "title": "System Integration & Architecture — Comprehensive Exam",
+  "secondsPerQuestion": 45,
+  "hintsEnabled": true,
+  "gameMode": true,
+  "questions": [
+    {
+      "id": "q1",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which enterprise system unifies diverse business functions into a single system?",
+      "options": ["TPS", "ERP", "Expert System", "DSS"],
+      "answerIndex": 1,
+      "imageLink": "https://example.com/photo.jpg",
+      "hint": "It's often called the crown jewel of system integration."
+    },
+    {
+      "id": "q7",
+      "module": "M1",
+      "type": "true_false",
+      "text": "Systems integration only addresses technical software engineering.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Recall the 'Behavioral Change' benefit."
+    }
+  ]
+}
+```
+
+**Top level:**
+- `subject` *(string, required)* — short internal slug/id for the exam
+- `title` *(string, required)* — display name shown to students and admin
+- `secondsPerQuestion` *(integer, required)* — base per-question time bank
+- `hintsEnabled` *(boolean, optional, default `false`)* — shows the `hint` field to students
+- `gameMode` *(boolean, optional, default `false`)* — turns on buffs/attacks/leaderboard
+- `questions` *(array, required)* — list of question objects, in order
+
+**Each question:**
+- `id` *(string, required)* — unique within the exam, e.g. `"q1"`
+- `module` *(string, optional)* — free-form grouping label, e.g. `"M1"`
+- `type` *(string, required)* — `multiple_choice`, `true_false`, or `identification`
+- `text` *(string, required)* — the question prompt
+- `options` *(array of strings)* — choice labels; `true_false` is always `["True", "False"]`; not used for `identification`
+- `answerIndex` *(integer)* — zero-based index into `options` for the correct choice; not used for `identification`
+- `imageLink` *(string or `null`, optional)* — image shown with the question
+- `hint` *(string, optional)* — only shown if `hintsEnabled` is `true`
+
+For `identification` questions, swap `options`/`answerIndex` for a plain
+`"answer"` string. Grading is case/whitespace-insensitive (`"PHP My Admin"`
+and `"phpmyadmin"` both match), but genuine misspellings still fail.
+
+> The older grouped-array schema (questions nested under per-module keys)
+> still imports fine for backwards compatibility — but the flat
+> `questions[]` shape above is the current recommended format.
+
 ### Docker
 
 ```bash
@@ -212,6 +298,9 @@ say the word and it can be swapped back.
 
 ## Newer additions (this round)
 
+<details>
+<summary>Expand changelog</summary>
+
 - **Per-student question randomization**: each student gets their own
   shuffled question order (`Submission.question_order`), set once at first
   login. Makes "question 5 is X" harder to share between students taking
@@ -252,7 +341,12 @@ say the word and it can be swapped back.
 - Answers now record `time_spent_seconds` (server-computed elapsed time),
   which powers the fast-answer CSV flag above.
 
+</details>
+
 ## Game Mode + image support + polish (latest round)
+
+<details>
+<summary>Expand changelog</summary>
 
 - **Question images**: `Question.image_url`, shown in a "3D glass emerald"
   frame, laid out **side-by-side with the question text on desktop**
@@ -317,7 +411,11 @@ game score below zero (not floored), so relative ranking stays meaningful
 even after multiple hits. That's a single, clearly isolated line in
 `views.py::_effective_score` to change if you'd rather floor it at 0.
 
+</details>
+
 ## What's implemented
+
+The full feature set, mapped to where it lives in the code:
 
 - Roster-based sign-in: students never self-register. Teachers add each
   student's name + a passcode per exam in Django Admin (inline on the Exam
@@ -392,6 +490,9 @@ even after multiple hits. That's a single, clearly isolated line in
 
 ## Smoke-tested during the build (Django test client)
 
+<details>
+<summary>Expand test log</summary>
+
 - Full login → answer → skip → review → final-submit flow, 30/30 correctly
   graded on the sample exam.
 - Simulated Wi-Fi drop (sleeping past a question's timeout with no
@@ -433,6 +534,8 @@ even after multiple hits. That's a single, clearly isolated line in
   Admin" and "phpmyadmin" both match; "phpmyadmim" is correctly rejected.
 - CSV export, Django Admin JSON import, and the live teacher dashboard JSON
   endpoint all verified.
+
+</details>
 
 ## Notes / things to double check before a real exam
 
