@@ -201,53 +201,37 @@ question of each type — see `data/sia_exam_sample.json` for a full
       "id": "",
       "module": "",
       "type": "multiple_choice",
-
       "text": "",
-
       "options": [
         "",
         "",
         "",
         ""
       ],
-
       "answerIndex": 0,
-
       "imageLink": null,
-
       "hint": ""
     },
-
     {
       "id": "",
       "module": "",
       "type": "true_false",
-
       "text": "",
-
       "options": [
         "True",
         "False"
       ],
-
       "answerIndex": 0,
-
       "imageLink": null,
-
       "hint": ""
     },
-
     {
       "id": "",
       "module": "",
       "type": "identification",
-
       "text": "",
-
       "answer": "",
-
       "imageLink": null,
-
       "hint": ""
     }
   ]
