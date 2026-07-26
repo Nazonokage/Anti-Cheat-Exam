@@ -190,31 +190,65 @@ question of each type — see `data/sia_exam_sample.json` for a full
 
 ```json
 {
-  "subject": "sia_exam_m1_m2",
-  "title": "System Integration & Architecture — Comprehensive Exam",
-  "secondsPerQuestion": 45,
+  "subject": "",
+  "title": "",
+  "secondsPerQuestion": 60,
   "hintsEnabled": true,
-  "gameMode": true,
+  "gameMode": false,
+
   "questions": [
     {
-      "id": "q1",
-      "module": "M1",
+      "id": "",
+      "module": "",
       "type": "multiple_choice",
-      "text": "Which enterprise system unifies diverse business functions into a single system?",
-      "options": ["TPS", "ERP", "Expert System", "DSS"],
-      "answerIndex": 1,
-      "imageLink": "https://example.com/photo.jpg",
-      "hint": "It's often called the crown jewel of system integration."
-    },
-    {
-      "id": "q7",
-      "module": "M1",
-      "type": "true_false",
-      "text": "Systems integration only addresses technical software engineering.",
-      "options": ["True", "False"],
-      "answerIndex": 1,
+
+      "text": "",
+
+      "options": [
+        "",
+        "",
+        "",
+        ""
+      ],
+
+      "answerIndex": 0,
+
       "imageLink": null,
-      "hint": "Recall the 'Behavioral Change' benefit."
+
+      "hint": ""
+    },
+
+    {
+      "id": "",
+      "module": "",
+      "type": "true_false",
+
+      "text": "",
+
+      "options": [
+        "True",
+        "False"
+      ],
+
+      "answerIndex": 0,
+
+      "imageLink": null,
+
+      "hint": ""
+    },
+
+    {
+      "id": "",
+      "module": "",
+      "type": "identification",
+
+      "text": "",
+
+      "answer": "",
+
+      "imageLink": null,
+
+      "hint": ""
     }
   ]
 }
