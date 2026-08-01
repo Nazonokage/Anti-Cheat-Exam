@@ -3,6 +3,7 @@ import json
 from collections import Counter
 
 from django.contrib import admin
+from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.http import HttpResponse
 from django import forms
 from django.urls import path
@@ -74,15 +75,16 @@ class StudentInline(admin.TabularInline):
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
     list_display = ("id", "title", "subject", "is_active", "is_archived", "game_mode",
-                     "seconds_per_question", "hints_enabled", "created_by",
-                     "question_count", "student_count", "created_at")
-    list_editable = ("game_mode",)
+                     "randomize_questions", "seconds_per_question", "hints_enabled",
+                     "created_by", "question_count", "student_count", "created_at")
+    list_editable = ("title", "game_mode", "randomize_questions")
     list_filter = ("is_active", "is_archived", "game_mode", "subject")
     inlines = [QuestionInline, StudentInline]
     readonly_fields = ("id",)
     fields = ("id", "subject", "title", "seconds_per_question", "hints_enabled", "game_mode",
-              "created_by", "is_active", "is_archived")
-    actions = ["activate_exams", "deactivate_exams", "archive_exams", "toggle_game_mode", "export_results_csv"]
+              "randomize_questions", "created_by", "is_active", "is_archived")
+    actions = ["activate_exams", "deactivate_exams", "archive_exams", "toggle_game_mode",
+               "export_results_csv", "reset_exam_data"]
     change_list_template = "admin/core/exam/change_list.html"
     change_form_template = "admin/core/exam/change_form.html"
 
@@ -146,6 +148,35 @@ class ExamAdmin(admin.ModelAdmin):
                 ])
         return response
     export_results_csv.short_description = "Export results to CSV"
+
+    def reset_exam_data(self, request, queryset):
+        """Wipes every Submission (and, via cascade, their Answers/Violations)
+        for the selected exam(s) so students can retake from scratch. Goes
+        through a confirmation page first since this is irreversible."""
+        if request.POST.get("confirm_reset") == "yes":
+            total_subs = 0
+            for exam in queryset:
+                total_subs += exam.submissions.count()
+                exam.submissions.all().delete()
+            self.message_user(
+                request,
+                f"Reset {queryset.count()} exam(s): deleted {total_subs} submission(s) "
+                f"and all their answers/violations. Students can retake immediately.",
+                messages.SUCCESS,
+            )
+            return None
+
+        exams_info = [
+            {"exam": exam, "submission_count": exam.submissions.count()}
+            for exam in queryset
+        ]
+        return render(request, "admin/core/exam/reset_confirmation.html", {
+            "exams_info": exams_info,
+            "queryset": queryset,
+            "action_checkbox_name": ACTION_CHECKBOX_NAME,
+            "opts": self.model._meta,
+        })
+    reset_exam_data.short_description = "Reset selected exams (delete ALL submissions — students can retake)"
 
     def get_urls(self):
         urls = super().get_urls()
@@ -255,6 +286,29 @@ class SubmissionAdmin(admin.ModelAdmin):
     list_display = ("id", "student_name", "exam", "phase", "current_question",
                      "tab_attempts", "last_violation_type", "closed", "last_heartbeat")
     list_filter = ("exam", "phase", "closed")
+    actions = ["reset_submissions"]
+
+    def reset_submissions(self, request, queryset):
+        """Deletes the selected submission(s) (cascading to their Answers/
+        Violations) so those students can log back in and start fresh —
+        a per-student equivalent of Exam's 'reset selected exams' action."""
+        if request.POST.get("confirm_reset") == "yes":
+            names = ", ".join(f"{s.student_name} ({s.exam.title})" for s in queryset)
+            count = queryset.count()
+            queryset.delete()
+            self.message_user(
+                request,
+                f"Reset {count} submission(s): {names}. Those students can log back in fresh.",
+                messages.SUCCESS,
+            )
+            return None
+
+        return render(request, "admin/core/submission/reset_confirmation.html", {
+            "queryset": queryset,
+            "action_checkbox_name": ACTION_CHECKBOX_NAME,
+            "opts": self.model._meta,
+        })
+    reset_submissions.short_description = "Reset selected submissions (delete — student can retake)"
 
 
 @admin.register(Violation)

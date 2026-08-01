@@ -2,12 +2,16 @@ services:
   web:
     build: .
     ports:
-      - "8000:8000"
+      - "8090:8090"
     environment:
       # Override these for a real deployment — see README.
       DJANGO_DEBUG: "False"
       DJANGO_ALLOWED_HOSTS: "*"
       DJANGO_DB_PATH: "/app/data/db.sqlite3"
+      DJANGO_CSRF_TRUSTED_ORIGINS: "https://*.ngrok-free.app"
+      DJANGO_SUPERUSER_USERNAME: "someone"
+      DJANGO_SUPERUSER_EMAIL: "dummyacc5273@gmail.com"
+      DJANGO_SUPERUSER_PASSWORD: "Qcf22bff1+2"
       # DJANGO_SECRET_KEY: "generate-a-real-one-for-anything-beyond-a-closed-LAN"
     volumes:
       - exam_data:/app/data

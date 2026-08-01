@@ -1,0 +1,35 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Reset selected submission(s)?</h1>
+
+<p><strong>This is irreversible.</strong> Each submission below will be
+deleted entirely, along with its answers and violation records. That
+student will be able to log back in and take the exam again from
+question 1, as if they'd never started.</p>
+
+<table>
+  <thead>
+    <tr><th>Student</th><th>Exam</th><th>Phase</th></tr>
+  </thead>
+  <tbody>
+    {% for sub in queryset %}
+    <tr>
+      <td>{{ sub.student_name }}</td>
+      <td>{{ sub.exam.title }}</td>
+      <td>{{ sub.phase }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form method="post" style="margin-top: 1.5em;">
+  {% csrf_token %}
+  {% for obj in queryset %}
+  <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+  {% endfor %}
+  <input type="hidden" name="action" value="reset_submissions">
+  <input type="hidden" name="confirm_reset" value="yes">
+  <input type="submit" value="Yes, delete these submissions" class="default" style="background:#ba2121;">
+  <a href="{% url 'admin:core_submission_changelist' %}" style="margin-left: 1em;">Cancel</a>
+</form>
+{% endblock %}

@@ -3,6 +3,7 @@ import random
 from datetime import timedelta
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.core.cache import cache
 from django.http import JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -24,6 +25,34 @@ SUSPICIOUSLY_FAST_SECONDS = 3.0
 
 # Game Mode: how many defense charges the "defense" buff choice grants.
 DEFENSE_BUFF_AMOUNT = 3
+
+# --- Login rate limiting ----------------------------------------------------
+# Only WRONG passcode attempts count against the limit, per source IP, so a
+# correct login never gets penalized and one mistyped passcode doesn't lock
+# anyone out — this is aimed at scripted passcode-guessing, not honest typos.
+LOGIN_FAIL_LIMIT = 10
+LOGIN_FAIL_WINDOW_SECONDS = 300
+
+
+def _client_ip(request):
+    return request.META.get("REMOTE_ADDR", "unknown")
+
+
+def _login_rate_limited(request):
+    key = f"login_fail:{_client_ip(request)}"
+    return cache.get(key, 0) >= LOGIN_FAIL_LIMIT
+
+
+def _register_login_failure(request):
+    key = f"login_fail:{_client_ip(request)}"
+    try:
+        cache.incr(key)
+    except ValueError:
+        cache.set(key, 1, LOGIN_FAIL_WINDOW_SECONDS)
+
+
+def _clear_login_failures(request):
+    cache.delete(f"login_fail:{_client_ip(request)}")
 
 
 def _get_submission(request):
@@ -85,17 +114,19 @@ def _game_context(submission):
     return ctx
 
 
-def _missed_questions(submission):
-    """Questions the student got wrong OR never answered, in their own
-    question order, with human-readable answer text (not raw Choice ids)."""
+def _question_review(submission):
+    """Every question the student was given, in their own question order,
+    with human-readable answer text (not raw Choice ids). Sorted with
+    incorrect/unanswered questions first so students see what to review
+    right away, followed by the ones they got right."""
     order = submission.question_order or list(
         submission.exam.questions.order_by("order").values_list("id", flat=True)
     )
     answers_by_qid = {a.question_id: a for a in submission.answers.select_related("question")}
-    missed = []
+    rows = []
     for qid in order:
         a = answers_by_qid.get(qid)
-        if not a or a.is_correct:
+        if not a:
             continue
         q = a.question
         if q.qtype == "identification":
@@ -111,13 +142,15 @@ def _missed_questions(submission):
                 except (ValueError, TypeError):
                     your_choice = None
             your_answer = your_choice.text if your_choice else "(no answer)"
-        missed.append({
+        rows.append({
             "question_text": q.text,
             "your_answer": your_answer,
             "correct_answer": correct_answer,
             "was_answered": a.answered,
+            "is_correct": a.is_correct,
         })
-    return missed
+    rows.sort(key=lambda r: r["is_correct"])  # False (incorrect) sorts before True
+    return rows
 
 
 def _done_context(submission, no_questions=False):
@@ -125,8 +158,8 @@ def _done_context(submission, no_questions=False):
     if not no_questions:
         ctx.update(_score_summary(submission))
         ctx.update(_game_context(submission))
-        ctx["missed_questions"] = _missed_questions(submission)
-        ctx["missed_questions_json"] = json.dumps(ctx["missed_questions"])
+        ctx["question_review"] = _question_review(submission)
+        ctx["question_review_json"] = json.dumps(ctx["question_review"])
     return ctx
 
 
@@ -136,6 +169,13 @@ def login_view(request):
     active_exams = Exam.objects.filter(is_active=True, is_archived=False).prefetch_related("students")
 
     if request.method == "POST":
+        if _login_rate_limited(request):
+            return render(request, "login.html", {
+                "exams": active_exams,
+                "error": "Too many incorrect attempts from this connection. "
+                         "Please wait a few minutes and try again.",
+            }, status=429)
+
         exam_id = request.POST.get("exam_id")
         student_id = request.POST.get("student_id")
         passcode = request.POST.get("passcode", "").strip()
@@ -143,11 +183,14 @@ def login_view(request):
 
         student = Student.objects.filter(id=student_id, exam=exam).first()
         if not student or student.passcode != passcode:
+            _register_login_failure(request)
             return render(request, "login.html", {
                 "exams": active_exams,
                 "error": "Incorrect name or passcode. Check with your teacher if you're not sure.",
                 "selected_exam_id": exam_id,
             })
+
+        _clear_login_failures(request)
 
         if not exam.questions.exists():
             return render(request, "login.html", {
@@ -169,10 +212,12 @@ def login_view(request):
             })
 
         if created:
-            # Randomize question order per-student so exact "question N" answers
-            # are harder to share between students taking the same exam.
+            # Randomize question order per-student (unless the exam opts out via
+            # randomize_questions=False) so exact "question N" answers are harder
+            # to share between students taking the same exam.
             qids = list(exam.questions.values_list("id", flat=True))
-            random.shuffle(qids)
+            if exam.randomize_questions:
+                random.shuffle(qids)
             submission.question_order = qids
 
         _ensure_answers(submission)

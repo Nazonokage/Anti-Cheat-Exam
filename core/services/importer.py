@@ -5,6 +5,7 @@ Supports TWO shapes:
 1. Original grouped-array schema (see data/sampletopic.json):
 {
   "subject": "...", "title": "...", "secondsPerQuestion": 60, "hintsEnabled": true,
+  "random": true,
   "multipleChoice": [{"id","text","options":[...], "answerIndex", "hint"}],
   "boolean": [{"id","text","answer": true/false, "hint"}],
   "identification": [{"id","text","answer", "hint"}]
@@ -14,7 +15,7 @@ Supports TWO shapes:
    (see data/sia_exam_sample.json):
 {
   "subject": "...", "title": "...", "secondsPerQuestion": 45, "hintsEnabled": true,
-  "gameMode": false,
+  "gameMode": false, "random": true,
   "questions": [
     {"id","module","type": "multiple_choice"|"true_false"|"identification",
      "text","options":[...],"answerIndex","imageLink","hint"}
@@ -24,6 +25,11 @@ Supports TWO shapes:
    directly (true_false questions just have 2 options). For
    "identification"/"short_answer" types, an "answer" string is expected
    instead of options/answerIndex.
+
+Both shapes accept an optional top-level "random" boolean (default false):
+when true, each student gets their own shuffled question order; when false
+(the default), all students see questions in the exact order they were
+authored/imported.
 """
 import json
 
@@ -114,6 +120,7 @@ def import_exam_from_dict(data: dict, created_by) -> Exam:
         seconds_per_question=data.get("secondsPerQuestion", 60),
         hints_enabled=data.get("hintsEnabled", True),
         game_mode=bool(data.get("gameMode", False)),
+        randomize_questions=bool(data.get("random", False)),
         created_by=created_by,
     )
 

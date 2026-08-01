@@ -195,6 +195,7 @@ question of each type — see `data/sia_exam_sample.json` for a full
   "secondsPerQuestion": 60,
   "hintsEnabled": true,
   "gameMode": false,
+  "random": false,
 
   "questions": [
     {
@@ -244,6 +245,9 @@ question of each type — see `data/sia_exam_sample.json` for a full
 - `secondsPerQuestion` *(integer, required)* — base per-question time bank
 - `hintsEnabled` *(boolean, optional, default `false`)* — shows the `hint` field to students
 - `gameMode` *(boolean, optional, default `false`)* — turns on buffs/attacks/leaderboard
+- `random` *(boolean, optional, default `false`)* — shuffles each student's
+  question order independently; when `false`, everyone sees the questions
+  in the exact order they were authored/imported
 - `questions` *(array, required)* — list of question objects, in order
 
 **Each question:**
@@ -272,7 +276,7 @@ docker compose up --build
 That builds the image (installing `requirements.txt`, which now includes
 `whitenoise` and `gunicorn`, and running `collectstatic`), runs migrations
 automatically on start (`docker-entrypoint.sh`), and serves the app on
-`http://localhost:8000` via gunicorn, with the SQLite database persisted in
+`http://localhost:8090` via gunicorn, with the SQLite database persisted in
 a named volume (`exam_data`) so it survives rebuilds.
 
 Then create your teacher account inside the running container:

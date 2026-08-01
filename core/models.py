@@ -14,6 +14,9 @@ class Exam(models.Model):
     # every 5 questions. Purely a competitive layer — the real grade
     # (Answer.is_correct / CSV export) is never touched by buffs.
     game_mode = models.BooleanField(default=False)
+    # Whether each student gets a shuffled question order (see login_view).
+    # Off by default — opt in per exam via the admin or "random": true in JSON.
+    randomize_questions = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

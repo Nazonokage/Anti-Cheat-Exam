@@ -1,0 +1,34 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>Reset selected exam(s)?</h1>
+
+<p><strong>This is irreversible.</strong> For each exam below, ALL student
+submissions will be deleted, along with every answer and violation record
+tied to them. Students will be able to log back in and take the exam again
+from question 1, as if they'd never started.</p>
+
+<table>
+  <thead>
+    <tr><th>Exam</th><th>Submissions to delete</th></tr>
+  </thead>
+  <tbody>
+    {% for info in exams_info %}
+    <tr>
+      <td>{{ info.exam.title }} ({{ info.exam.subject }})</td>
+      <td>{{ info.submission_count }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<form method="post" style="margin-top: 1.5em;">
+  {% csrf_token %}
+  {% for obj in queryset %}
+  <input type="hidden" name="{{ action_checkbox_name }}" value="{{ obj.pk }}">
+  {% endfor %}
+  <input type="hidden" name="action" value="reset_exam_data">
+  <input type="hidden" name="confirm_reset" value="yes">
+  <input type="submit" value="Yes, delete all submissions" class="default" style="background:#ba2121;">
+  <a href="{% url 'admin:core_exam_changelist' %}" style="margin-left: 1em;">Cancel</a>
+</form>
+{% endblock %}

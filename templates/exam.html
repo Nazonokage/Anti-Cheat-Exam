@@ -35,40 +35,51 @@
     <p class="text-xs text-examtext/40 mt-6">You may close this window.</p>
   </div>
 
-  {% if not no_questions and missed_questions %}
+  {% if not no_questions and question_review %}
   <div class="glass rounded-3xl shadow-2xl p-8 mt-6 text-left">
     <div class="flex items-center justify-between mb-4">
-      <h2 class="text-sm uppercase tracking-widest text-examtext/60">Questions you missed ({{ missed_questions|length }})</h2>
-      <button type="button" id="export-missed-csv"
+      <h2 class="text-sm uppercase tracking-widest text-examtext/60">Your Answers ({{ question_review|length }})</h2>
+      <button type="button" id="export-review-csv"
               class="text-xs rounded-lg border border-white/15 px-3 py-1.5 text-examtext/80 hover:border-examaccent/60 hover:text-examaccent transition-colors">
         ⬇ Export CSV
       </button>
     </div>
     <div class="space-y-3">
-      {% for m in missed_questions %}
+      {% for m in question_review %}
       <div class="rounded-xl border border-white/10 bg-white/[0.03] p-4">
-        <p class="text-white/90 text-sm mb-2">{{ m.question_text }}</p>
-        <p class="text-xs text-red-300/80">Your answer: {{ m.your_answer }}</p>
+        <div class="flex items-start justify-between gap-3 mb-2">
+          <p class="text-white/90 text-sm">{{ m.question_text }}</p>
+          {% if m.is_correct %}
+          <span class="shrink-0 text-[10px] uppercase tracking-wide text-examaccent border border-examaccent/40 rounded-full px-2 py-0.5">Correct</span>
+          {% else %}
+          <span class="shrink-0 text-[10px] uppercase tracking-wide text-red-300 border border-red-400/40 rounded-full px-2 py-0.5">Incorrect</span>
+          {% endif %}
+        </div>
+        <p class="text-xs {% if m.is_correct %}text-examaccent{% else %}text-red-300/80{% endif %}">Your answer: {{ m.your_answer }}</p>
+        {% if not m.is_correct %}
         <p class="text-xs text-examaccent">Correct answer: {{ m.correct_answer }}</p>
+        {% endif %}
       </div>
       {% endfor %}
     </div>
   </div>
-  <script id="missed-data" type="application/json">{{ missed_questions_json|safe }}</script>
+  <script id="review-data" type="application/json">{{ question_review_json|safe }}</script>
   <script>
     (function () {
-      const btn = document.getElementById('export-missed-csv');
+      const btn = document.getElementById('export-review-csv');
       if (!btn) return;
       btn.addEventListener('click', () => {
-        const data = JSON.parse(document.getElementById('missed-data').textContent);
+        const data = JSON.parse(document.getElementById('review-data').textContent);
         const esc = (v) => '"' + String(v).replace(/"/g, '""') + '"';
-        const rows = [['Question', 'Your Answer', 'Correct Answer'].map(esc).join(',')]
-          .concat(data.map(m => [m.question_text, m.your_answer, m.correct_answer].map(esc).join(',')));
+        const rows = [['Question', 'Your Answer', 'Correct Answer', 'Result'].map(esc).join(',')]
+          .concat(data.map(m => [
+            m.question_text, m.your_answer, m.correct_answer, m.is_correct ? 'Correct' : 'Incorrect',
+          ].map(esc).join(',')));
         const blob = new Blob([rows.join('\r\n')], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'missed_questions_{{ submission.student_name|slugify }}.csv';
+        a.download = 'exam_results_{{ submission.student_name|slugify }}.csv';
         document.body.appendChild(a);
         a.click();
         a.remove();
