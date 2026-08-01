@@ -1,0 +1,324 @@
+{
+  "subject": "JavaScript & Node.js Foundations",
+  "title": "Prelim Summative Exam — Wk1–6 (Node Internals to Docker Intro)",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "questions": [
+    {
+      "id": "mc1",
+      "module": "Part 0 - JS Basics",
+      "type": "multiple_choice",
+      "text": "Which variable declaration is block-scoped and CANNOT be reassigned?",
+      "options": [
+        "var",
+        "let",
+        "const",
+        "function"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Think about which keyword locks the binding, not necessarily the contents."
+    },
+    {
+      "id": "mc2",
+      "module": "Part 0 - JS Basics",
+      "type": "multiple_choice",
+      "text": "Which comparison operator checks BOTH value and type?",
+      "options": [
+        "==",
+        "===",
+        "=",
+        "!="
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It's the one you should always prefer over the two-equals version."
+    },
+    {
+      "id": "mc3",
+      "module": "Part 0 - JS Basics",
+      "type": "multiple_choice",
+      "text": "Which array method transforms every item and returns a NEW array?",
+      "options": [
+        ".forEach()",
+        ".filter()",
+        ".map()",
+        ".reduce()"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This one always returns an array of the same length as the original."
+    },
+    {
+      "id": "mc4",
+      "module": "Part 0 - JS Basics",
+      "type": "multiple_choice",
+      "text": "What is a closure?",
+      "options": [
+        "A function that runs immediately after being defined",
+        "A function that remembers variables from where it was created, even after the outer function has finished",
+        "A method that closes a file stream",
+        "A way to stop a loop early"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "The counter() example in the cheatsheet demonstrates this."
+    },
+    {
+      "id": "mc5",
+      "module": "Part 0 - JS Basics",
+      "type": "multiple_choice",
+      "text": "Where does `await` work?",
+      "options": [
+        "Anywhere in a file",
+        "Only inside an async function",
+        "Only inside a callback",
+        "Only inside a try block"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It's a key rule stated directly in the reviewer."
+    },
+    {
+      "id": "mc6",
+      "module": "Part 1 - Node Internals",
+      "type": "multiple_choice",
+      "text": "What makes Node.js able to handle many concurrent connections without spawning a thread per request?",
+      "options": [
+        "Multiple V8 engines running in parallel",
+        "The single-threaded, non-blocking event loop",
+        "Automatic clustering",
+        "Docker containerization"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "I/O is handed off and callbacks are queued to run when ready."
+    },
+    {
+      "id": "mc7",
+      "module": "Part 2 - Core Modules",
+      "type": "multiple_choice",
+      "text": "Why is `path.join()` preferred over hardcoding `/` in file paths?",
+      "options": [
+        "It runs faster than string concatenation",
+        "It automatically creates the folders if they don't exist",
+        "It builds paths correctly across different operating systems",
+        "It converts relative paths to URLs"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Windows uses a different path separator than macOS/Linux."
+    },
+    {
+      "id": "mc8",
+      "module": "Part 2 - Core Modules",
+      "type": "multiple_choice",
+      "text": "In semver, what does `~1.2.3` allow?",
+      "options": [
+        "Any version updates",
+        "Only major version updates",
+        "Minor and patch updates",
+        "Only patch updates"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Compare it to the caret (^) which allows more."
+    },
+    {
+      "id": "mc9",
+      "module": "Part 3 - Event Loop & process",
+      "type": "multiple_choice",
+      "text": "Which of these runs SOONEST among the three?",
+      "options": [
+        "setTimeout(fn, 0)",
+        "setImmediate(fn)",
+        "process.nextTick(fn)",
+        "They all run at the same time"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It runs even before microtasks like Promises."
+    },
+    {
+      "id": "mc10",
+      "module": "Part 3 - Event Loop & process",
+      "type": "multiple_choice",
+      "text": "What does `process.exit(1)` signal?",
+      "options": [
+        "Success",
+        "The process is paused",
+        "Failure / non-zero exit signal",
+        "The process will restart automatically"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Exit code 0 means success — anything else means what?"
+    },
+    {
+      "id": "mc11",
+      "module": "Part 3 - Error Handling",
+      "type": "multiple_choice",
+      "text": "Which best describes `process.on('uncaughtException', ...)`?",
+      "options": [
+        "The primary way to handle all errors in production",
+        "A safety net, never a primary error-handling strategy",
+        "A method to prevent errors from ever occurring",
+        "A required part of every Node.js app"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "The reviewer explicitly warns against relying on this to 'handle' errors."
+    },
+    {
+      "id": "mc12",
+      "module": "Part 4 - HTTP & Streams",
+      "type": "multiple_choice",
+      "text": "Why do Streams matter compared to `fs.readFile`?",
+      "options": [
+        "Streams are only for writing files, not reading",
+        "Streams process data in chunks, keeping memory flat regardless of file size",
+        "Streams are faster at compiling JavaScript",
+        "Streams automatically convert file formats"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "readFile loads the ENTIRE file into memory at once — streams don't."
+    },
+    {
+      "id": "mc13",
+      "module": "Part 4 - HTTP Status Codes",
+      "type": "multiple_choice",
+      "text": "A client sends a request with a missing required field. Which status code fits best?",
+      "options": [
+        "200 OK",
+        "400 Bad Request",
+        "404 Not Found",
+        "500 Internal Server Error"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "This is a malformed request — whose fault is that, client or server?"
+    },
+    {
+      "id": "mc14",
+      "module": "Part 4 - GET vs POST",
+      "type": "multiple_choice",
+      "text": "Why is GET considered idempotent while POST is not?",
+      "options": [
+        "GET requests are always faster than POST",
+        "Calling GET repeatedly leaves the system in the same state, while POST can create new resources each time",
+        "GET cannot be cached, but POST can",
+        "POST requests never have a body"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Think about what happens if you run POST /users twice."
+    },
+    {
+      "id": "mc15",
+      "module": "Part 5 - Docker Fundamentals",
+      "type": "multiple_choice",
+      "text": "In the Dockerfile, why is `COPY package*.json ./` placed BEFORE `COPY . .`?",
+      "options": [
+        "Docker requires package.json to be copied first by rule",
+        "So npm install can run without internet access",
+        "To let Docker cache the npm install layer and speed up rebuilds when only source code changes",
+        "Because `COPY . .` deletes package.json automatically"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It's about Docker's layer caching behavior."
+    },
+    {
+      "id": "id1",
+      "module": "Part 0 - JS Basics",
+      "type": "identification",
+      "text": "This JavaScript variable keyword is function-scoped, hoisted, and generally advised against using in modern code.",
+      "answer": "var",
+      "imageLink": null,
+      "hint": "It's the oldest of the three declaration keywords."
+    },
+    {
+      "id": "id2",
+      "module": "Part 0 - JS Basics",
+      "type": "identification",
+      "text": "This array method folds/reduces an entire array down into a single value.",
+      "answer": "reduce",
+      "imageLink": null,
+      "hint": "Its name literally describes what it does to the array."
+    },
+    {
+      "id": "id3",
+      "module": "Part 1 - Node Internals",
+      "type": "identification",
+      "text": "This is Google's JavaScript engine that compiles JS to machine code and also powers Chrome.",
+      "answer": "V8",
+      "imageLink": null,
+      "hint": "Named after a type of car engine."
+    },
+    {
+      "id": "id4",
+      "module": "Part 2 - Core Modules",
+      "type": "identification",
+      "text": "This built-in Node.js module is used for safe, cross-platform building of file paths (e.g. joining directories and filenames).",
+      "answer": "path",
+      "imageLink": null,
+      "hint": "Its name is also the word for the string it constructs."
+    },
+    {
+      "id": "id5",
+      "module": "Part 2 - Core Modules",
+      "type": "identification",
+      "text": "This file lists a Node.js project's metadata, scripts, and dependencies.",
+      "answer": "package.json",
+      "imageLink": null,
+      "hint": "Every npm project has one at its root."
+    },
+    {
+      "id": "id6",
+      "module": "Part 3 - Event Loop & process",
+      "type": "identification",
+      "text": "This Node.js global object gives access to CLI arguments (argv), environment variables (env), and the current working directory (cwd).",
+      "answer": "process",
+      "imageLink": null,
+      "hint": "It's also what you call `.exit(1)` on to signal failure."
+    },
+    {
+      "id": "id7",
+      "module": "Part 4 - EventEmitter",
+      "type": "identification",
+      "text": "This core Node.js class allows objects to emit named events and register listeners for them; `http.Server` itself is one.",
+      "answer": "EventEmitter",
+      "imageLink": null,
+      "hint": "It's imported from the 'events' module."
+    },
+    {
+      "id": "id8",
+      "module": "Part 4 - Streams",
+      "type": "identification",
+      "text": "This type of stream both reads AND modifies data as it passes through, then writes it out (e.g., an uppercase converter).",
+      "answer": "Transform",
+      "imageLink": null,
+      "hint": "It's one of the four stream types listed in the cheatsheet."
+    },
+    {
+      "id": "id9",
+      "module": "Part 4 - HTTP Status Codes",
+      "type": "identification",
+      "text": "This HTTP status code means the request succeeded but there is nothing to send back — commonly returned on a successful DELETE.",
+      "answer": "204",
+      "imageLink": null,
+      "hint": "It's in the 2xx success range, but distinct from 200."
+    },
+    {
+      "id": "id10",
+      "module": "Part 5 - Docker Fundamentals",
+      "type": "identification",
+      "text": "This file works like `.gitignore` but excludes files (e.g. node_modules, .git, .env) from being copied into a Docker image.",
+      "answer": ".dockerignore",
+      "imageLink": null,
+      "hint": "Its name pairs the word 'ignore' with the container platform's name."
+    }
+  ]
+}

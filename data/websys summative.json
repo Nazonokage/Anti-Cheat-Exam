@@ -1,0 +1,369 @@
+{
+  "subject": "Web Systems",
+  "title": "Node.js Foundations — Summative Exam (Weeks 1–5)",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "questions": [
+    {
+      "id": "mc-01",
+      "module": "JavaScript Basics",
+      "type": "multiple_choice",
+      "text": "Which JavaScript keyword is block-scoped AND cannot be reassigned?",
+      "options": [
+        "var",
+        "let",
+        "const",
+        "static"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Think about which keyword is used for values that should never change after declaration."
+    },
+    {
+      "id": "mc-02",
+      "module": "JavaScript Basics",
+      "type": "multiple_choice",
+      "text": "What does typeof null return in JavaScript?",
+      "options": [
+        "\"null\"",
+        "\"undefined\"",
+        "\"object\"",
+        "\"boolean\""
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This is a well-known historical bug in JavaScript that was never fixed for backward compatibility."
+    },
+    {
+      "id": "mc-03",
+      "module": "JavaScript Basics",
+      "type": "multiple_choice",
+      "text": "What is a closure in JavaScript?",
+      "options": [
+        "A function that calls itself recursively",
+        "A function that remembers variables from its outer scope after that scope has closed",
+        "A method for closing a file stream",
+        "An error thrown when a variable is out of scope"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Think about what happens to the outer function's variables when an inner function is returned."
+    },
+    {
+      "id": "mc-04",
+      "module": "JavaScript Basics",
+      "type": "multiple_choice",
+      "text": "Which of the following is a falsy value in JavaScript?",
+      "options": [
+        "\"0\"",
+        "[]",
+        "NaN",
+        "{}"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Remember the six falsy values: false, 0, \"\", null, undefined, and one more mathematical concept."
+    },
+    {
+      "id": "mc-05",
+      "module": "Async Patterns",
+      "type": "multiple_choice",
+      "text": "Which async pattern is considered the cleanest, built on top of Promises?",
+      "options": [
+        "Callbacks",
+        ".then()/.catch() chains",
+        "async/await",
+        "process.nextTick"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This pattern lets you write async code that reads almost like synchronous code using two keywords."
+    },
+    {
+      "id": "mc-06",
+      "module": "Core Modules",
+      "type": "multiple_choice",
+      "text": "What does path.basename(\"/home/user/app/index.js\") return?",
+      "options": [
+        "/home/user/app/",
+        "index",
+        "index.js",
+        ".js"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "basename returns the last portion of a file path — including the file extension."
+    },
+    {
+      "id": "mc-07",
+      "module": "Event Loop",
+      "type": "multiple_choice",
+      "text": "In the Node.js event loop, microtasks (Promises, nextTick) run:",
+      "options": [
+        "Only after all timers finish",
+        "Between each phase, before the next phase starts",
+        "During the poll phase only",
+        "After close callbacks"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Microtasks always drain completely before the event loop can advance to its next phase."
+    },
+    {
+      "id": "mc-08",
+      "module": "Event Loop",
+      "type": "multiple_choice",
+      "text": "Which runs first among the three?",
+      "options": [
+        "setTimeout(fn, 0)",
+        "setImmediate(fn)",
+        "process.nextTick(fn)",
+        "They all run simultaneously"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Order from fastest to slowest: one of these runs before microtasks, one after I/O, one in the timers phase."
+    },
+    {
+      "id": "mc-09",
+      "module": "Core Modules",
+      "type": "multiple_choice",
+      "text": "What does process.argv[0] contain in a Node.js CLI script?",
+      "options": [
+        "The first argument you passed",
+        "Path to the script file",
+        "Path to the node executable",
+        "The package name"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "argv[0] and argv[1] are reserved by Node itself — your arguments only start from argv[2]."
+    },
+    {
+      "id": "mc-10",
+      "module": "Error Handling",
+      "type": "multiple_choice",
+      "text": "An operational error is best defined as:",
+      "options": [
+        "A bug introduced by the programmer",
+        "An expected failure such as a missing file or invalid user input",
+        "A crash in the V8 engine",
+        "An error that always kills the process"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Operational errors are things you anticipate happening in production — not bugs in your code."
+    },
+    {
+      "id": "mc-11",
+      "module": "HTTP Module",
+      "type": "multiple_choice",
+      "text": "What HTTP status code means the client is authenticated but NOT permitted to access the resource?",
+      "options": [
+        "401",
+        "403",
+        "404",
+        "422"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "401 means you're not logged in. This code means you ARE logged in, but you still can't go in."
+    },
+    {
+      "id": "mc-12",
+      "module": "HTTP Module",
+      "type": "multiple_choice",
+      "text": "A request has valid syntax but its data fails validation rules. Which status code fits best?",
+      "options": [
+        "400",
+        "401",
+        "422",
+        "500"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "400 is malformed. This code means the structure is fine, but the business logic rejects the values."
+    },
+    {
+      "id": "mc-13",
+      "module": "Streams",
+      "type": "multiple_choice",
+      "text": "What problem do Streams solve that fs.readFile does not?",
+      "options": [
+        "Streams allow file renaming",
+        "Streams process data in chunks — memory stays flat regardless of file size",
+        "Streams use threads for speed",
+        "fs.readFile lacks UTF-8 encoding support"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Think about what happens to RAM when you load a 2GB file entirely before processing it."
+    },
+    {
+      "id": "mc-14",
+      "module": "Streams",
+      "type": "multiple_choice",
+      "text": "Which stream type reads input, transforms it, and passes the result downstream?",
+      "options": [
+        "Readable",
+        "Writable",
+        "Duplex",
+        "Transform"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Think uppercase converter or gzip compressor — it receives data, modifies it, and outputs a new form."
+    },
+    {
+      "id": "mc-15",
+      "module": "Core Modules",
+      "type": "multiple_choice",
+      "text": "Why should secrets and config NOT be hardcoded in source code?",
+      "options": [
+        "Node cannot read hardcoded strings",
+        "They get committed to version control and become exposed to anyone with access",
+        "Hardcoded values are slower to read",
+        "npm disallows them in package scripts"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Think about what happens when you push your code to GitHub with a database password in it."
+    },
+    {
+      "id": "gto-01",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is the output?\n\nlet x = 5;\nconst fn = () => x * 2;\nx = 10;\nconsole.log(fn());",
+      "answer": "20",
+      "imageLink": null,
+      "hint": "Arrow functions capture variables by reference, not by value. What is x when fn() is actually called?"
+    },
+    {
+      "id": "gto-02",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is printed to the console? (write both lines separated by a comma)\n\nconst add = (a, b) => a + b;\nconsole.log(add(3, 4));\nconsole.log(typeof add(3, 4));",
+      "answer": "7, number",
+      "imageLink": null,
+      "hint": "typeof returns a string describing the data type. What type is the result of adding two numbers?"
+    },
+    {
+      "id": "gto-03",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is the output?\n\nfunction outer(x) {\n  return function(y) {\n    return x + y;\n  };\n}\nconst add5 = outer(5);\nconsole.log(add5(3));",
+      "answer": "8",
+      "imageLink": null,
+      "hint": "outer(5) returns a closure that remembers x=5. What is 5 + 3?"
+    },
+    {
+      "id": "gto-04",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What are the three output lines? (write them separated by commas)\n\nconsole.log(Boolean(0));\nconsole.log(Boolean(\"\"));\nconsole.log(Boolean([]));",
+      "answer": "false, false, true",
+      "imageLink": null,
+      "hint": "0 and \"\" are falsy. Is an empty array falsy or truthy in JavaScript?"
+    },
+    {
+      "id": "gto-05",
+      "module": "Async Patterns",
+      "type": "identification",
+      "text": "What is the output?\n\nasync function getValue() {\n  const v = await Promise.resolve(42);\n  console.log(v);\n}\ngetValue();",
+      "answer": "42",
+      "imageLink": null,
+      "hint": "Promise.resolve(42) creates an already-resolved Promise. await unwraps it to its resolved value."
+    },
+    {
+      "id": "gto-06",
+      "module": "Event Loop",
+      "type": "identification",
+      "text": "What is the output order? (write the three letters separated by commas)\n\nprocess.nextTick(() => console.log('A'));\nPromise.resolve().then(() => console.log('B'));\nconsole.log('C');",
+      "answer": "C, A, B",
+      "imageLink": null,
+      "hint": "Synchronous code runs first, then nextTick, then Promise microtasks."
+    },
+    {
+      "id": "gto-07",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is the output?\n\nconst arr = [1, 2, 3, 4];\nconst result = arr\n  .filter(n => n % 2 === 0)\n  .map(n => n * 10);\nconsole.log(result);",
+      "answer": "[20, 40]",
+      "imageLink": null,
+      "hint": "filter keeps items where n % 2 === 0 (even numbers). map then multiplies each by 10."
+    },
+    {
+      "id": "gto-08",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What are the two output lines? (write them separated by a comma)\n\nconst obj = { a: 1, b: 2 };\nconst { a, ...rest } = obj;\nconsole.log(a);\nconsole.log(JSON.stringify(rest));",
+      "answer": "1, {\"b\":2}",
+      "imageLink": null,
+      "hint": "Destructuring extracts 'a'. The rest operator collects all remaining properties into a new object."
+    },
+    {
+      "id": "gto-09",
+      "module": "EventEmitter",
+      "type": "identification",
+      "text": "What are the two output lines? (write them separated by a comma)\n\nconst { EventEmitter } = require('events');\nconst e = new EventEmitter();\ne.on('ping', (msg) => {\n  console.log('Received:', msg);\n});\ne.emit('ping', 'hello');\ne.emit('ping', 'world');",
+      "answer": "Received: hello, Received: world",
+      "imageLink": null,
+      "hint": "The listener fires once for every emit call, in the order they are called."
+    },
+    {
+      "id": "gto-10",
+      "module": "Async Patterns",
+      "type": "identification",
+      "text": "What is the output?\n\nasync function fetchData() {\n  try {\n    const r = await Promise.reject(\n      new Error('Network error')\n    );\n    console.log(r);\n  } catch(err) {\n    console.log('Caught:', err.message);\n  }\n}\nfetchData();",
+      "answer": "Caught: Network error",
+      "imageLink": null,
+      "hint": "Promise.reject() creates a rejected Promise. await throws it, so it lands in the catch block."
+    },
+    {
+      "id": "gto-11",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is the output?\n\nfunction makeCounter(start) {\n  let count = start;\n  return {\n    inc: () => ++count,\n    get: () => count\n  };\n}\nconst c = makeCounter(0);\nc.inc(); c.inc(); c.inc();\nconsole.log(c.get());",
+      "answer": "3",
+      "imageLink": null,
+      "hint": "Both methods share the same closure over 'count'. How many times is inc() called?"
+    },
+    {
+      "id": "gto-12",
+      "module": "JavaScript Basics",
+      "type": "identification",
+      "text": "What is the output?\n\nconst nums = [1, 2, 3, 4, 5];\nconst sum = nums.reduce(\n  (acc, n) => acc + n, 0\n);\nconsole.log(sum);",
+      "answer": "15",
+      "imageLink": null,
+      "hint": "reduce accumulates from left to right starting at 0. Add all five numbers together."
+    },
+    {
+      "id": "gto-13",
+      "module": "Async Patterns",
+      "type": "identification",
+      "text": "What is the output?\n\nasync function run() {\n  const p1 = Promise.resolve('first');\n  const p2 = Promise.resolve('second');\n  const [a, b] = await Promise.all([p1, p2]);\n  console.log(a, b);\n}\nrun();",
+      "answer": "first second",
+      "imageLink": null,
+      "hint": "Promise.all resolves when all promises settle. The result array matches the order of the input array."
+    },
+    {
+      "id": "gto-14",
+      "module": "Error Handling",
+      "type": "identification",
+      "text": "What are the two output lines? (write them separated by a comma)\n\nclass AppError extends Error {\n  constructor(msg, code) {\n    super(msg);\n    this.name = 'AppError';\n    this.code = code;\n  }\n}\ntry {\n  throw new AppError('Oops', 404);\n} catch(e) {\n  console.log(e.name + ': ' + e.message);\n  console.log(e.code);\n}",
+      "answer": "AppError: Oops, 404",
+      "imageLink": null,
+      "hint": "The custom class sets this.name and inherits message from Error via super(). this.code is set manually."
+    },
+    {
+      "id": "gto-15",
+      "module": "HTTP Module",
+      "type": "identification",
+      "text": "Assume a POST /data request is received. What does the client receive as the response body?\n\nconst http = require('http');\nconst server = http.createServer(\n  (req, res) => {\n    if (req.method === 'POST' &&\n        req.url === '/data') {\n      res.writeHead(201, {\n        'Content-Type': 'application/json'\n      });\n      res.end(\n        JSON.stringify({ created: true })\n      );\n    }\n  }\n);",
+      "answer": "{\"created\":true}",
+      "imageLink": null,
+      "hint": "The route matches POST /data. res.end() sends the JSON-stringified object as the response body."
+    }
+  ]
+}

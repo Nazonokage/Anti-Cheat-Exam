@@ -1,0 +1,399 @@
+{
+  "subject": "SIA",
+  "title": "System Integration & Architecture — Summative Exam (Modules 1–4)",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "questions": [
+    {
+      "id": "q1",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "According to Module 1, SIA (System Integration & Architecture) primarily addresses:",
+      "options": [
+        "Both the technical and organizational dimensions of information systems",
+        "Hardware manufacturing standards only",
+        "Marketing budgets exclusively",
+        "Only backend server performance"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "SIA is not limited to just one aspect; it covers both how systems are built and how they fit into the organization."
+    },
+    {
+      "id": "q2",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "ERP stands for:",
+      "options": [
+        "Enterprise Reporting Platform",
+        "Enterprise Resource Planning",
+        "External Resource Provision",
+        "Enterprise Risk Procedure"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "This acronym is the crown jewel of integration, unifying business functions like finance, HR, and operations."
+    },
+    {
+      "id": "q3",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "In Module 1, the word \"heterogeneous\" is used to mean:",
+      "options": [
+        "Encrypted and secured",
+        "Cloud-based only",
+        "Identical in structure and function",
+        "Diverse in content or character"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Think about systems that speak different 'languages'—they are not uniform but varied."
+    },
+    {
+      "id": "q4",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "Which of these is NOT one of the three core benefits of SIA discussed in Module 1?",
+      "options": [
+        "Information Storage",
+        "Easier Decision Making",
+        "Behavioral Change",
+        "Guaranteed Cost Elimination"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "The three benefits are about storing data, making decisions, and changing behavior—no cost elimination is guaranteed."
+    },
+    {
+      "id": "q5",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "In the vertical silo model (Module 1), which management level handles day-to-day transaction processing?",
+      "options": [
+        "Strategic",
+        "Middle",
+        "Operational",
+        "Executive"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This level is the base of the pyramid, dealing with routine operations and transactions."
+    },
+    {
+      "id": "q6",
+      "module": "M1",
+      "type": "multiple_choice",
+      "text": "The process of combining multiple subsystems into one all-encompassing larger system is called:",
+      "options": [
+        "System Integration",
+        "Data Migration",
+        "Load Balancing",
+        "Virtualization"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "This term refers to the engineering process of assembling scattered components into a unified whole."
+    },
+    {
+      "id": "q7",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "In Module 2, 'Business Culture' refers to:",
+      "options": [
+        "The company's dress code policy",
+        "A software licensing scheme",
+        "The programming language used by a firm",
+        "The model of operations that determines communication and client interaction"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "It's about how the organization operates and communicates, not about technical tools or policies."
+    },
+    {
+      "id": "q8",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "In the 7-phase System Integration lifecycle (Module 2), which phase comes right after Feasibility Analysis?",
+      "options": [
+        "Implementation",
+        "Evaluation",
+        "Architecture & Development",
+        "Management Plan"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "After analyzing feasibility, the next step is to create the blueprint showing how components link together."
+    },
+    {
+      "id": "q9",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "In the IS hierarchy (Module 2), which system sits at the very top, above DSS and MIS?",
+      "options": [
+        "Transaction Processing System (TPS)",
+        "Management Information System (MIS)",
+        "Decision Support System (DSS)",
+        "Expert Systems (ES)"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "This system uses artificial intelligence and knowledge bases to mimic human expert decision-making."
+    },
+    {
+      "id": "q10",
+      "module": "M2",
+      "type": "multiple_choice",
+      "text": "A low-level programming language (Module 3) is best described as one that:",
+      "options": [
+        "Provides little or no abstraction from a computer's instruction set",
+        "Only runs inside a web browser",
+        "Requires no compiler or interpreter at all",
+        "Is exclusively used for database queries"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Low-level languages talk almost directly to the machine's binary instructions."
+    },
+    {
+      "id": "q11",
+      "module": "M3",
+      "type": "multiple_choice",
+      "text": "Per the 'Rule for beginners' in Module 3, what is the correct order of program planning?",
+      "options": [
+        "Code → Flowchart → Algorithm",
+        "Flowchart → Code → Algorithm",
+        "Algorithm → Flowchart → Code",
+        "Code → Algorithm → Flowchart"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It is always recommended to plan the logic first, then draw it, then implement it."
+    },
+    {
+      "id": "q12",
+      "module": "M3",
+      "type": "multiple_choice",
+      "text": "Every flowchart (Module 3) is built from which three fundamental stages?",
+      "options": [
+        "Start, Loop, End",
+        "Design, Test, Deploy",
+        "Plan, Build, Ship",
+        "Input, Process, Output"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "No matter how complex, every program flow can be broken down into these three stages."
+    },
+    {
+      "id": "q13",
+      "module": "M3",
+      "type": "multiple_choice",
+      "text": "In flowcharting (Module 3), the diamond shape represents:",
+      "options": [
+        "A Start / Terminator point",
+        "A Decision (Yes/No or True/False)",
+        "A Process or computation",
+        "A Connector"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "This shape is used to ask a question that determines the path direction."
+    },
+    {
+      "id": "q14",
+      "module": "M3",
+      "type": "multiple_choice",
+      "text": "The cylinder shape in a flowchart (Module 3) represents:",
+      "options": [
+        "Manual Input",
+        "Access Storage (e.g., a database or disk)",
+        "Multi-Document output",
+        "A Flow Line"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "This shape indicates direct access storage, such as a database or disk drive."
+    },
+    {
+      "id": "q15",
+      "module": "M3",
+      "type": "multiple_choice",
+      "text": "Pseudocode (Module 3) is best described as:",
+      "options": [
+        "Strict, compiler-ready syntax",
+        "Plain-English steps that outline program logic without strict syntax",
+        "A type of flowchart symbol",
+        "Machine code generated by a compiler"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Pseudocode is a step-by-step analysis written in plain language, not actual code."
+    },
+    {
+      "id": "q16",
+      "module": "M4",
+      "type": "multiple_choice",
+      "text": "According to Module 4, which three qualities make information trustworthy enough for a system to act on?",
+      "options": [
+        "Timely, Accurate, Complete",
+        "Fast, Cheap, Simple",
+        "Encrypted, Compressed, Backed-up",
+        "Local, Manual, Verbal"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Together, these three qualities ensure that data is reliable and actionable."
+    },
+    {
+      "id": "q17",
+      "module": "M4",
+      "type": "multiple_choice",
+      "text": "What is the first step in Module 4's 6-step System Integration lifecycle?",
+      "options": [
+        "Requirements Gathering",
+        "Architecture Design",
+        "Implementation",
+        "Maintenance"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "The lifecycle begins with understanding what the client needs."
+    },
+    {
+      "id": "q18",
+      "module": "M4",
+      "type": "multiple_choice",
+      "text": "Which step in the 6-step lifecycle (Module 4) involves testers verifying the system and resolving bugs?",
+      "options": [
+        "Analysis",
+        "Systems Integration Design",
+        "Implementation",
+        "Maintenance"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This is the stage where the integrated system is thoroughly verified and tested before release."
+    },
+    {
+      "id": "q19",
+      "module": "M4",
+      "type": "multiple_choice",
+      "text": "Module 4 cites which companies as real-world examples that rely heavily on system integration?",
+      "options": [
+        "Facebook, Pinterest, and Snapchat",
+        "Microsoft, Apple, and IBM",
+        "Toyota, Ford, and Honda",
+        "Coca-Cola, Pepsi, and Nestlé"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "These are social media and tech platforms that handle massive distributed systems."
+    },
+    {
+      "id": "q20",
+      "module": "M4",
+      "type": "multiple_choice",
+      "text": "Which is the final step of the 6-step System Integration lifecycle, involving ongoing monitoring and modification?",
+      "options": [
+        "Requirements Gathering",
+        "Analysis",
+        "Implementation",
+        "Maintenance"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "After deployment, systems need continuous monitoring and updates to stay effective."
+    },
+    {
+      "id": "q21",
+      "module": "M1",
+      "type": "identification",
+      "text": "The blueprint that defines structure, standards, and governance for the integrated system.",
+      "answer": "Architecture",
+      "imageLink": null,
+      "hint": "This is the overall design that ensures all parts fit and work together."
+    },
+    {
+      "id": "q22",
+      "module": "M3",
+      "type": "identification",
+      "text": "The step-by-step procedure to solve a problem, expressed in plain text.",
+      "answer": "Algorithm",
+      "imageLink": null,
+      "hint": "This is a sequence of steps, often written in pseudocode, that defines the logic."
+    },
+    {
+      "id": "q23",
+      "module": "M3",
+      "type": "identification",
+      "text": "The graphical representation of program logic using standard shapes.",
+      "answer": "Flowchart",
+      "imageLink": null,
+      "hint": "This diagram uses symbols like diamonds, rectangles, and ovals to show the flow of data."
+    },
+    {
+      "id": "q24",
+      "module": "M3",
+      "type": "identification",
+      "text": "The flowchart symbol that represents a Yes/No or True/False branch.",
+      "answer": "Decision",
+      "imageLink": null,
+      "hint": "This is the diamond shape used for asking questions that determine the path."
+    },
+    {
+      "id": "q25",
+      "module": "M2",
+      "type": "identification",
+      "text": "The information system that processes day-to-day transactions.",
+      "answer": "Transaction Processing System",
+      "imageLink": null,
+      "hint": "This is the base of the IS pyramid, handling routine operations like sales and payroll."
+    },
+    {
+      "id": "q26",
+      "module": "M2",
+      "type": "identification",
+      "text": "The information system that provides summarized reports for middle management.",
+      "answer": "Management Information System",
+      "imageLink": null,
+      "hint": "This system converts raw transactional data into structured reports for managers."
+    },
+    {
+      "id": "q27",
+      "module": "M2",
+      "type": "identification",
+      "text": "The information system that assists semi-structured or unstructured decisions.",
+      "answer": "Decision Support System",
+      "imageLink": null,
+      "hint": "This system provides data models and analytical tools for complex choices."
+    },
+    {
+      "id": "q28",
+      "module": "M2",
+      "type": "identification",
+      "text": "The information system that embeds specialized human expertise.",
+      "answer": "Expert Systems",
+      "imageLink": null,
+      "hint": "This system uses AI and knowledge engineering to mimic an expert in a domain."
+    },
+    {
+      "id": "q29",
+      "module": "M4",
+      "type": "identification",
+      "text": "The quality of information meaning it must be available when required.",
+      "answer": "Timely",
+      "imageLink": null,
+      "hint": "Information that arrives too late loses its value—timing is critical."
+    },
+    {
+      "id": "q30",
+      "module": "M4",
+      "type": "identification",
+      "text": "The quality of information meaning it must be precise and error-minimized.",
+      "answer": "Accuracy",
+      "imageLink": null,
+      "hint": "Even small errors in data can lead to significant mistakes in decision-making."
+    }
+  ]
+}

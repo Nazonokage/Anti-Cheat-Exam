@@ -32,6 +32,20 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 # Defaults to '*' (same as before) for easy LAN access out of the box.
 _allowed_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "*")
 ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(",")] if _allowed_hosts else []
+# Comma-separated list via DJANGO_CSRF_TRUSTED_ORIGINS
+# Example:
+# "https://abc.ngrok-free.app,https://mydomain.com"
+
+_csrf_trusted_origins = os.environ.get(
+    "DJANGO_CSRF_TRUSTED_ORIGINS",
+    "https://*.ngrok-free.app"
+)
+
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in _csrf_trusted_origins.split(",")
+    if origin.strip()
+]
 
 
 # Application definition

@@ -1,0 +1,409 @@
+{
+  "subject": "CS Graphical Visual Computing",
+  "title": "Prelim Exam — Principles of Animation, Design & Web Basics",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": true,
+  "questions": [
+    {
+      "id": "q01",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Which animation principle is considered the most important and gives objects the illusion of weight by deforming while keeping volume constant?",
+      "options": [
+        "Squash & Stretch",
+        "Anticipation",
+        "Slow In & Slow Out",
+        "Exaggeration"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Think of a bouncing ball — it flattens on impact and stretches in the air."
+    },
+    {
+      "id": "q02",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "A character winds up before throwing a punch. Which animation principle does this demonstrate?",
+      "options": [
+        "Follow Through",
+        "Staging",
+        "Anticipation",
+        "Secondary Action"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It prepares the viewer's eye for what is about to happen."
+    },
+    {
+      "id": "q03",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Which animation principle states that almost all living motion follows a curved path rather than a straight line?",
+      "options": [
+        "Timing",
+        "Staging",
+        "Arcs",
+        "Slow In & Slow Out"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Think about how a hand naturally swings — it never moves in a perfectly straight line."
+    },
+    {
+      "id": "q04",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "A character's coat continues to sway briefly after the character stops walking. Which principle does this illustrate?",
+      "options": [
+        "Anticipation",
+        "Follow Through & Overlapping Action",
+        "Secondary Action",
+        "Exaggeration"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Loose parts don't stop at the same time as the main body."
+    },
+    {
+      "id": "q05",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Which animation principle directly corresponds to CSS properties like ease-in and ease-out?",
+      "options": [
+        "Arcs",
+        "Timing",
+        "Squash & Stretch",
+        "Slow In & Slow Out"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Objects accelerate gradually and decelerate naturally — more frames at the start and end."
+    },
+    {
+      "id": "q06",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Which principle refers to the overall quality that makes a character pleasant and interesting to watch — even if they are a villain?",
+      "options": [
+        "Solid Drawing",
+        "Appeal",
+        "Staging",
+        "Exaggeration"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It's not about being likable — it's about being watchable."
+    },
+    {
+      "id": "q07",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Fast timing in animation tends to read as which of the following?",
+      "options": [
+        "Heavy and deliberate",
+        "Sad and emotional",
+        "Light, urgent, or comedic",
+        "Powerful and dramatic"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Think of a cartoon slap — it happens in a flash."
+    },
+    {
+      "id": "q08",
+      "module": "12 Principles of Animation",
+      "type": "multiple_choice",
+      "text": "Which principle ensures the audience's eye is directed to the right place at the right time — like a clear, readable silhouette?",
+      "options": [
+        "Appeal",
+        "Arcs",
+        "Staging",
+        "Solid Drawing"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Present one clear idea at a time — like a theater spotlight."
+    },
+    {
+      "id": "q09",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "Which design principle explains why a bright-colored button does not get lost in a wall of body text?",
+      "options": [
+        "Proximity",
+        "Repetition",
+        "Contrast",
+        "Alignment"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Difference in color, size, or weight creates emphasis."
+    },
+    {
+      "id": "q10",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "The 60-30-10 rule — 60% dominant, 30% secondary, 10% accent — belongs to which design principle?",
+      "options": [
+        "Typography",
+        "Grid Systems",
+        "White Space",
+        "Color"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "It keeps a palette from feeling chaotic."
+    },
+    {
+      "id": "q11",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "A layout that uses the same visual weight on both sides of a centerline is an example of which type of balance?",
+      "options": [
+        "Asymmetrical Balance",
+        "Radial Balance",
+        "Symmetrical Balance",
+        "Dynamic Balance"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It looks mirrored — formal and trustworthy."
+    },
+    {
+      "id": "q12",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "Which design principle states that every element on a page should line up with something else, creating invisible structure?",
+      "options": [
+        "Proximity",
+        "Repetition",
+        "Contrast",
+        "Alignment"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Nothing should sit randomly on the page."
+    },
+    {
+      "id": "q13",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "Which design principle is described as the fastest way to make a design feel premium?",
+      "options": [
+        "Repetition",
+        "White Space",
+        "Typography",
+        "Visual Hierarchy"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Beginners fear this and rush to fill it — don't."
+    },
+    {
+      "id": "q14",
+      "module": "13 Principles of Design",
+      "type": "multiple_choice",
+      "text": "Websites are commonly built on an invisible skeleton of how many columns to keep alignment consistent?",
+      "options": [
+        "6",
+        "8",
+        "10",
+        "12"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Think of it as graph paper beneath the design."
+    },
+    {
+      "id": "q15",
+      "module": "Wireframes & Mockups",
+      "type": "multiple_choice",
+      "text": "Which best describes a wireframe?",
+      "options": [
+        "A fully interactive prototype with animations",
+        "A high-fidelity design with full colors and typography",
+        "A low-fidelity skeletal blueprint focused on layout and structure",
+        "The final coded HTML/CSS output"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "No colors, no real fonts — just boxes and placeholders."
+    },
+    {
+      "id": "q16",
+      "module": "Wireframes & Mockups",
+      "type": "multiple_choice",
+      "text": "What is the key difference between a mockup and a prototype?",
+      "options": [
+        "A mockup has color; a prototype does not",
+        "A mockup is interactive; a prototype is static",
+        "A mockup is static; a prototype is interactive",
+        "There is no difference between the two"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "You can click through a prototype but not a mockup."
+    },
+    {
+      "id": "q17",
+      "module": "HTML/CSS/JS Basics",
+      "type": "multiple_choice",
+      "text": "Which HTML tag creates the largest heading on a page?",
+      "options": [
+        "<head>",
+        "<h6>",
+        "<h1>",
+        "<title>"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "h1 through h6 — the number goes up as importance goes down."
+    },
+    {
+      "id": "q18",
+      "module": "HTML/CSS/JS Basics",
+      "type": "multiple_choice",
+      "text": "In the CSS Box Model, which property controls the space outside an element's border?",
+      "options": [
+        "Padding",
+        "Border",
+        "Width",
+        "Margin"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "Padding is inside the border — this one is outside."
+    },
+    {
+      "id": "q19",
+      "module": "HTML/CSS/JS Basics",
+      "type": "multiple_choice",
+      "text": "Which is the best practice for adding CSS to an HTML page?",
+      "options": [
+        "Inline styles using the style attribute",
+        "Internal styles using a <style> tag",
+        "External stylesheet linked via <link>",
+        "Embedding CSS inside JavaScript"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It's reusable across multiple pages and keeps concerns separated."
+    },
+    {
+      "id": "q20",
+      "module": "HTML/CSS/JS Basics",
+      "type": "multiple_choice",
+      "text": "Which JavaScript method is used to select an element by its ID and change its displayed content?",
+      "options": [
+        "document.querySelector()",
+        "document.getElementById().innerHTML",
+        "document.getClass().innerText",
+        "document.selectId().content"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It uses the element's unique id attribute to find and modify it."
+    },
+    {
+      "id": "q21",
+      "module": "12 Principles of Animation",
+      "type": "true_false",
+      "text": "The principle of Squash & Stretch requires that an object's volume remain constant — if it stretches taller, it must get thinner.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Volume conservation is the core rule of this principle."
+    },
+    {
+      "id": "q22",
+      "module": "12 Principles of Animation",
+      "type": "true_false",
+      "text": "Slow In & Slow Out means an animated object maintains a constant speed from start to finish.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Real objects accelerate and decelerate — they do NOT move at constant speed."
+    },
+    {
+      "id": "q23",
+      "module": "12 Principles of Animation",
+      "type": "true_false",
+      "text": "Secondary Action is a supporting motion that adds richness to a scene without competing with or distracting from the main action.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Think of a character nodding their head while walking — the walk is primary."
+    },
+    {
+      "id": "q24",
+      "module": "12 Principles of Animation",
+      "type": "true_false",
+      "text": "The Straight Ahead animation method is more controlled and planned than the Pose to Pose method.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Straight Ahead is spontaneous — Pose to Pose is the planned, controlled approach."
+    },
+    {
+      "id": "q25",
+      "module": "13 Principles of Design",
+      "type": "true_false",
+      "text": "In the 13 Principles of Design, Proximity means that related items should be placed close together to show they belong to the same group.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Closeness communicates relationship — no labels or borders needed."
+    },
+    {
+      "id": "q26",
+      "module": "13 Principles of Design",
+      "type": "true_false",
+      "text": "Accessibility is considered an optional extra feature that only needs to be addressed after the main design is complete.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "If it only works for some users, it isn't finished — it's a baseline, not a bonus."
+    },
+    {
+      "id": "q27",
+      "module": "13 Principles of Design",
+      "type": "true_false",
+      "text": "Asymmetrical balance uses different elements of similar visual weight to create a dynamic and modern feel.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "It doesn't mirror — it balances using contrast and variety instead."
+    },
+    {
+      "id": "q28",
+      "module": "Wireframes & Mockups",
+      "type": "true_false",
+      "text": "A mockup is interactive — users can click buttons and navigate between screens to test the flow.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "That describes a prototype. A mockup looks real but does nothing when clicked."
+    },
+    {
+      "id": "q29",
+      "module": "HTML/CSS/JS Basics",
+      "type": "true_false",
+      "text": "In CSS, the class selector uses a dot (.) prefix, while the ID selector uses a hash (#) prefix.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": ".box targets a class — #box targets a unique ID."
+    },
+    {
+      "id": "q30",
+      "module": "HTML/CSS/JS Basics",
+      "type": "true_false",
+      "text": "In HTML, the <body> tag contains meta-information such as the page title and linked stylesheets.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Meta-information goes inside <head> — <body> holds the visible content."
+    }
+  ]
+}
