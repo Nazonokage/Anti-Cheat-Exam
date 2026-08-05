@@ -1,212 +1,851 @@
 {
-  "subject": "mysql_wamp_php",
-  "title": "MySQL + WAMP + PHP — Midterm Exam",
+  "subject": "Advanced Database",
+  "title": "MySQL, WAMP, PHP & Database Management - Comprehensive Quiz (60 Items)",
   "secondsPerQuestion": 60,
   "hintsEnabled": true,
-  "multipleChoice": [
+  "gameMode": false,
+  "random": false,
+
+  "questions": [
     {
-      "id": "mc1",
-      "text": "What does WAMP stand for?",
-      "options": ["Windows Apache MySQL PHP", "Web Apache MySQL Perl", "Windows Access MySQL Python", "Web Access MariaDB PHP"],
+      "id": "q01",
+      "module": "Environment Setup",
+      "type": "multiple_choice",
+      "text": "What does the acronym WAMP stand for?",
+      "options": [
+        "Windows + Apache + MySQL + PHP",
+        "Web + Application + MySQL + Python",
+        "Windows + Application + MongoDB + PHP",
+        "Web + Apache + MariaDB + Perl"
+      ],
       "answerIndex": 0,
-      "hint": "Think about the common web development stack on Windows."
+      "imageLink": null,
+      "hint": "It is a local development stack for Windows that includes a web server, database, and scripting language."
     },
     {
-      "id": "mc2",
-      "text": "Which SQL command is used to retrieve data from a table?",
-      "options": ["INSERT", "UPDATE", "SELECT", "DELETE"],
-      "answerIndex": 2,
-      "hint": "It's the most fundamental query command."
-    },
-    {
-      "id": "mc3",
-      "text": "Which command creates a new database?",
-      "options": ["NEW DATABASE", "CREATE DATABASE", "ADD DATABASE", "MAKE DATABASE"],
+      "id": "q02",
+      "module": "Environment Setup",
+      "type": "multiple_choice",
+      "text": "When the WAMP tray icon turns green, what does it indicate?",
+      "options": [
+        "Apache has crashed",
+        "All services are running properly",
+        "MySQL needs a restart",
+        "The system is overheating"
+      ],
       "answerIndex": 1,
-      "hint": "SQL uses CREATE for defining structures."
+      "imageLink": null,
+      "hint": "Green is the healthy status for the WAMP icon."
     },
     {
-      "id": "mc4",
-      "text": "What is the default MySQL username in WAMP?",
-      "options": ["admin", "mysql", "root", "user"],
+      "id": "q03",
+      "module": "Environment Setup",
+      "type": "multiple_choice",
+      "text": "Where should you place your PHP files so they can be accessed via localhost?",
+      "options": [
+        "C:\\wamp64\\bin\\mysql\\",
+        "C:\\wamp64\\logs\\",
+        "C:\\wamp64\\www\\",
+        "C:\\wamp64\\bin\\php\\"
+      ],
       "answerIndex": 2,
-      "hint": "It's the superuser account."
+      "imageLink": null,
+      "hint": "This is the web root directory of WAMP."
     },
     {
-      "id": "mc5",
-      "text": "Which SQL statement is used to add new records?",
-      "options": ["ADD", "INSERT", "APPEND", "CREATE"],
+      "id": "q04",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "Which SQL sub-language is responsible for defining and modifying database structure (CREATE, ALTER, DROP)?",
+      "options": [
+        "DML",
+        "DCL",
+        "DDL",
+        "TCL"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It stands for Data Definition Language."
+    },
+    {
+      "id": "q05",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "Which SQL sub-language handles INSERT, UPDATE, DELETE, and SELECT?",
+      "options": [
+        "DDL",
+        "DML",
+        "DCL",
+        "DQL"
+      ],
       "answerIndex": 1,
-      "hint": "Commonly abbreviated as INSERT INTO."
+      "imageLink": null,
+      "hint": "It stands for Data Manipulation Language."
     },
     {
-      "id": "mc6",
-      "text": "What is the default MySQL port used by WAMP?",
-      "options": ["80", "8080", "3306", "443"],
+      "id": "q06",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "Which SQL sub-language controls permissions (GRANT, REVOKE, DENY)?",
+      "options": [
+        "DDL",
+        "DML",
+        "DCL",
+        "TCL"
+      ],
       "answerIndex": 2,
-      "hint": "MySQL's standard port number."
+      "imageLink": null,
+      "hint": "It stands for Data Control Language."
     },
     {
-      "id": "mc7",
-      "text": "Which SQL clause filters rows?",
-      "options": ["GROUP BY", "ORDER BY", "WHERE", "LIMIT"],
+      "id": "q07",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "What is the default port number used by MySQL?",
+      "options": [
+        "80",
+        "443",
+        "3306",
+        "8080"
+      ],
       "answerIndex": 2,
-      "hint": "It comes after FROM in a SELECT statement."
+      "imageLink": null,
+      "hint": "This is the standard MySQL port; remember it for troubleshooting connection issues."
     },
     {
-      "id": "mc8",
-      "text": "Which PHP extension is commonly used to connect to MySQL?",
-      "options": ["mysqli", "curl", "gd", "json"],
+      "id": "q08",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which constraint uniquely identifies each row in a table?",
+      "options": [
+        "FOREIGN KEY",
+        "UNIQUE",
+        "PRIMARY KEY",
+        "CHECK"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It cannot contain NULL values and must be unique."
+    },
+    {
+      "id": "q09",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which constraint creates a link to the primary key of another table?",
+      "options": [
+        "PRIMARY KEY",
+        "FOREIGN KEY",
+        "UNIQUE",
+        "NOT NULL"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It maintains referential integrity between tables."
+    },
+    {
+      "id": "q10",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which constraint prevents a column from accepting NULL values?",
+      "options": [
+        "UNIQUE",
+        "DEFAULT",
+        "NOT NULL",
+        "CHECK"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "The column must always have a value."
+    },
+    {
+      "id": "q11",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which statement correctly adds a new column to an existing table?",
+      "options": [
+        "UPDATE TABLE users ADD Phone VARCHAR(20);",
+        "MODIFY TABLE users ADD Phone VARCHAR(20);",
+        "ALTER TABLE users ADD Phone VARCHAR(20);",
+        "INSERT INTO users ADD Phone VARCHAR(20);"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "ALTER TABLE is used for structural changes."
+    },
+    {
+      "id": "q12",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "What does AUTO_INCREMENT do when inserting a new row?",
+      "options": [
+        "Automatically updates existing rows",
+        "Generates a unique sequential number",
+        "Prevents duplicate values",
+        "Sets the column value to zero"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Commonly used with PRIMARY KEY columns."
+    },
+    {
+      "id": "q13",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which command permanently removes a table and all its data?",
+      "options": [
+        "DELETE TABLE users;",
+        "TRUNCATE TABLE users;",
+        "DROP TABLE users;",
+        "REMOVE TABLE users;"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "This is irreversible and removes both structure and data."
+    },
+    {
+      "id": "q14",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which command removes all rows from a table but keeps its structure?",
+      "options": [
+        "DROP TABLE users;",
+        "DELETE FROM users;",
+        "TRUNCATE TABLE users;",
+        "REMOVE FROM users;"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Faster than DELETE and resets AUTO_INCREMENT."
+    },
+    {
+      "id": "q15",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "What happens if you run DELETE FROM users; without a WHERE clause?",
+      "options": [
+        "MySQL asks for confirmation",
+        "Only the first row is deleted",
+        "All rows are deleted",
+        "The table structure is also dropped"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Always use WHERE unless you intentionally want to empty the table."
+    },
+    {
+      "id": "q16",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which clause is used for pattern matching with wildcards?",
+      "options": [
+        "WHERE name = '%Juan%'",
+        "WHERE name LIKE '%Juan%'",
+        "WHERE name CONTAINS 'Juan'",
+        "WHERE name MATCH '%Juan%'"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "LIKE is the correct operator for wildcards % and _."
+    },
+    {
+      "id": "q17",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which SQL clause sorts the results of a query?",
+      "options": [
+        "SORT BY",
+        "GROUP BY",
+        "ORDER BY",
+        "ARRANGE BY"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "You can specify ASC or DESC."
+    },
+    {
+      "id": "q18",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which command lets you start working inside a specific database?",
+      "options": [
+        "SELECT DATABASE",
+        "USE",
+        "OPEN",
+        "CONNECT"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Example: USE dbLending;"
+    },
+    {
+      "id": "q19",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which constraint provides a fallback value when none is supplied during INSERT?",
+      "options": [
+        "NOT NULL",
+        "CHECK",
+        "DEFAULT",
+        "UNIQUE"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It automatically fills the column if omitted."
+    },
+    {
+      "id": "q20",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "What does the UNIQUE constraint do?",
+      "options": [
+        "Makes the column the primary identifier",
+        "Prevents two rows from having the same value",
+        "Automatically generates unique numbers",
+        "Creates a foreign key relationship"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Unlike PRIMARY KEY, it can allow one NULL in most databases."
+    },
+    {
+      "id": "q21",
+      "module": "DCL",
+      "type": "multiple_choice",
+      "text": "Which command gives a user permission to perform operations on a database object?",
+      "options": [
+        "ALLOW",
+        "PERMIT",
+        "GRANT",
+        "ENABLE"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Example: GRANT SELECT, INSERT ON table TO 'user'@'localhost';"
+    },
+    {
+      "id": "q22",
+      "module": "DCL",
+      "type": "multiple_choice",
+      "text": "Which command removes previously granted permissions?",
+      "options": [
+        "DELETE",
+        "REMOVE",
+        "REVOKE",
+        "DENY"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It is the opposite of GRANT."
+    },
+    {
+      "id": "q23",
+      "module": "DCL",
+      "type": "multiple_choice",
+      "text": "What does DCL stand for?",
+      "options": [
+        "Data Creation Language",
+        "Data Control Language",
+        "Database Command List",
+        "Data Constraint Layer"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It deals with user privileges and access control."
+    },
+    {
+      "id": "q24",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "Which PHP function is used to connect to MySQL using the mysqli extension?",
+      "options": [
+        "mysql_open()",
+        "mysqli_connect()",
+        "php_connect()",
+        "db_connect()"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It requires host, username, password, and database name."
+    },
+    {
+      "id": "q25",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "Which PHP function fetches a result row as an associative array?",
+      "options": [
+        "mysqli_fetch_row()",
+        "mysqli_fetch_array()",
+        "mysqli_fetch_assoc()",
+        "mysqli_get_row()"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "You can access columns by name: $row['column_name']"
+    },
+    {
+      "id": "q26",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "Which function returns the number of rows affected by an UPDATE, INSERT, or DELETE?",
+      "options": [
+        "mysqli_num_rows()",
+        "mysqli_row_count()",
+        "mysqli_affected_rows()",
+        "mysqli_count()"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Useful for checking if a DML operation succeeded."
+    },
+    {
+      "id": "q27",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "What is the recommended way to prevent SQL injection in PHP?",
+      "options": [
+        "Using string concatenation",
+        "Using prepared statements",
+        "Escaping only single quotes",
+        "Disabling error reporting"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "PDO or mysqli prepared statements with bound parameters are safest."
+    },
+    {
+      "id": "q28",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "Which of the following is the more modern and secure database abstraction layer in PHP?",
+      "options": [
+        "mysql_* functions",
+        "mysqli",
+        "PDO",
+        "Both B and C are acceptable"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "PDO supports multiple databases; mysqli is MySQL-specific."
+    },
+    {
+      "id": "q29",
+      "module": "JOINs",
+      "type": "multiple_choice",
+      "text": "Which JOIN returns only the rows that have matching values in both tables?",
+      "options": [
+        "LEFT JOIN",
+        "RIGHT JOIN",
+        "INNER JOIN",
+        "FULL OUTER JOIN"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It is the most commonly used JOIN type."
+    },
+    {
+      "id": "q30",
+      "module": "JOINs",
+      "type": "multiple_choice",
+      "text": "Which JOIN returns all rows from the left table and matching rows from the right table?",
+      "options": [
+        "INNER JOIN",
+        "LEFT JOIN",
+        "RIGHT JOIN",
+        "CROSS JOIN"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Non-matching right-side values appear as NULL."
+    },
+    {
+      "id": "q31",
+      "module": "Backup & Recovery",
+      "type": "multiple_choice",
+      "text": "Which command-line tool is used to create a backup of a MySQL database?",
+      "options": [
+        "mysqlbackup",
+        "mysqldump",
+        "mysqlrestore",
+        "mysqlexport"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Example: mysqldump -u root -p database_name > backup.sql"
+    },
+    {
+      "id": "q32",
+      "module": "Backup & Recovery",
+      "type": "multiple_choice",
+      "text": "How do you restore a database from a .sql backup file using the command line?",
+      "options": [
+        "mysqldump < backup.sql",
+        "mysql < backup.sql",
+        "mysqlrestore backup.sql",
+        "mysqlimport backup.sql"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "You redirect the file into the mysql client."
+    },
+    {
+      "id": "q33",
+      "module": "Troubleshooting",
+      "type": "multiple_choice",
+      "text": "If the WAMP icon is orange, what is the most common cause?",
+      "options": [
+        "MySQL service failed",
+        "Port 80 or 443 is already in use",
+        "PHP is not installed",
+        "Insufficient disk space"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Skype or another web server often occupies port 80."
+    },
+    {
+      "id": "q34",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "What does the CHECK constraint do?",
+      "options": [
+        "Verifies the table exists",
+        "Ensures values meet a specific condition",
+        "Checks for duplicate values",
+        "Validates foreign keys automatically"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Example: CHECK (Age >= 18)"
+    },
+    {
+      "id": "q35",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which keyword is used to combine text from multiple columns into one?",
+      "options": [
+        "MERGE",
+        "CONCAT",
+        "JOIN",
+        "COMBINE"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Example: CONCAT(FirstName, ' ', LastName) AS FullName"
+    },
+    {
+      "id": "q36",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which operator is used to select values within a range?",
+      "options": [
+        "IN",
+        "BETWEEN",
+        "LIKE",
+        "RANGE"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Syntax: WHERE Salary BETWEEN 40000 AND 60000"
+    },
+    {
+      "id": "q37",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "What is the correct order of the four basic CRUD operations?",
+      "options": [
+        "Create, Read, Update, Delete",
+        "Connect, Retrieve, Update, Drop",
+        "Create, Retrieve, Upload, Delete",
+        "Copy, Read, Update, Drop"
+      ],
       "answerIndex": 0,
-      "hint": "Improved MySQL Improved extension."
+      "imageLink": null,
+      "hint": "CRUD is a fundamental concept in database applications."
     },
     {
-      "id": "mc9",
-      "text": "What does AUTO_INCREMENT do?",
-      "options": ["Deletes old records", "Automatically generates sequential numbers", "Encrypts data", "Sorts rows"],
+      "id": "q38",
+      "module": "Security",
+      "type": "multiple_choice",
+      "text": "Which of the following is a best practice for storing passwords?",
+      "options": [
+        "Store them in plain text",
+        "Use a simple MD5 hash",
+        "Use password_hash() with a strong algorithm",
+        "Encrypt them with a fixed key"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Never store plain-text passwords; use modern hashing."
+    },
+    {
+      "id": "q39",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which statement is true about the WHERE clause?",
+      "options": [
+        "It is optional and never dangerous to omit",
+        "Omitting it on UPDATE or DELETE affects all rows",
+        "It can only be used with SELECT",
+        "It automatically prevents data loss"
+      ],
       "answerIndex": 1,
-      "hint": "Used with primary keys for unique IDs."
+      "imageLink": null,
+      "hint": "Always double-check your WHERE conditions before running UPDATE/DELETE."
     },
     {
-      "id": "mc10",
-      "text": "Which SQL command modifies existing data?",
-      "options": ["CHANGE", "ALTER", "UPDATE", "MODIFY"],
-      "answerIndex": 2,
-      "hint": "It's the DML command for changing values."
-    },
-    {
-      "id": "mc11",
-      "text": "Which folder stores PHP files in WAMP by default?",
-      "options": ["C:\\\\xampp\\\\htdocs", "C:\\\\wamp64\\\\www", "C:\\\\php\\\\www", "C:\\\\mysql\\\\data"],
+      "id": "q40",
+      "module": "Environment Setup",
+      "type": "multiple_choice",
+      "text": "Which tool provides a web-based graphical interface for managing MySQL databases in WAMP?",
+      "options": [
+        "MySQL Workbench",
+        "phpMyAdmin",
+        "HeidiSQL",
+        "Navicat"
+      ],
       "answerIndex": 1,
-      "hint": "Look for the www directory in WAMP installation."
+      "imageLink": null,
+      "hint": "Accessible from the WAMP tray icon."
     },
     {
-      "id": "mc12",
-      "text": "Which SQL statement removes records from a table?",
-      "options": ["REMOVE", "DROP", "DELETE", "ERASE"],
-      "answerIndex": 2,
-      "hint": "Be careful with this one — it can be dangerous without WHERE."
+      "id": "q41",
+      "module": "DDL",
+      "type": "multiple_choice",
+      "text": "Which SQL keyword is used to modify the structure of an existing table?",
+      "options": [
+        "MODIFY",
+        "CHANGE",
+        "UPDATE",
+        "ALTER"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "ALTER TABLE is the main command for structural changes."
     },
     {
-      "id": "mc13",
-      "text": "What is phpMyAdmin primarily used for?",
-      "options": ["Editing PHP code", "Managing MySQL databases", "Compiling programs", "Running Apache"],
+      "id": "q42",
+      "module": "DCL",
+      "type": "multiple_choice",
+      "text": "What does the DENY statement do?",
+      "options": [
+        "Removes a privilege",
+        "Explicitly forbids a privilege even if granted",
+        "Grants a privilege temporarily",
+        "Shows current privileges"
+      ],
       "answerIndex": 1,
-      "hint": "It's a web interface for database administration."
+      "imageLink": null,
+      "hint": "It overrides any GRANT statements."
     },
     {
-      "id": "mc14",
-      "text": "Which data type stores variable-length text?",
-      "options": ["INT", "DATE", "VARCHAR", "FLOAT"],
-      "answerIndex": 2,
-      "hint": "Varying character type."
-    },
-    {
-      "id": "mc15",
-      "text": "What happens if UPDATE is executed without a WHERE clause?",
-      "options": ["Only one row updates", "An error occurs", "All rows update", "No rows update"],
-      "answerIndex": 2,
-      "hint": "It affects every row in the table."
-    },
-    {
-      "id": "mc16",
-      "text": "Which SQL command creates a table?",
-      "options": ["MAKE TABLE", "ADD TABLE", "CREATE TABLE", "NEW TABLE"],
-      "answerIndex": 2,
-      "hint": "The DDL command for defining tables."
-    },
-    {
-      "id": "mc17",
-      "text": "What is the purpose of PRIMARY KEY?",
-      "options": ["Store passwords", "Identify each row uniquely", "Sort data", "Create backups"],
+      "id": "q43",
+      "module": "PHP & MySQL",
+      "type": "multiple_choice",
+      "text": "Which function checks how many rows a SELECT query returned?",
+      "options": [
+        "mysqli_affected_rows()",
+        "mysqli_num_rows()",
+        "mysqli_row_count()",
+        "mysqli_count()"
+      ],
       "answerIndex": 1,
-      "hint": "Ensures uniqueness and is often used for referencing."
+      "imageLink": null,
+      "hint": "Use this after a successful SELECT."
     },
     {
-      "id": "mc18",
-      "text": "Which clause is used to sort query results?",
-      "options": ["GROUP BY", "ORDER BY", "WHERE", "LIMIT"],
+      "id": "q44",
+      "module": "Backup & Recovery",
+      "type": "multiple_choice",
+      "text": "Why is testing a backup important?",
+      "options": [
+        "To free up disk space",
+        "To ensure the backup can actually be restored",
+        "To compress the file",
+        "To change the database engine"
+      ],
       "answerIndex": 1,
-      "hint": "ASC or DESC can be specified."
+      "imageLink": null,
+      "hint": "A backup that cannot be restored is useless."
     },
     {
-      "id": "mc19",
-      "text": "Which SQL operator is used for pattern matching?",
-      "options": ["MATCH", "COMPARE", "LIKE", "SEARCH"],
+      "id": "q45",
+      "module": "Security",
+      "type": "multiple_choice",
+      "text": "What should you use to prevent XSS (Cross-Site Scripting) when displaying user data?",
+      "options": [
+        "mysqli_real_escape_string()",
+        "htmlspecialchars()",
+        "password_hash()",
+        "strip_tags() only"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It converts special characters to HTML entities."
+    },
+    {
+      "id": "q46",
+      "module": "DML",
+      "type": "multiple_choice",
+      "text": "Which of the following correctly inserts data into specific columns only?",
+      "options": [
+        "INSERT INTO users VALUES ('John', 'john@email.com');",
+        "INSERT INTO users (name, email) VALUES ('John', 'john@email.com');",
+        "INSERT users SET name='John', email='john@email.com';",
+        "Both B and C are valid"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "You can omit columns that have defaults or are AUTO_INCREMENT."
+    },
+    {
+      "id": "q47",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "Which command shows all tables in the currently selected database?",
+      "options": [
+        "SHOW DATABASES;",
+        "SHOW TABLES;",
+        "DESCRIBE TABLES;",
+        "LIST TABLES;"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Use after selecting a database with USE."
+    },
+    {
+      "id": "q48",
+      "module": "MySQL Fundamentals",
+      "type": "multiple_choice",
+      "text": "Which command displays the structure of a table?",
+      "options": [
+        "SHOW TABLE",
+        "DESCRIBE table_name;",
+        "STRUCTURE table_name;",
+        "INFO table_name;"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Also known as DESC table_name;"
+    },
+    {
+      "id": "q49",
+      "module": "JOINs",
+      "type": "multiple_choice",
+      "text": "In a self-referencing foreign key (e.g., ManagerID → EmpID), what kind of relationship is being modeled?",
+      "options": [
+        "One-to-many between two different tables",
+        "Hierarchical relationship within the same table",
+        "Many-to-many relationship",
+        "No relationship is formed"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Common for employee-manager structures."
+    },
+    {
+      "id": "q50",
+      "module": "General",
+      "type": "multiple_choice",
+      "text": "Which of the following is NOT a recommended database design principle?",
+      "options": [
+        "Normalize data to avoid duplication",
+        "Use primary keys and foreign keys",
+        "Store passwords in plain text for easy recovery",
+        "Choose appropriate data types"
+      ],
       "answerIndex": 2,
-      "hint": "Used with wildcards like % and _."
+      "imageLink": null,
+      "hint": "Security best practices require hashing passwords."
     },
     {
-      "id": "mc20",
-      "text": "Which statement selects all columns from the users table?",
-      "options": ["SELECT users;", "SELECT ALL FROM users;", "SELECT * FROM users;", "GET * FROM users;"],
-      "answerIndex": 2,
-      "hint": "The asterisk (*) means all columns."
-    }
-  ],
-  "boolean": [
-    {
-      "id": "tf1",
-      "text": "WAMP includes Apache, MySQL, and PHP.",
-      "answer": true,
-      "hint": "WAMP is a stack of these components."
+      "id": "q51",
+      "module": "Environment Setup",
+      "type": "identification",
+      "text": "The local server stack acronym that turns a Windows PC into a mini internet (Windows + Apache + MySQL + PHP).",
+      "answer": "WAMP",
+      "imageLink": null,
+      "hint": "Green icon means everything is running."
     },
     {
-      "id": "tf2",
-      "text": "The DELETE statement is used to create a table.",
-      "answer": false,
-      "hint": "DELETE is for removing data, not structure."
+      "id": "q52",
+      "module": "MySQL Fundamentals",
+      "type": "identification",
+      "text": "The SQL sub-language responsible for building and destroying table structures (CREATE, ALTER, DROP).",
+      "answer": "DDL",
+      "imageLink": null,
+      "hint": "Stands for Data Definition Language."
     },
     {
-      "id": "tf3",
-      "text": "The default WAMP root password is usually blank.",
-      "answer": true,
-      "hint": "For fresh installations, it's often empty."
+      "id": "q53",
+      "module": "MySQL Fundamentals",
+      "type": "identification",
+      "text": "The SQL sub-language that handles INSERT, UPDATE, DELETE, and SELECT.",
+      "answer": "DML",
+      "imageLink": null,
+      "hint": "Stands for Data Manipulation Language."
     },
     {
-      "id": "tf4",
-      "text": "A PRIMARY KEY can contain duplicate values.",
-      "answer": false,
-      "hint": "It enforces uniqueness."
+      "id": "q54",
+      "module": "MySQL Fundamentals",
+      "type": "identification",
+      "text": "The SQL sub-language that decides who gets the keys to the kingdom (permissions).",
+      "answer": "DCL",
+      "imageLink": null,
+      "hint": "Stands for Data Control Language."
     },
     {
-      "id": "tf5",
-      "text": "SELECT is a Data Manipulation Language (DML) command.",
-      "answer": true,
-      "hint": "DML handles data retrieval and modification."
-    }
-  ],
-  "identification": [
-    {
-      "id": "id1",
-      "text": "The web-based tool used to manage MySQL databases in WAMP.",
-      "answer": "phpMyAdmin",
-      "hint": "Commonly accessed via http://localhost/phpmyadmin"
+      "id": "q55",
+      "module": "DDL",
+      "type": "identification",
+      "text": "The constraint that uniquely identifies every row in a table.",
+      "answer": "PRIMARY KEY",
+      "imageLink": null,
+      "hint": "Cannot be NULL and must be unique."
     },
     {
-      "id": "id2",
-      "text": "The SQL command used to retrieve records from a table.",
-      "answer": "SELECT",
-      "hint": "Basic query command."
+      "id": "q56",
+      "module": "DDL",
+      "type": "identification",
+      "text": "The constraint that points to another table's primary key and keeps relationships intact.",
+      "answer": "FOREIGN KEY",
+      "imageLink": null,
+      "hint": "Enforces referential integrity."
     },
     {
-      "id": "id3",
-      "text": "The default folder where PHP projects are stored in WAMP.",
-      "answer": "www",
-      "hint": "Inside the WAMP installation directory."
+      "id": "q57",
+      "module": "DDL",
+      "type": "identification",
+      "text": "The constraint that simply refuses to accept emptiness in a column.",
+      "answer": "NOT NULL",
+      "imageLink": null,
+      "hint": "The column must always contain a value."
     },
     {
-      "id": "id4",
-      "text": "The SQL clause used to filter rows in a query.",
+      "id": "q58",
+      "module": "PHP & MySQL",
+      "type": "identification",
+      "text": "The PHP function that connects your script to MySQL using the mysqli extension.",
+      "answer": "mysqli_connect",
+      "imageLink": null,
+      "hint": "Also accept mysqli_connect()."
+    },
+    {
+      "id": "q59",
+      "module": "MySQL Fundamentals",
+      "type": "identification",
+      "text": "MySQL's default port number — memorize it, it'll show up when things break.",
+      "answer": "3306",
+      "imageLink": null,
+      "hint": "The standard TCP port for MySQL."
+    },
+    {
+      "id": "q60",
+      "module": "DML",
+      "type": "identification",
+      "text": "The clause that saves you from accidentally nuking your entire table at 2am.",
       "answer": "WHERE",
-      "hint": "Used in SELECT, UPDATE, DELETE."
-    },
-    {
-      "id": "id5",
-      "text": "The MySQL data type commonly used for variable-length text.",
-      "answer": "VARCHAR",
-      "hint": "Stands for variable character."
+      "imageLink": null,
+      "hint": "Always use it with UPDATE and DELETE."
     }
   ]
 }

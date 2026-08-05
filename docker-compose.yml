@@ -15,7 +15,7 @@ services:
       # DJANGO_SECRET_KEY: "generate-a-real-one-for-anything-beyond-a-closed-LAN"
     volumes:
       - exam_data:/app/data
-    restart: unless-stopped
+    restart: always
 
 volumes:
   exam_data:

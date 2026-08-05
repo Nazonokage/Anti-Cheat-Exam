@@ -24,7 +24,9 @@ VOLUME ["/app/data"]
 EXPOSE 8090
 
 COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
+
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
+    chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["gunicorn", "exam_system.wsgi:application", "--bind", "0.0.0.0:8090", "--workers", "3"]

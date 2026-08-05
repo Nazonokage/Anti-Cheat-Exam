@@ -1,0 +1,701 @@
+{
+  "subject": "HCI 2",
+  "title": "HCI 2 Prelims — Handheld, Touch, Auditory, Visual, QR Codes & Itertools (50 Items)",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "random": false,
+
+  "questions": [
+    {
+      "id": "q01",
+      "module": "M2 Handheld & Wearable",
+      "type": "multiple_choice",
+      "text": "A handheld device is defined as a computer or digital engine small enough to be operated completely within the palm of:",
+      "options": [
+        "Two hands",
+        "One hand",
+        "Any surface",
+        "A lap"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Core anatomical definition of handheld devices."
+    },
+    {
+      "id": "q02",
+      "module": "M2 Handheld & Wearable",
+      "type": "multiple_choice",
+      "text": "Which wearable category includes garments with built-in biometric circuitry that can adjust based on ambient temperature?",
+      "options": [
+        "Smart Jewelry",
+        "Fitness Trackers",
+        "Smart Clothing / Tech Textiles",
+        "Body-Mounted Biosensors"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Also called tech textiles."
+    },
+    {
+      "id": "q03",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which touchscreen technology can be activated by virtually any input object (finger, stylus, gloved hand, pen)?",
+      "options": [
+        "Surface Capacitive",
+        "Projected Capacitive (P-Cap)",
+        "Wire Resistive",
+        "Surface Acoustic Wave (SAW)"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "It works by pressure forcing two layers into contact."
+    },
+    {
+      "id": "q04",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which interaction technique improves target selection for motor-impaired users by letting them drag across a target?",
+      "options": [
+        "Tapping-it",
+        "Directional Gesturing",
+        "Crossing-in",
+        "Long-press"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Especially useful in high-density interfaces."
+    },
+    {
+      "id": "q05",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Projected Capacitive (P-Cap) touchscreens are particularly susceptible to which type of interference?",
+      "options": [
+        "Water droplets only",
+        "EMI and RFI",
+        "Ambient light",
+        "Physical scratches"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Their 3D electrostatic field can be disrupted."
+    },
+    {
+      "id": "q06",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "Which auditory interface type is a direct translation of a data waveform into the audible domain?",
+      "options": [
+        "Sonification",
+        "Earcon",
+        "Audification",
+        "Voicemail"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Works best with large datasets that have periodic features (e.g., seismic data)."
+    },
+    {
+      "id": "q07",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "The term \"Earcon\" is a pun on which visual concept?",
+      "options": [
+        "Emoji",
+        "Icon",
+        "Widget",
+        "Symbol"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Coined by D.A. Sumikawa in 1985."
+    },
+    {
+      "id": "q08",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "A Geiger counter’s click rate indicating radiation level is an example of:",
+      "options": [
+        "Audification",
+        "Earcon",
+        "Sonification",
+        "Voicemail"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Non-speech audio used to convey information or perceptualize data."
+    },
+    {
+      "id": "q09",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "In the auditory interface processing loop, which stage converts data into sound waves/signals?",
+      "options": [
+        "Stage A (Representation & Preprocessing)",
+        "Stage B (Application Processing Loop)",
+        "Stage C (Sonification Techniques / Rendering)",
+        "Stage D (Technical Sound Display)"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Stage D is the physical speaker; Stage C does the rendering."
+    },
+    {
+      "id": "q10",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "QR Codes were invented in 1994 by Denso Wave primarily for:",
+      "options": [
+        "Mobile marketing campaigns",
+        "Tracking vehicles and automotive parts",
+        "Airline boarding passes",
+        "Library book cataloging"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Denso Wave is a Toyota subsidiary."
+    },
+    {
+      "id": "q11",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "Which QR error-correction level can recover from up to 30% damage and is ideal when logos are embedded?",
+      "options": [
+        "Level L",
+        "Level M",
+        "Level Q",
+        "Level H"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "L=7%, M=15%, Q=25%, H=30%."
+    },
+    {
+      "id": "q12",
+      "module": "M5 QR Codes & Itertools",
+      "type": "multiple_choice",
+      "text": "Which itertools function produces ordered arrangements where order matters?",
+      "options": [
+        "itertools.combinations()",
+        "itertools.permutations()",
+        "itertools.product()",
+        "itertools.groupby()"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "4! = 24 different finish orders for 4 runners."
+    },
+    {
+      "id": "q13",
+      "module": "M5 QR Codes & Itertools",
+      "type": "multiple_choice",
+      "text": "How many permutations does a set of 4 unique items have?",
+      "options": [
+        "12",
+        "16",
+        "24",
+        "36"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "4! = 4 × 3 × 2 × 1."
+    },
+    {
+      "id": "q14",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "multiple_choice",
+      "text": "Which statement correctly distinguishes sensation from perception?",
+      "options": [
+        "Sensation is subjective; perception is identical for everyone",
+        "Sensation is the physical process (same for all); perception is mental and subjective",
+        "Both are purely physiological and identical across people",
+        "Perception happens in the eye; sensation happens in the brain"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Sensation = camera sensor; Perception = photo editor."
+    },
+    {
+      "id": "q15",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "multiple_choice",
+      "text": "Which UI design principle states that interactive components must stand out sharply from their background?",
+      "options": [
+        "Consistent Luminance",
+        "Clear Structure",
+        "High Contrast Elements",
+        "Container Grouping"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Helps guide visual attention and reduces search time."
+    },
+    {
+      "id": "q16",
+      "module": "M7 Advanced QR & Chunking",
+      "type": "multiple_choice",
+      "text": "In the grouper() recipe, when the final group is shorter than n, what is used to pad it?",
+      "options": [
+        "An empty string \"\"",
+        "The fillvalue parameter (default: None)",
+        "Zero (0)",
+        "The last element is repeated"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "zip_longest pads shorter iterables with fillvalue."
+    },
+    {
+      "id": "q17",
+      "module": "M7 Advanced QR & Chunking",
+      "type": "multiple_choice",
+      "text": "The grouper() recipe works by creating n references to the SAME iterator. What is the key benefit?",
+      "options": [
+        "Allows parallel processing of multiple independent iterators",
+        "Each reference consumes the next element, forming non-overlapping chunks",
+        "Creates independent data copies for each chunk",
+        "Sorts the iterable before chunking"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "No element is ever repeated across chunks."
+    },
+    {
+      "id": "q18",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which touchscreen type provides the highest image clarity because it adds NO overlay layer on the display?",
+      "options": [
+        "Projected Capacitive (P-Cap)",
+        "Surface Acoustic Wave (SAW)",
+        "Infrared (IR)",
+        "Surface Capacitive"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "IR uses beams around the frame; nothing sits on the glass."
+    },
+    {
+      "id": "q19",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "When decoding a QR code with OpenCV, which method returns the decoded data, corner points, AND the straightened QR image?",
+      "options": [
+        "detector.decode()",
+        "detector.detectAndDecode()",
+        "detector.read()",
+        "detector.findQR()"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Returns a 3-tuple: (data, points, straightened image)."
+    },
+    {
+      "id": "q20",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "A Voicemail System’s functionality extends beyond storing messages. Which statement is accurate?",
+      "options": [
+        "It can only play back recorded messages",
+        "It can deliver voice information AND process transactions",
+        "It requires a smartphone app to function",
+        "It converts speech to text automatically"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Works over ordinary telephone lines for individuals, organizations, products, and services."
+    },
+    {
+      "id": "q21",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which of the following is NOT one of Wigdor & Wixon’s (2011) design considerations for touch interfaces?",
+      "options": [
+        "Extension of the Body",
+        "Natural Experience",
+        "Immediate Feedback",
+        "Maximum Screen Resolution"
+      ],
+      "answerIndex": 3,
+      "imageLink": null,
+      "hint": "The fourth principle is Size Factor (ergonomics)."
+    },
+    {
+      "id": "q22",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which interaction technique is the only one that eliminates the strict requirement for predefined target spaces?",
+      "options": [
+        "Tapping-it",
+        "Crossing-in",
+        "Directional Gesturing",
+        "Pinch-to-zoom"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Actions are triggered by motion paths anywhere on the surface."
+    },
+    {
+      "id": "q23",
+      "module": "M2 Handheld & Wearable",
+      "type": "multiple_choice",
+      "text": "In which year were both the Apple iPhone and Microsoft Surface launched, marking the mainstream touch breakthrough?",
+      "options": [
+        "2005",
+        "2007",
+        "2009",
+        "2010"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Often called the mainstream milestone for modern smartphones and surface computing."
+    },
+    {
+      "id": "q24",
+      "module": "M2 Handheld & Wearable",
+      "type": "multiple_choice",
+      "text": "Personal Digital Assistants (PDAs) were largely displaced by:",
+      "options": [
+        "Feature phones",
+        "Android and iOS smartphones",
+        "Portable Media Players",
+        "Tablet PCs only"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Smartphones absorbed the calendar, contacts, and productivity functions of PDAs."
+    },
+    {
+      "id": "q25",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "What does the acronym QR stand for?",
+      "options": [
+        "Quick Read",
+        "Quick Response",
+        "Quantum Register",
+        "Query Resource"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Designed for fast scanning from any direction."
+    },
+    {
+      "id": "q26",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "The three bold corner squares that tell a scanner the orientation of a QR code are called:",
+      "options": [
+        "Alignment patterns",
+        "Finder patterns",
+        "Timing patterns",
+        "Quiet zones"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "They act like corner flags on a map."
+    },
+    {
+      "id": "q27",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "The outer white safety margin of a QR code (minimum 4 modules wide) is called the:",
+      "options": [
+        "Quiet zone",
+        "Border module",
+        "Frame area",
+        "Guard band"
+      ],
+      "answerIndex": 0,
+      "imageLink": null,
+      "hint": "Helps scanners locate and isolate the code."
+    },
+    {
+      "id": "q28",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "What is the default error-correction level used by Python’s qrcode library?",
+      "options": [
+        "ERROR_CORRECT_L",
+        "ERROR_CORRECT_M",
+        "ERROR_CORRECT_Q",
+        "ERROR_CORRECT_H"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Corrects up to 15% of errors."
+    },
+    {
+      "id": "q29",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Surface Capacitive touchscreens can be activated by:",
+      "options": [
+        "Any solid object",
+        "Only human skin (or a specialized capacitive stylus)",
+        "Bare finger or thin surgical glove only",
+        "Anything that blocks infrared beams"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "They react to the static electrical capacity of the human body."
+    },
+    {
+      "id": "q30",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Infrared (IR) touchscreens will NOT activate with which of the following?",
+      "options": [
+        "A bare finger",
+        "A soft glove",
+        "A hard plastic pen or credit card",
+        "A thin cotton glove"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Hard items may not interrupt the light beams reliably."
+    },
+    {
+      "id": "q31",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "multiple_choice",
+      "text": "In the visual pathway, which stage transforms perceived information into meaningful action (memory, reasoning, decision-making)?",
+      "options": [
+        "Sensation",
+        "Perception",
+        "Cognition",
+        "Reception"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Sensation → Perception → Cognition."
+    },
+    {
+      "id": "q32",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "multiple_choice",
+      "text": "The pupil of the eye is analogous to which camera component?",
+      "options": [
+        "The sensor",
+        "The aperture",
+        "The lens",
+        "The shutter"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It controls how much light enters."
+    },
+    {
+      "id": "q33",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "Which auditory type is best described as a brief, distinctive synthesized sound that represents a specific event?",
+      "options": [
+        "Audification",
+        "Sonification",
+        "Earcon",
+        "Voicemail"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Examples: OS error beep, NBC three-tone chime."
+    },
+    {
+      "id": "q34",
+      "module": "M7 Advanced QR & Chunking",
+      "type": "multiple_choice",
+      "text": "Which itertools function is used inside the classic grouper() recipe to pair elements and pad shorter groups?",
+      "options": [
+        "itertools.chain()",
+        "itertools.zip_longest()",
+        "itertools.cycle()",
+        "itertools.islice()"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "It pads with fillvalue when one iterable runs out."
+    },
+    {
+      "id": "q35",
+      "module": "M5 QR Codes & Itertools",
+      "type": "multiple_choice",
+      "text": "itertools.permutations() is memory-efficient because it uses:",
+      "options": [
+        "Eager evaluation (builds the full list at once)",
+        "Lazy evaluation (generates values only when asked)",
+        "Multi-threading",
+        "Disk caching"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Like a vending machine — items appear only when requested."
+    },
+    {
+      "id": "q36",
+      "module": "M2 Handheld & Wearable",
+      "type": "multiple_choice",
+      "text": "Which of the following is classified as a wearable archetype?",
+      "options": [
+        "Portable Media Player",
+        "Smartwatch",
+        "Tablet / Slate",
+        "Feature phone"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Worn on the body; controlled by integrated electronics."
+    },
+    {
+      "id": "q37",
+      "module": "M3 Touch Interfaces",
+      "type": "multiple_choice",
+      "text": "Which touchscreen technology supports full multi-touch and can still work with thin surgical or cotton gloves?",
+      "options": [
+        "Wire Resistive",
+        "Surface Capacitive",
+        "Projected Capacitive (P-Cap)",
+        "None of the above"
+      ],
+      "answerIndex": 2,
+      "imageLink": null,
+      "hint": "Widely used in modern smartphones."
+    },
+    {
+      "id": "q38",
+      "module": "M5 QR Codes",
+      "type": "multiple_choice",
+      "text": "In a QR code, information is carried primarily by:",
+      "options": [
+        "The color of the modules",
+        "The position of the modules",
+        "The thickness of the quiet zone",
+        "The size of the finder patterns"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Position, not color, encodes the data."
+    },
+    {
+      "id": "q39",
+      "module": "M4 Auditory Interfaces",
+      "type": "multiple_choice",
+      "text": "Why are auditory interfaces useful?",
+      "options": [
+        "They completely replace visual interfaces",
+        "They reduce visual overload and support multitasking when sight is limited",
+        "They only work for users with visual impairments",
+        "They require no training to interpret"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Useful while driving or when visual attention is elsewhere."
+    },
+    {
+      "id": "q40",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "multiple_choice",
+      "text": "Abrupt changes in screen brightness can cause:",
+      "options": [
+        "Improved focus",
+        "Visual fatigue",
+        "Faster cognition",
+        "Better color discrimination"
+      ],
+      "answerIndex": 1,
+      "imageLink": null,
+      "hint": "Consistent luminance is one of the UI design principles."
+    },
+    {
+      "id": "q41",
+      "module": "M5 QR Codes",
+      "type": "identification",
+      "text": "The three bold corner squares in every QR code that tell the scanner its orientation are called:",
+      "answer": "Finder patterns",
+      "imageLink": null,
+      "hint": "Also accept \"Finder Patterns\" or \"Position detection patterns\"."
+    },
+    {
+      "id": "q42",
+      "module": "M4 Auditory Interfaces",
+      "type": "identification",
+      "text": "The auditory display type that interprets a raw data sequence directly as an audio waveform is:",
+      "answer": "Audification",
+      "imageLink": null,
+      "hint": "Direct waveform-to-sound translation."
+    },
+    {
+      "id": "q43",
+      "module": "M3 Touch Interfaces",
+      "type": "identification",
+      "text": "The Wigdor & Wixon (2011) principle stating the interface should feel like a natural extension of the user’s body is called:",
+      "answer": "Extension of the Body",
+      "imageLink": null,
+      "hint": "One of the four core design considerations."
+    },
+    {
+      "id": "q44",
+      "module": "M5 QR Codes",
+      "type": "identification",
+      "text": "The default error-correction level used by the Python qrcode library (corrects up to 15%) is:",
+      "answer": "ERROR_CORRECT_M",
+      "imageLink": null,
+      "hint": "Also accept \"Level M\" or \"M\"."
+    },
+    {
+      "id": "q45",
+      "module": "M6 Visual Sensation & Cognition",
+      "type": "identification",
+      "text": "The mental process that transforms perceived information into meaningful action (memory, reasoning, decision-making) is called:",
+      "answer": "Cognition",
+      "imageLink": null,
+      "hint": "Sensation → Perception → Cognition."
+    },
+    {
+      "id": "q46",
+      "module": "M7 Advanced QR & Chunking",
+      "type": "identification",
+      "text": "The itertools function used inside grouper() that pairs elements from multiple iterators and pads shorter ones is:",
+      "answer": "zip_longest",
+      "imageLink": null,
+      "hint": "Full name: itertools.zip_longest()."
+    },
+    {
+      "id": "q47",
+      "module": "M2 Handheld & Wearable",
+      "type": "identification",
+      "text": "The year the Apple iPhone and Microsoft Surface were simultaneously launched:",
+      "answer": "2007",
+      "imageLink": null,
+      "hint": "Mainstream milestone for modern touch interfaces."
+    },
+    {
+      "id": "q48",
+      "module": "M5 QR Codes",
+      "type": "identification",
+      "text": "The outer white safety margin of a QR code (minimum 4 modules wide) is called the:",
+      "answer": "Quiet zone",
+      "imageLink": null,
+      "hint": "Also accept \"Quiet Zone\"."
+    },
+    {
+      "id": "q49",
+      "module": "M4 Auditory Interfaces",
+      "type": "identification",
+      "text": "List the four types of Auditory Interfaces covered in the module (any order):",
+      "answer": "Audification, Sonification, Earcon, Voicemail",
+      "imageLink": null,
+      "hint": "Accept any order; minor spelling variations OK."
+    },
+    {
+      "id": "q50",
+      "module": "M7 Advanced QR & Chunking",
+      "type": "identification",
+      "text": "The Python class from OpenCV used to create a QR code detector object is:",
+      "answer": "cv2.QRCodeDetector()",
+      "imageLink": null,
+      "hint": "Instantiate then call .detectAndDecode()."
+    }
+  ]
+}

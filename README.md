@@ -270,16 +270,29 @@ and `"phpmyadmin"` both match), but genuine misspellings still fail.
 
 ### Docker
 
+**First run, or after deleting the container:**
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
-That builds the image (installing `requirements.txt`, which now includes
+That builds the image (installing `requirements.txt`, which includes
 `whitenoise` and `gunicorn`, and running `collectstatic`), runs migrations
 automatically on start (`docker-entrypoint.sh`), and serves the app on
 `http://localhost:8090` via gunicorn, with the SQLite database persisted in
-a named volume (`exam_data`) so it survives rebuilds.
+a named volume (`exam_data`) so it survives rebuilds — as long as you don't
+run `docker compose down -v` or delete the volume directly, your data
+outlives the container.
 
-Then create your teacher account inside the running container:
+**Every time after that** (e.g. restarting the machine, or just running the
+existing container again), you only need:
+```bash
+docker compose up -d
+```
+Only re-add `--build` when you've pulled code changes — Compose does *not*
+rebuild automatically, so an old container will silently keep running old
+code even though `docker-compose.yml`'s env vars look up to date.
+
+Then create your teacher account inside the running container (one-time,
+survives in the volume after that):
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
@@ -288,21 +301,25 @@ Environment variables (set in `docker-compose.yml`, all optional):
 - `DJANGO_DEBUG` — defaults to `False` in Docker (vs. `True` for local
   `manage.py runserver`, unchanged from before).
 - `DJANGO_ALLOWED_HOSTS` — comma-separated, defaults to `*`.
+- `DJANGO_CSRF_TRUSTED_ORIGINS` — comma-separated list of origins Django
+  will accept CSRF-protected POSTs from, e.g.
+  `https://myschool.example.com`. Defaults to `https://*.ngrok-free.app` so
+  tunneling the app through a free [ngrok](https://ngrok.com) tunnel works
+  out of the box even though the subdomain changes every time you restart
+  the tunnel. If you're on a paid ngrok plan/custom domain, or deploying
+  behind something else entirely, add that origin here too.
 - `DJANGO_SECRET_KEY` — set a real one if this ever leaves a closed LAN.
 - `DJANGO_DB_PATH` — defaults to `/app/data/db.sqlite3`, matching the
   mounted volume; change both together if you move it.
 
-I don't have Docker available in the environment I built this in, so I
-couldn't literally run `docker build`/`docker compose up` — but I did
-validate every step the container actually performs against the real app:
-installed `whitenoise`+`gunicorn` from `requirements.txt`, ran
-`collectstatic` with `DEBUG=False` (whitenoise's manifest storage needs
-this to succeed at build time), booted the real WSGI app under gunicorn
-and confirmed pages and static assets (including `pedro.gif`) serve
-correctly, and ran `docker-entrypoint.sh` itself with a custom
-`DJANGO_DB_PATH` to confirm migrations apply and the database file lands
-in the right place. Worth a real `docker compose up` on your end as a
-final check, but the pieces it depends on are confirmed working.
+**Quick troubleshooting:** if you get `Forbidden (403) CSRF verification
+failed` after exposing the app through a new tunnel URL, first check the
+running container is actually serving current code:
+```bash
+docker compose exec web python -c "import django,os; os.environ.setdefault('DJANGO_SETTINGS_MODULE','exam_system.settings'); django.setup(); from django.conf import settings; print(settings.CSRF_TRUSTED_ORIGINS)"
+```
+If that doesn't print the origin you expect, rebuild with
+`docker compose up -d --build`.
 
 ### Styling uses the Tailwind CDN
 
