@@ -22,6 +22,7 @@
     </p>
 
     {% if not no_questions %}
+    <p class="text-xs uppercase tracking-wide text-examtext/40 mt-4">Subject: <span class="text-examtext/70">{{ submission.exam.subject }}</span></p>
     <div class="my-6 p-6 rounded-2xl bg-white/5 border border-white/10">
       <p class="text-5xl font-mono text-white">{{ score }}<span class="text-examtext/40 text-2xl"> / {{ total_questions }}</span></p>
       <p class="text-xl mt-1 text-examaccent">{{ percentage }}%</p>
