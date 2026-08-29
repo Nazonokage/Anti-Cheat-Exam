@@ -74,10 +74,22 @@ class StudentInline(admin.TabularInline):
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
-    list_display = ("id", "title", "subject", "is_active", "is_archived", "game_mode",
-                     "randomize_questions", "seconds_per_question", "hints_enabled",
-                     "created_by", "question_count", "student_count", "created_at")
-    list_editable = ("title", "game_mode", "randomize_questions")
+    list_display = (
+        "id",
+        "title",
+        "subject",
+        "is_active",
+        "is_archived",
+        "seconds_per_question",   
+        "hints_enabled",       
+        "game_mode",
+        "randomize_questions",
+        "created_by",
+        "question_count",
+        "student_count",
+        "created_at",
+    )
+    list_editable = ("title", "game_mode", "randomize_questions", "seconds_per_question", "hints_enabled")
     list_filter = ("is_active", "is_archived", "game_mode", "subject")
     inlines = [QuestionInline, StudentInline]
     readonly_fields = ("id",)
