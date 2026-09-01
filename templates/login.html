@@ -55,7 +55,7 @@
                  placeholder="e.g. 4821">
         </div>
 
-        <button type="submit"
+        <button type="submit" id="start-exam-btn"
                 class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
           Start / Resume Exam
         </button>
@@ -91,6 +91,19 @@
   if (examSelect) {
     examSelect.addEventListener('change', populateStudents);
     if (examSelect.value) populateStudents();
+  }
+
+  const startExamBtn = document.getElementById('start-exam-btn');
+  if (startExamBtn) {
+    startExamBtn.addEventListener('click', () => {
+      const el = document.documentElement;
+      if (document.fullscreenElement || document.webkitFullscreenElement) return;
+      if (el.requestFullscreen) {
+        el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      }
+    });
   }
 
   const loginForm = document.getElementById('login-form');

@@ -27,19 +27,10 @@
   });
 })();
 
-// --- 2) Tab-switch / away-from-exam detection -------------------------------
-// Runs on every page that loads this file, independent of exam-specific
-// elements existing. Uses BOTH the Page Visibility API and window blur as a
-// fallback, since visibilitychange alone can miss some alt-tab / other-app
-// scenarios depending on browser/OS. A short cooldown stops the two from
-// double-counting the same physical switch as two separate violations.
-//
-// reportViolation(type) POSTs { type } as JSON to /tab-violation/, and shows
-// an alert() with the running count on EVERY attempt (1 through 10) — not
-// just once locked — so the student always knows exactly where they stand.
+// --- 2) Tab-switch / away-from-exam + FULLSCREEN detection ---------------
 (function () {
   const root = document.getElementById('exam-root');
-  if (!root) return; // only report violations while an exam/review is actually in progress
+  if (!root) return;
 
   function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
@@ -50,34 +41,33 @@
   const lockedUrl = root.dataset.lockedUrl;
   const examUrl = root.dataset.examUrl;
 
+  function liveRoot() {
+    return document.getElementById('exam-root');
+  }
+
   let reporting = false;
   let lastReportAt = 0;
-  let suppressFocusEvents = false; // true while OUR OWN alert() is open, OR while a form is submitting
+  let suppressFocusEvents = false;
 
-  // Submitting the answer form (Submit / Skip / Final Submit) navigates the
-  // page. On some mobile browsers, that navigation itself — or the
-  // on-screen keyboard closing as part of it — can spuriously fire
-  // 'blur'/'visibilitychange' right as the old page unloads, which was
-  // getting miscounted as a tab-switch violation immediately after posting
-  // an answer. Any real <form> submit on this page (capture phase, so it
-  // runs before the browser starts navigating) marks this as intentional.
   function markIntentionalNav() {
     suppressFocusEvents = true;
-    // Safety net: if navigation doesn't actually happen (e.g. a required
-    // field blocked a submit, or a buff call failed), don't leave
-    // tab-switch detection disabled for the rest of the exam.
     setTimeout(() => { suppressFocusEvents = false; }, 3000);
   }
-  // Exposed so other scripts on this page (e.g. game.js reloading after a
-  // buff action) can mark their own navigation as intentional too.
   window.__examMarkIntentionalNav = markIntentionalNav;
-
   document.addEventListener('submit', markIntentionalNav, true);
+  // pointerdown fires before the browser drops fullscreen on a Submit click,
+  // so the following fullscreenchange is treated as navigation, not a violation.
+  ['submit-btn', 'skip-btn'].forEach((id) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('pointerdown', markIntentionalNav, true);
+  });
+  const finalForm = document.getElementById('final-submit-form');
+  if (finalForm) finalForm.addEventListener('pointerdown', markIntentionalNav, true);
 
   function reportViolation(type) {
-    if (suppressFocusEvents) return; // ignore blur/hidden caused by our own alert() or a form submit
+    if (suppressFocusEvents) return;
     const now = Date.now();
-    if (reporting || now - lastReportAt < 1500) return; // dedupe near-simultaneous blur+hidden
+    if (reporting || now - lastReportAt < 1500) return;
     reporting = true;
     lastReportAt = now;
 
@@ -96,25 +86,16 @@
         const n = data.attempts;
         const max = data.max || 10;
 
-        // Native alert() dialogs can themselves fire a 'blur' event on window
-        // in some browsers. Suppress our own listeners for the duration (plus
-        // a short buffer after) so dismissing the alert doesn't get counted
-        // as ANOTHER violation, which would otherwise cascade into stacked
-        // alerts if the student takes a moment to read/dismiss one.
         suppressFocusEvents = true;
         if (data.closed) {
-          alert(`Exam closed: you reached ${n}/${max} tab-switch / focus-loss attempts. ` +
-                `Your exam has been submitted as-is.`);
+          alert(`Exam closed: you reached ${n}/${max} focus / fullscreen violations. Your exam has been submitted as-is.`);
           window.location.href = examUrl;
         } else if (data.locked) {
-          alert(`Locked (attempt ${n}/${max}): tab-switching / losing focus is not allowed. ` +
-                `You're locked out for ${data.lock_seconds}s. ` +
-                `Reaching ${max} will end your exam automatically.`);
+          alert(`Locked (attempt ${n}/${max}): leaving the exam screen or exiting fullscreen is not allowed. Locked for ${data.lock_seconds}s.`);
           window.location.href = lockedUrl;
         } else {
-          alert(`Warning ${n}/${max}: switching tabs or leaving this window is being logged. ` +
-                `Repeated attempts will lock you out, then end your exam.`);
-          setTimeout(() => { suppressFocusEvents = false; }, 300);
+          alert(`Warning ${n}/${max}: switching apps, leaving this window, or exiting fullscreen is being logged.`);
+          setTimeout(() => { suppressFocusEvents = false; }, 400);
         }
       })
       .catch(() => { reporting = false; });
@@ -124,32 +105,146 @@
     if (document.visibilityState === 'hidden') reportViolation('tab-switch');
   });
   window.addEventListener('blur', () => reportViolation('window-blur'));
+
+  // ---------- Fullscreen: report exits only; never auto-re-enter ----------
+  // requestFullscreen() is allowed ONLY from the "Return to Fullscreen"
+  // button (and login's Start Exam button, which lives in login.html).
+  // Calling it while already in fullscreen toggles OUT in Chrome/Edge —
+  // that is what made Submit look like it was flipping fullscreen.
+  function isFullscreen() {
+    return !!(document.fullscreenElement || document.webkitFullscreenElement);
+  }
+
+  let allowEnterFullscreen = false;
+  function enterFullscreen() {
+    if (!allowEnterFullscreen) return;
+    allowEnterFullscreen = false;
+    if (isFullscreen()) return;
+    const el = document.documentElement;
+    if (el.requestFullscreen) {
+      el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
+    } else if (el.webkitRequestFullscreen) {
+      el.webkitRequestFullscreen();
+    }
+  }
+
+  const fsBanner = document.createElement('div');
+  fsBanner.id = 'fs-return-banner';
+  fsBanner.className = 'mb-3 items-center justify-between gap-3 rounded-xl border border-examaccent/40 bg-examprimary/15 px-3 py-2';
+  fsBanner.innerHTML =
+    '<p class="text-xs text-examtext/80">Fullscreen is required during the exam.</p>' +
+    '<button type="button" id="fs-return-btn" class="shrink-0 rounded-lg border border-examaccent/50 bg-examsurface text-examaccent text-xs font-semibold px-3 py-1.5">Return to Fullscreen</button>';
+  function setBannerVisible(show) {
+    if (show) {
+      fsBanner.classList.add('flex');
+      fsBanner.classList.remove('hidden');
+    } else {
+      fsBanner.classList.add('hidden');
+      fsBanner.classList.remove('flex');
+    }
+  }
+  function attachFsBanner() {
+    const host = liveRoot();
+    if (!host) return;
+    if (!host.contains(fsBanner)) {
+      host.insertBefore(fsBanner, host.firstChild);
+    }
+    const btn = document.getElementById('fs-return-btn');
+    if (btn && !btn.dataset.bound) {
+      btn.dataset.bound = '1';
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+        allowEnterFullscreen = true;
+        enterFullscreen();
+      });
+    }
+    setBannerVisible(!isFullscreen());
+  }
+  attachFsBanner();
+  window.__examOnPageSwap = attachFsBanner;
+
+  function onFullscreenChange() {
+    const inFs = isFullscreen();
+    setBannerVisible(!inFs);
+    if (inFs || suppressFocusEvents) return;
+    reportViolation('fullscreen-exit');
+  }
+  document.addEventListener('fullscreenchange', onFullscreenChange);
+  document.addEventListener('webkitfullscreenchange', onFullscreenChange);
 })();
 
-// --- 3) Countdown display + server resync + auto-save form wiring ----------
+// --- 3) Countdown display + server resync + in-place submit (keep fullscreen)
 (function () {
-  const root = document.getElementById('exam-root');
-  if (!root) return; // done/locked screens don't need this
-
-  const statusUrl = root.dataset.statusUrl;
-  const lockedUrl = root.dataset.lockedUrl;
-  const examUrl = root.dataset.examUrl;
-  const reviewUrl = root.dataset.reviewUrl;
-  const isReview = root.dataset.review === '1';
-
-  let remaining = parseInt(root.dataset.remaining, 10);
-  const total = parseInt(root.dataset.total, 10) || remaining;
-
-  const timerText = document.getElementById('timer-text');
-  const timerBar = document.getElementById('timer-bar');
-  const form = document.getElementById('answer-form');
-  const actionField = document.getElementById('action-field');
-  const skipBtn = document.getElementById('skip-btn');
-  const submitBtn = document.getElementById('submit-btn');
-
+  let remaining = 0;
+  let total = 0;
   let navigating = false;
+  const timers = [];
+
+  function clearTimers() {
+    while (timers.length) clearInterval(timers.pop());
+  }
+
+  function rootEl() {
+    return document.getElementById('exam-root');
+  }
+
+  async function applyExamHtml(html, url) {
+    const next = new DOMParser().parseFromString(html, 'text/html');
+    const newRoot = next.getElementById('exam-root');
+    if (!newRoot) {
+      window.location.assign(url || window.location.href);
+      return;
+    }
+    document.title = next.title;
+    if (next.body && next.body.className) document.body.className = next.body.className;
+    const oldRoot = rootEl();
+    if (oldRoot) oldRoot.replaceWith(newRoot);
+    if (url) history.replaceState(null, '', url);
+    if (window.__examOnPageSwap) window.__examOnPageSwap();
+    initExamForm();
+    if (window.__examInitGame) window.__examInitGame();
+    navigating = false;
+    if (window.ExamUI) window.ExamUI.hideLoading();
+  }
+
+  async function swapToUrl(url) {
+    if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
+    navigating = true;
+    try {
+      const res = await fetch(url, { credentials: 'same-origin' });
+      const html = await res.text();
+      await applyExamHtml(html, res.url);
+    } catch (e) {
+      window.location.assign(url);
+    }
+  }
+  window.__examSwapToUrl = swapToUrl;
+
+  async function postAndStayFullscreen(form) {
+    if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
+    if (window.ExamUI) window.ExamUI.showLoading('Saving…');
+    navigating = true;
+    // form.action is the hidden <input name="action">, not the POST URL.
+    const postUrl = form.getAttribute('action');
+    try {
+      const res = await fetch(postUrl, {
+        method: 'POST',
+        body: new FormData(form),
+        credentials: 'same-origin',
+        redirect: 'follow',
+      });
+      const html = await res.text();
+      await applyExamHtml(html, res.url);
+    } catch (e) {
+      HTMLFormElement.prototype.submit.call(form);
+    }
+  }
 
   function renderTimer() {
+    const timerText = document.getElementById('timer-text');
+    const timerBar = document.getElementById('timer-bar');
     if (timerText) {
       timerText.textContent = Math.max(0, remaining) + 's';
       // remaining CAN exceed `total` (the exam's base seconds_per_question)
@@ -168,66 +263,86 @@
       timerBar.classList.toggle('holo-btn', boosted); // shimmering gradient while boosted past max
     }
   }
-  renderTimer();
 
-  // Local visual ticking between server syncs.
-  setInterval(() => {
-    if (remaining > 0) {
-      remaining -= 1;
-      renderTimer();
-    }
-  }, 1000);
+  function initExamForm() {
+    const root = rootEl();
+    if (!root) return;
 
-  // Server resync + heartbeat, every 4s. This is also what powers the live
-  // teacher dashboard (last_heartbeat is updated on every hit to status_url).
-  async function syncStatus() {
-    if (navigating) return;
-    try {
-      const res = await fetch(statusUrl, { credentials: 'same-origin' });
-      if (!res.ok) return;
-      const data = await res.json();
+    clearTimers();
+    remaining = parseInt(root.dataset.remaining, 10);
+    total = parseInt(root.dataset.total, 10) || remaining;
+    navigating = false;
+    renderTimer();
 
-      if (data.locked) {
-        navigating = true;
-        window.location.href = lockedUrl;
-        return;
-      }
-      if (data.closed) {
-        navigating = true;
-        window.location.href = examUrl;
-        return;
-      }
-      if (!isReview && data.phase === 'review') {
-        navigating = true;
-        window.location.href = reviewUrl;
-        return;
-      }
-      if (typeof data.remaining_seconds === 'number') {
-        remaining = data.remaining_seconds;
+    const statusUrl = root.dataset.statusUrl;
+    const lockedUrl = root.dataset.lockedUrl;
+    const examUrl = root.dataset.examUrl;
+    const reviewUrl = root.dataset.reviewUrl;
+    const isReview = root.dataset.review === '1';
+    const form = document.getElementById('answer-form');
+    const actionField = document.getElementById('action-field');
+    const skipBtn = document.getElementById('skip-btn');
+
+    timers.push(setInterval(() => {
+      if (remaining > 0) {
+        remaining -= 1;
         renderTimer();
       }
-      if (data.expired) {
-        // Server has already auto-skipped/auto-submitted; reload to fetch the next question.
-        navigating = true;
-        window.location.reload();
-      }
-    } catch (e) { /* transient network hiccup — next poll will retry */ }
-  }
-  setInterval(syncStatus, 4000);
+    }, 1000));
 
-  // Skip button.
-  if (skipBtn && form && actionField) {
-    skipBtn.addEventListener('click', () => {
-      actionField.value = 'skip';
-      // Skipping a not-required field: temporarily remove "required" so the
-      // browser doesn't block submission on an empty choice/text field.
-      form.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
-      form.submit();
-    });
+    async function syncStatus() {
+      if (navigating) return;
+      try {
+        const res = await fetch(statusUrl, { credentials: 'same-origin' });
+        if (!res.ok) return;
+        const data = await res.json();
+
+        if (data.locked) {
+          navigating = true;
+          if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
+          window.location.href = lockedUrl;
+          return;
+        }
+        if (data.closed) {
+          navigating = true;
+          if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
+          window.location.href = examUrl;
+          return;
+        }
+        if (!isReview && data.phase === 'review') {
+          navigating = true;
+          swapToUrl(reviewUrl);
+          return;
+        }
+        if (typeof data.remaining_seconds === 'number') {
+          remaining = data.remaining_seconds;
+          renderTimer();
+        }
+        if (data.expired) {
+          navigating = true;
+          swapToUrl(isReview ? reviewUrl : examUrl);
+        }
+      } catch (e) { /* transient network hiccup — next poll will retry */ }
+    }
+    timers.push(setInterval(syncStatus, 4000));
+
+    if (skipBtn && form && actionField) {
+      skipBtn.addEventListener('click', () => {
+        actionField.value = 'skip';
+        form.querySelectorAll('[required]').forEach(el => el.removeAttribute('required'));
+        postAndStayFullscreen(form);
+      });
+    }
+    if (form && actionField) {
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        actionField.value = actionField.value || 'submit';
+        postAndStayFullscreen(form);
+      });
+    }
   }
-  if (submitBtn && form && actionField) {
-    form.addEventListener('submit', () => { actionField.value = actionField.value || 'submit'; });
-  }
+
+  initExamForm();
 })();
 
 // --- 4) Log-only violation reporting: copy/paste details + idle -----------
@@ -288,18 +403,22 @@
   const root = document.getElementById('exam-root');
   if (!root) return;
 
-  const form = document.getElementById('answer-form');
-  const submitBtn = document.getElementById('submit-btn');
-  const skipBtn = document.getElementById('skip-btn');
-  if (!form) return;
+  function liveForm() {
+    return document.getElementById('answer-form');
+  }
+  if (!liveForm()) return;
 
   function submitAnswer() {
+    const submitBtn = document.getElementById('submit-btn');
     if (submitBtn) submitBtn.click();
   }
   function skipForLater() {
+    const skipBtn = document.getElementById('skip-btn');
     if (skipBtn) skipBtn.click();
   }
   function handleChoiceSelection(key) {
+    const form = liveForm();
+    if (!form) return;
     const choices = form.querySelectorAll('.choice-option');
     if (!choices.length) return;
     const keyLower = key.toLowerCase();

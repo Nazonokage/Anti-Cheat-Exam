@@ -2,7 +2,7 @@
 // picker (earned every 5 correct answers — pick one, not all three), the
 // live leaderboard tab, and the floating "you hit a milestone" notification.
 // Loaded only on exam.html/review.html when the exam has game_mode enabled.
-(function () {
+window.__examInitGame = function () {
   const bar = document.getElementById('game-bar');
   if (!bar) return;
 
@@ -194,10 +194,15 @@
       // Reload to pick up the new remaining time cleanly. Mark this as
       // intentional so mobile's spurious blur-on-navigate isn't miscounted
       // as a tab-switch (see exam.js).
-      if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
-      setTimeout(() => window.location.reload(), 900);
+      if (window.__examSwapToUrl) {
+        setTimeout(() => window.__examSwapToUrl(window.location.href), 900);
+      } else {
+        if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
+        setTimeout(() => window.location.reload(), 900);
+      }
     } catch (e) {
       showToast('<span class="text-red-300">Network error — time boost not used.</span>');
     }
   });
-})();
+};
+window.__examInitGame();

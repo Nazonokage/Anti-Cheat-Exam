@@ -116,15 +116,13 @@ def _game_context(submission):
 
 def _question_review(submission):
     """Every question the student was given, in their own question order,
-    with human-readable answer text (not raw Choice ids). Sorted with
-    incorrect/unanswered questions first so students see what to review
-    right away, followed by the ones they got right."""
+    with human-readable answer text + the original question number."""
     order = submission.question_order or list(
         submission.exam.questions.order_by("order").values_list("id", flat=True)
     )
     answers_by_qid = {a.question_id: a for a in submission.answers.select_related("question")}
     rows = []
-    for qid in order:
+    for idx, qid in enumerate(order, start=1):
         a = answers_by_qid.get(qid)
         if not a:
             continue
@@ -143,13 +141,14 @@ def _question_review(submission):
                     your_choice = None
             your_answer = your_choice.text if your_choice else "(no answer)"
         rows.append({
+            "q_number": idx,
             "question_text": q.text,
             "your_answer": your_answer,
             "correct_answer": correct_answer,
             "was_answered": a.answered,
             "is_correct": a.is_correct,
         })
-    rows.sort(key=lambda r: r["is_correct"])  # False (incorrect) sorts before True
+    rows.sort(key=lambda r: r["is_correct"])  # incorrect first
     return rows
 
 
@@ -491,6 +490,16 @@ def review_view(request):
         return render(request, "exam.html", _done_context(submission))
 
     question = answer.question
+
+    # Find this question's original number in the student's order
+    order = submission.question_order or list(
+        submission.exam.questions.order_by("order").values_list("id", flat=True)
+    )
+    try:
+        q_number = order.index(question.id) + 1
+    except ValueError:
+        q_number = "?"
+
     return render(request, "review.html", {
         "submission": submission,
         "question": question,
@@ -498,6 +507,8 @@ def review_view(request):
         "remaining_seconds": int(remaining),
         "bank_seconds": submission.review_bank_seconds,
         "remaining_count": len(pending),
+        "q_number": q_number,
+        "q_total": len(order),
         "hints_enabled": submission.exam.hints_enabled,
         "done": False,
         **_game_context(submission),

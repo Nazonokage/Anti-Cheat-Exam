@@ -15,7 +15,9 @@
      data-review="1">
 
   <div class="flex items-center justify-between mb-4">
-    <span class="text-xs uppercase tracking-widest text-examtext/50">Review Phase &middot; {{ remaining_count }} left</span>
+    <span class="text-xs uppercase tracking-widest text-examtext/50">
+      Review · Q{{ q_number }} of {{ q_total }} · {{ remaining_count }} left
+    </span>
     <div class="flex items-center gap-2">
       <span class="text-[10px] uppercase tracking-wide text-examtext/40">Bank</span>
       <span id="timer-text" class="text-sm font-mono text-examaccent w-12 text-right">{{ remaining_seconds }}s</span>
@@ -26,7 +28,7 @@
 
   <div class="glass rounded-3xl shadow-2xl p-8">
     <div class="mb-3 inline-block text-[11px] px-2 py-0.5 rounded-full bg-examprimary/15 text-examaccent border border-examprimary/30">
-      Skipped question
+      Skipped question · originally Q{{ q_number }}
     </div>
     <div class="flex flex-col md:flex-row md:items-start gap-6">
       {% if question.image_url %}
@@ -93,8 +95,8 @@
 
 {% block extra_head %}
 {% load static %}
-<script src="{% static 'js/exam.js' %}" defer></script>
-<script src="{% static 'js/game.js' %}" defer></script>
+<script src="{% static 'js/exam.js' %}?v=fs-stay2" defer></script>
+<script src="{% static 'js/game.js' %}?v=fs-stay2" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const finalForm = document.getElementById('final-submit-form');

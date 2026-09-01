@@ -1,0 +1,59 @@
+{
+  "subject": "testing",
+  "title": "Anti-Cheat Testing Questionnaire (5 items)",
+  "secondsPerQuestion": 45,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "random": false,
+  "questions": [
+    {
+      "id": "t1",
+      "module": "Test",
+      "type": "multiple_choice",
+      "text": "What does the server-authoritative timer protect against?",
+      "options": [
+        "Students changing the clock on their phone",
+        "Dropped Wi-Fi giving extra time",
+        "Teachers editing scores later",
+        "Copy-paste only"
+      ],
+      "answerIndex": 1,
+      "hint": "The timer lives on the server, not the browser."
+    },
+    {
+      "id": "t2",
+      "module": "Test",
+      "type": "true_false",
+      "text": "Switching to another app or leaving the exam tab is logged as a violation.",
+      "options": ["True", "False"],
+      "answerIndex": 0,
+      "hint": "visibilitychange + blur are both watched."
+    },
+    {
+      "id": "t3",
+      "module": "Test",
+      "type": "identification",
+      "text": "What is the name of the phase where skipped questions can still be answered using banked time?",
+      "answer": "review",
+      "hint": "It comes after the main one-question-at-a-time phase."
+    },
+    {
+      "id": "t4",
+      "module": "Test",
+      "type": "multiple_choice",
+      "text": "How many tab-switch / focus-loss attempts cause the exam to be force-closed?",
+      "options": ["5", "7", "10", "15"],
+      "answerIndex": 2,
+      "hint": "Warnings → locks → auto-submit."
+    },
+    {
+      "id": "t5",
+      "module": "Test",
+      "type": "true_false",
+      "text": "A normal website can completely block Messenger chat heads and system screenshots.",
+      "options": ["True", "False"],
+      "answerIndex": 1,
+      "hint": "Browser JS cannot control OS-level overlays or the screenshot gesture."
+    }
+  ]
+}

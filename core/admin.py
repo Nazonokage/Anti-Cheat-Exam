@@ -61,8 +61,10 @@ class RosterImportGenericForm(RosterImportForm):
     """Same as RosterImportForm, but with an exam picker — used on the
     Student changelist's Import Roster link, where there's no exam in the
     URL already (unlike the per-exam link on the Exam change page)."""
-    exam = forms.ModelChoiceField(queryset=Exam.objects.all(), label="Exam")
-
+    exam = forms.ModelChoiceField(
+            queryset=Exam.objects.filter(is_active=True).order_by("title"),
+            label="Exam",
+        )
     field_order = ["exam", "roster_file"]
 
 
@@ -253,6 +255,14 @@ class StudentAdmin(admin.ModelAdmin):
     list_filter = ("exam",)
     search_fields = ("name",)
     change_list_template = "admin/core/student/change_list.html"
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "exam":
+            if request.resolver_match.url_name.endswith("_add"):
+                kwargs["queryset"] = Exam.objects.filter(is_active=True).order_by("title")
+            else:
+                kwargs["queryset"] = Exam.objects.all().order_by("title")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
 
     def get_urls(self):
         urls = super().get_urls()
