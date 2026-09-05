@@ -1,0 +1,10 @@
+{% extends "admin/base.html" %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block userlinks %}
+<a href="{% url 'teacher_dashboard' %}" style="background: #10B981; color: #061511; font-weight: bold; padding: 4px 10px; border-radius: 4px; text-decoration: none; margin-right: 12px; display: inline-block;">
+  🖥️ Live Monitoring Hub
+</a>
+{{ block.super }}
+{% endblock %}

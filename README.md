@@ -17,6 +17,7 @@ with **Django + Tailwind + SQLite**, per `plan.md`.
   - [Bulk student roster import](#bulk-student-roster-import)
   - [Docker](#docker)
   - [Styling uses the Tailwind CDN](#styling-uses-the-tailwind-cdn)
+- [Teacher Monitoring Hub & Multi-Teacher Accounts (latest)](#teacher-monitoring-hub--multi-teacher-accounts-latest)
 - [Newer additions (this round)](#newer-additions-this-round)
 - [Game Mode + image support + polish (latest round)](#game-mode--image-support--polish-latest-round)
 - [What's implemented](#whats-implemented)
@@ -334,6 +335,24 @@ LAN with no outside internet, the pages will still work but will render
 unstyled until that script loads. If that ever becomes a problem, the fix
 is to self-host a built Tailwind CSS file instead of the CDN script — just
 say the word and it can be swapped back.
+
+## Teacher Monitoring Hub & Multi-Teacher Accounts (latest)
+
+- **Teacher Monitoring Hub (`/teacher/monitor/`)**:
+  - A central dashboard giving teachers an overview of all their managed exams.
+  - Live metric cards showing total managed exams, live test-takers, and tab violations.
+  - Quick action links on each exam card (`🟢 Monitor Live`, `⚙️ Admin`).
+- **Embedded Navigation & Exam Switcher**:
+  - Top navigation bar included on all teacher monitoring pages (`templates/components/teacher_nav.html`).
+  - Interactive **Exam Switcher** `<select>` dropdown lets teachers switch between live exam monitors with a single click.
+- **Multi-Teacher Sign-Up & Data Isolation (`/teacher/signup/`)**:
+  - Teachers can register their own accounts (`is_staff=True` granted automatically).
+  - Strict data isolation: regular teacher accounts only view, edit, and monitor exams created by their account (`created_by = request.user`) in both the Monitoring Hub and Django Admin.
+  - Superuser accounts maintain global visibility across all teachers' exams with teacher ownership tags (`👤 Teacher Name`).
+- **Enhanced Django Admin Integration**:
+  - Global top-right `🖥️ Live Monitoring Hub` button on every Django Admin page.
+  - Direct `🟢 Live Monitor` buttons on Exam change lists and change forms.
+  - Dedicated `/teacher/logout/` view for clean session termination and redirection.
 
 ## Newer additions (this round)
 

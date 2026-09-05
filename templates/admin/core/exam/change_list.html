@@ -1,6 +1,9 @@
 {% extends "admin/change_list.html" %}
 {% block object-tools-items %}
 <li>
+  <a href="{% url 'teacher_dashboard' %}" style="background-color: #10B981; color: #061511; font-weight: bold;">🖥️ Live Monitoring Hub</a>
+</li>
+<li>
   <a href="{% url 'admin:core_exam_import_json' %}" class="addlink">Import JSON</a>
 </li>
 {{ block.super }}

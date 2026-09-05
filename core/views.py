@@ -3,8 +3,10 @@ import random
 from datetime import timedelta
 
 from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth import login
+from django.contrib.auth.models import User
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, request
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -116,7 +118,9 @@ def _game_context(submission):
 
 def _question_review(submission):
     """Every question the student was given, in their own question order,
-    with human-readable answer text + the original question number."""
+    with human-readable answer text (not raw Choice ids). Sorted with
+    incorrect/unanswered questions first so students see what to review
+    right away, followed by the ones they got right."""
     order = submission.question_order or list(
         submission.exam.questions.order_by("order").values_list("id", flat=True)
     )
@@ -148,7 +152,7 @@ def _question_review(submission):
             "was_answered": a.answered,
             "is_correct": a.is_correct,
         })
-    rows.sort(key=lambda r: r["is_correct"])  # incorrect first
+    rows.sort(key=lambda r: r["is_correct"])  # False (incorrect) sorts before True
     return rows
 
 
@@ -160,6 +164,126 @@ def _done_context(submission, no_questions=False):
         ctx["question_review"] = _question_review(submission)
         ctx["question_review_json"] = json.dumps(ctx["question_review"])
     return ctx
+
+
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.models import User
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, request
+
+
+# --- Teacher Registration & Management -----------------------------------
+
+def teacher_logout(request):
+    logout(request)
+    return redirect("login")
+
+
+def teacher_signup(request):
+    if request.user.is_authenticated and request.user.is_staff:
+        return redirect("teacher_dashboard")
+
+    error = None
+    if request.method == "POST":
+        username = request.POST.get("username", "").strip()
+        password = request.POST.get("password", "")
+        confirm_password = request.POST.get("confirm_password", "")
+        full_name = request.POST.get("full_name", "").strip()
+        email = request.POST.get("email", "").strip()
+
+        if not username or not password:
+            error = "Username and password are required."
+        elif password != confirm_password:
+            error = "Passwords do not match."
+        elif User.objects.filter(username__iexact=username).exists():
+            error = f"Username '{username}' is already taken. Please choose another."
+        else:
+            first_name = full_name
+            last_name = ""
+            if " " in full_name:
+                parts = full_name.split(" ", 1)
+                first_name, last_name = parts[0], parts[1]
+
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                email=email,
+                first_name=first_name,
+                last_name=last_name,
+                is_staff=True,  # Grant staff permission for Teacher Portal and Admin access
+            )
+            login(request, user)
+            return redirect("teacher_dashboard")
+
+    return render(request, "teacher_signup.html", {"error": error})
+
+
+# --- Teacher live monitoring -----------------------------------------------
+
+@staff_member_required
+def teacher_dashboard(request):
+    now = timezone.now()
+    if request.user.is_superuser:
+        all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+    else:
+        all_exams = Exam.objects.filter(created_by=request.user, is_archived=False).order_by("-is_active", "-created_at")
+
+    exams_data = []
+    total_active_students = 0
+    total_violations_today = 0
+
+    for exam in all_exams:
+        total_questions = exam.questions.count()
+        student_count = exam.students.count()
+        submissions = exam.submissions.all()
+        total_subs = submissions.count()
+
+        active_subs = submissions.filter(closed=False, last_heartbeat__gte=now - timedelta(seconds=15)).count()
+        completed_subs = submissions.filter(closed=True).count()
+        violation_count = Violation.objects.filter(submission__exam=exam).count()
+
+        total_active_students += active_subs
+        total_violations_today += violation_count
+
+        exams_data.append({
+            "exam": exam,
+            "total_questions": total_questions,
+            "student_count": student_count,
+            "total_submissions": total_subs,
+            "active_students": active_subs,
+            "completed_students": completed_subs,
+            "violation_count": violation_count,
+        })
+
+    return render(request, "teacher_dashboard.html", {
+        "exams_data": exams_data,
+        "all_exams": all_exams,
+        "total_active_students": total_active_students,
+        "total_violations_today": total_violations_today,
+    })
+
+
+@staff_member_required
+def teacher_monitor(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    if not request.user.is_superuser and exam.created_by != request.user:
+        return HttpResponseForbidden("You do not have permission to view or monitor this exam.")
+
+    if request.user.is_superuser:
+        all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+    else:
+        all_exams = Exam.objects.filter(created_by=request.user, is_archived=False).order_by("-is_active", "-created_at")
+
+    return render(request, "teacher_monitor.html", {
+        "exam": exam,
+        "all_exams": all_exams,
+    })
+
+
+@staff_member_required
+def teacher_monitor_data(request, exam_id):
+    exam = get_object_or_404(Exam, id=exam_id)
+    if not request.user.is_superuser and exam.created_by != request.user:
+        return JsonResponse({"error": "forbidden"}, status=403)
 
 
 # --- Login -----------------------------------------------------------------
@@ -490,29 +614,19 @@ def review_view(request):
         return render(request, "exam.html", _done_context(submission))
 
     question = answer.question
-
-    # Find this question's original number in the student's order
-    order = submission.question_order or list(
-        submission.exam.questions.order_by("order").values_list("id", flat=True)
-    )
-    try:
-        q_number = order.index(question.id) + 1
-    except ValueError:
-        q_number = "?"
-
     return render(request, "review.html", {
-        "submission": submission,
-        "question": question,
-        "choices": question.choices.all() if question.qtype != "identification" else None,
-        "remaining_seconds": int(remaining),
-        "bank_seconds": submission.review_bank_seconds,
-        "remaining_count": len(pending),
-        "q_number": q_number,
-        "q_total": len(order),
-        "hints_enabled": submission.exam.hints_enabled,
-        "done": False,
-        **_game_context(submission),
-    })
+            "submission": submission,
+            "question": question,
+            "choices": question.choices.all() if question.qtype != "identification" else None,
+            "remaining_seconds": int(remaining),
+            "bank_seconds": submission.review_bank_seconds,
+            "remaining_count": len(pending),
+            "q_number": q_number,               # ← NEW
+            "q_total": len(order),              # ← NEW
+            "hints_enabled": submission.exam.hints_enabled,
+            "done": False,
+            **_game_context(submission),
+        })
 
 
 @require_POST
@@ -692,9 +806,53 @@ def status_api(request):
 # --- Teacher live monitoring -----------------------------------------------
 
 @staff_member_required
+def teacher_dashboard(request):
+    now = timezone.now()
+    all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+
+    exams_data = []
+    total_active_students = 0
+    total_violations_today = 0
+
+    for exam in all_exams:
+        total_questions = exam.questions.count()
+        student_count = exam.students.count()
+        submissions = exam.submissions.all()
+        total_subs = submissions.count()
+
+        active_subs = submissions.filter(closed=False, last_heartbeat__gte=now - timedelta(seconds=15)).count()
+        completed_subs = submissions.filter(closed=True).count()
+        violation_count = Violation.objects.filter(submission__exam=exam).count()
+
+        total_active_students += active_subs
+        total_violations_today += violation_count
+
+        exams_data.append({
+            "exam": exam,
+            "total_questions": total_questions,
+            "student_count": student_count,
+            "total_submissions": total_subs,
+            "active_students": active_subs,
+            "completed_students": completed_subs,
+            "violation_count": violation_count,
+        })
+
+    return render(request, "teacher_dashboard.html", {
+        "exams_data": exams_data,
+        "all_exams": all_exams,
+        "total_active_students": total_active_students,
+        "total_violations_today": total_violations_today,
+    })
+
+
+@staff_member_required
 def teacher_monitor(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
-    return render(request, "teacher_monitor.html", {"exam": exam})
+    all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+    return render(request, "teacher_monitor.html", {
+        "exam": exam,
+        "all_exams": all_exams,
+    })
 
 
 @staff_member_required

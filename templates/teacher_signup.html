@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Teacher Account Registration{% endblock %}
+{% block content %}
+<div class="w-full max-w-md my-6">
+  <div class="glass rounded-3xl shadow-2xl p-8 border border-white/15">
+    <div class="mb-6 text-center">
+      <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-3 text-2xl text-examaccent">
+        🎓
+      </div>
+      <h1 class="text-2xl font-bold text-white">Create Teacher Account</h1>
+      <p class="text-xs text-examtext/70 mt-1">Set up your personalized teacher workspace & create your exams.</p>
+    </div>
+
+    {% if error %}
+    <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-xs px-4 py-2.5">
+      {{ error }}
+    </div>
+    {% endif %}
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-xs mb-1 text-examtext/80 font-medium">Full Name / Title</label>
+        <input type="text" name="full_name" required autocomplete="name"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="e.g. Prof. Jane Doe">
+      </div>
+
+      <div>
+        <label class="block text-xs mb-1 text-examtext/80 font-medium">Email Address</label>
+        <input type="email" name="email" required autocomplete="email"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="jane.doe@school.edu">
+      </div>
+
+      <div>
+        <label class="block text-xs mb-1 text-examtext/80 font-medium">Username</label>
+        <input type="text" name="username" required autocomplete="username"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="e.g. janedoe">
+      </div>
+
+      <div>
+        <label class="block text-xs mb-1 text-examtext/80 font-medium">Password</label>
+        <input type="password" name="password" required autocomplete="new-password"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="••••••••">
+      </div>
+
+      <div>
+        <label class="block text-xs mb-1 text-examtext/80 font-medium">Confirm Password</label>
+        <input type="password" name="confirm_password" required autocomplete="new-password"
+               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               placeholder="••••••••">
+      </div>
+
+      <button type="submit"
+              class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01] text-sm mt-2">
+        Register & Open Teacher Portal &rarr;
+      </button>
+    </form>
+
+    <div class="mt-6 pt-4 border-t border-white/10 text-center text-xs text-examtext/60">
+      Already have a teacher account?
+      <a href="{% url 'admin:login' %}?next={% url 'teacher_dashboard' %}" class="text-examaccent hover:underline font-semibold ml-1">
+        Sign in here &rarr;
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

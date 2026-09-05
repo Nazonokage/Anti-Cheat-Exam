@@ -2,6 +2,9 @@
 {% block object-tools-items %}
 {% if original %}
 <li>
+  <a href="{% url 'teacher_monitor' original.pk %}" style="background-color: #10B981; color: #061511; font-weight: bold;">🟢 Live Monitor</a>
+</li>
+<li>
   <a href="{% url 'admin:core_exam_import_roster' original.pk %}" class="addlink">Import Roster</a>
 </li>
 {% endif %}

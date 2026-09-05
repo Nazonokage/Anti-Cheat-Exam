@@ -1,0 +1,45 @@
+<div class="w-full glass rounded-2xl border border-white/15 px-5 py-3 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-xl">
+  <!-- Left: Brand & Exam Switcher -->
+  <div class="flex items-center gap-4 flex-wrap">
+    <a href="{% url 'teacher_dashboard' %}" class="flex items-center gap-2 font-bold text-white tracking-wide hover:text-examaccent transition-colors text-sm">
+      <span class="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-examprimary/20 border border-examprimary/40 text-examaccent text-base">🛡️</span>
+      Teacher Monitoring
+    </a>
+
+    {% if all_exams %}
+    <div class="flex items-center gap-2 pl-2 border-l border-white/10">
+      <label for="exam-switcher" class="text-xs text-examtext/60 font-medium hidden sm:inline">Switch Exam:</label>
+      <select id="exam-switcher" onchange="if(this.value) location.href=this.value;"
+              class="bg-white/10 text-xs text-white rounded-xl px-3 py-1.5 border border-white/20 focus:outline-none focus:ring-2 focus:ring-examprimary cursor-pointer max-w-[220px] sm:max-w-xs truncate">
+        <option value="{% url 'teacher_dashboard' %}" class="bg-examsurface text-examtext/60">-- All Exams Overview --</option>
+        {% for e in all_exams %}
+        <option value="{% url 'teacher_monitor' e.id %}" class="bg-examsurface" {% if exam and exam.id == e.id %}selected{% endif %}>
+          {% if e.is_active %}🟢 {% else %}⚪ {% endif %}{{ e.title }} ({{ e.subject }})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Right: Quick Links & User Badge -->
+  <div class="flex items-center gap-3 text-xs">
+    <a href="{% url 'teacher_dashboard' %}"
+       class="px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-examtext transition-colors">
+      📊 Dashboard
+    </a>
+    <a href="{% url 'admin:index' %}" target="_blank"
+       class="px-3 py-1.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-examtext transition-colors">
+      ⚙️ Admin Panel
+    </a>
+
+    <div class="h-4 w-px bg-white/10 mx-1 hidden sm:block"></div>
+
+    <span class="text-examtext/60 hidden md:inline">
+      Logged in as <strong class="text-white font-medium">{{ request.user.username }}</strong>
+    </span>
+    <a href="{% url 'teacher_logout' %}" class="text-red-300 hover:text-red-200 transition-colors">
+      Logout
+    </a>
+  </div>
+</div>

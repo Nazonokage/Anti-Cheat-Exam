@@ -6,7 +6,8 @@ from django.contrib import admin
 from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.http import HttpResponse
 from django import forms
-from django.urls import path
+from django.urls import path, reverse
+from django.utils.html import format_html
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.utils import timezone
@@ -89,6 +90,7 @@ class ExamAdmin(admin.ModelAdmin):
         "created_by",
         "question_count",
         "student_count",
+        "monitor_link",
         "created_at",
     )
     list_editable = ("title", "game_mode", "randomize_questions", "seconds_per_question", "hints_enabled")
@@ -109,6 +111,27 @@ class ExamAdmin(admin.ModelAdmin):
     def student_count(self, obj):
         return obj.students.count()
     student_count.short_description = "Roster size"
+
+    def monitor_link(self, obj):
+        url = reverse("teacher_monitor", args=[obj.id])
+        return format_html('<a class="button" href="{}" style="padding: 3px 8px; font-weight: bold; background: #10B981; color: #000;">🟢 Monitor</a>', url)
+    monitor_link.short_description = "Live Monitor"
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(created_by=request.user)
+
+    def save_model(self, request, obj, form, change):
+        if not change or not obj.created_by_id:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_readonly_fields(self, request, obj=None):
+        if not request.user.is_superuser:
+            return ("id", "created_by")
+        return ("id",)
 
     def activate_exams(self, request, queryset):
         queryset.update(is_active=True)
@@ -256,9 +279,17 @@ class StudentAdmin(admin.ModelAdmin):
     search_fields = ("name",)
     change_list_template = "admin/core/student/change_list.html"
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(exam__created_by=request.user)
+
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
         if db_field.name == "exam":
-            if request.resolver_match.url_name.endswith("_add"):
+            if not request.user.is_superuser:
+                kwargs["queryset"] = Exam.objects.filter(created_by=request.user).order_by("title")
+            elif request.resolver_match.url_name.endswith("_add"):
                 kwargs["queryset"] = Exam.objects.filter(is_active=True).order_by("title")
             else:
                 kwargs["queryset"] = Exam.objects.all().order_by("title")
@@ -302,6 +333,17 @@ class QuestionAdmin(admin.ModelAdmin):
     list_filter = ("exam", "qtype")
     inlines = [ChoiceInline]
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(exam__created_by=request.user)
+
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == "exam" and not request.user.is_superuser:
+            kwargs["queryset"] = Exam.objects.filter(created_by=request.user).order_by("title")
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
@@ -309,6 +351,12 @@ class SubmissionAdmin(admin.ModelAdmin):
                      "tab_attempts", "last_violation_type", "closed", "last_heartbeat")
     list_filter = ("exam", "phase", "closed")
     actions = ["reset_submissions"]
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(exam__created_by=request.user)
 
     def reset_submissions(self, request, queryset):
         """Deletes the selected submission(s) (cascading to their Answers/
@@ -339,6 +387,12 @@ class ViolationAdmin(admin.ModelAdmin):
     list_filter = ("violation_type", "submission__exam")
     readonly_fields = ("submission", "violation_type", "created_at")
 
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(submission__exam__created_by=request.user)
+
     def has_add_permission(self, request):
         return False
 
@@ -347,3 +401,9 @@ class ViolationAdmin(admin.ModelAdmin):
 class AnswerAdmin(admin.ModelAdmin):
     list_display = ("submission", "question", "answered", "skipped", "is_correct")
     list_filter = ("answered", "skipped", "is_correct")
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        if request.user.is_superuser:
+            return qs
+        return qs.filter(submission__exam__created_by=request.user)

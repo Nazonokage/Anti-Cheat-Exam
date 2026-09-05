@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Teacher Monitoring Dashboard{% endblock %}
+{% block content %}
+<div class="w-full max-w-6xl my-4">
+  {% include "components/teacher_nav.html" %}
+
+  <!-- Overview Stats Header -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
+      <div class="h-12 w-12 rounded-2xl bg-examprimary/20 border border-examprimary/40 flex items-center justify-center text-xl text-examaccent">
+        📚
+      </div>
+      <div>
+        <p class="text-xs text-examtext/60 font-medium">Total Managed Exams</p>
+        <h3 class="text-2xl font-bold text-white">{{ exams_data|length }}</h3>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
+      <div class="h-12 w-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl text-emerald-400">
+        <span class="relative flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+        </span>
+      </div>
+      <div>
+        <p class="text-xs text-examtext/60 font-medium">Live Active Test-Takers</p>
+        <h3 class="text-2xl font-bold text-emerald-300">{{ total_active_students }}</h3>
+      </div>
+    </div>
+
+    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
+      <div class="h-12 w-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl text-amber-300">
+        ⚠️
+      </div>
+      <div>
+        <p class="text-xs text-examtext/60 font-medium">Total Tab Violations</p>
+        <h3 class="text-2xl font-bold text-amber-300">{{ total_violations_today }}</h3>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Section Title -->
+  <div class="flex items-center justify-between mb-4">
+    <h2 class="text-lg font-semibold text-white tracking-wide">Exams Overview</h2>
+    <a href="{% url 'admin:core_exam_add' %}" target="_blank"
+       class="inline-flex items-center gap-1.5 text-xs text-black font-semibold rounded-xl holo-btn px-4 py-2 hover:scale-[1.02] transition-transform">
+      + Create New Exam in Admin
+    </a>
+  </div>
+
+  {% if not exams_data %}
+  <div class="glass rounded-3xl p-12 text-center border border-white/10">
+    <div class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-white/5 border border-white/15 mb-4 text-3xl">
+      📋
+    </div>
+    <h3 class="text-lg font-semibold text-white mb-2">No Exams Found</h3>
+    <p class="text-xs text-examtext/60 max-w-md mx-auto mb-6">
+      You haven't created any active exams yet. Use the Django Admin panel or import a JSON questionnaire to get started.
+    </p>
+    <a href="{% url 'admin:core_exam_add' %}" target="_blank"
+       class="inline-flex items-center gap-2 text-xs font-semibold text-black holo-btn px-5 py-2.5 rounded-xl">
+      Create Exam Now
+    </a>
+  </div>
+  {% else %}
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for item in exams_data %}
+    <div class="glass rounded-3xl border border-white/15 p-6 flex flex-col justify-between hover:border-white/25 transition-all shadow-xl">
+      <div>
+        <!-- Card Header -->
+        <div class="flex items-start justify-between gap-2 mb-3">
+          <div>
+            <span class="text-[10px] uppercase font-bold tracking-wider text-examaccent/80 px-2 py-0.5 rounded-md bg-examprimary/10 border border-examprimary/20">
+              {{ item.exam.subject }}
+            </span>
+            <h3 class="text-base font-bold text-white mt-1 line-clamp-1" title="{{ item.exam.title }}">
+              {{ item.exam.title }}
+            </h3>
+            <span class="text-[10px] font-medium text-examtext/60 block mt-0.5">
+              👤 {{ item.exam.created_by.first_name|default:item.exam.created_by.username }}
+            </span>
+          </div>
+          {% if item.exam.is_active %}
+            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+            </span>
+          {% else %}
+            <span class="text-[11px] font-medium text-examtext/40 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full shrink-0">
+              Inactive
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Mode Badges -->
+        <div class="flex items-center gap-2 mb-4 text-[11px]">
+          {% if item.exam.game_mode %}
+            <span class="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-400/30 font-mono">
+              🎮 Game Mode
+            </span>
+          {% endif %}
+          {% if item.exam.randomize_questions %}
+            <span class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
+              🔀 Shuffled Qs
+            </span>
+          {% endif %}
+        </div>
+
+        <!-- Metrics Grid -->
+        <div class="grid grid-cols-2 gap-2 text-xs mb-5">
+          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
+            <span class="text-examtext/50 block text-[10px]">Questions</span>
+            <strong class="text-white text-sm font-semibold">{{ item.total_questions }}</strong>
+          </div>
+          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
+            <span class="text-examtext/50 block text-[10px]">Roster Size</span>
+            <strong class="text-white text-sm font-semibold">{{ item.student_count }}</strong>
+          </div>
+          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
+            <span class="text-examtext/50 block text-[10px]">Live / Done</span>
+            <strong class="text-emerald-300 text-sm font-semibold">{{ item.active_students }}</strong>
+            <span class="text-examtext/40 text-[10px]">/ {{ item.completed_students }} done</span>
+          </div>
+          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
+            <span class="text-examtext/50 block text-[10px]">Violations</span>
+            <strong class="{% if item.violation_count > 0 %}text-amber-300{% else %}text-white{% endif %} text-sm font-semibold">
+              {{ item.violation_count }}
+            </strong>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Footer -->
+      <div class="flex items-center gap-2 pt-3 border-t border-white/10">
+        <a href="{% url 'teacher_monitor' item.exam.id %}"
+           class="flex-1 text-center font-semibold text-black bg-examaccent hover:bg-emerald-300 transition-colors py-2 px-3 rounded-xl text-xs shadow-md">
+          🟢 Monitor Live
+        </a>
+        <a href="{% url 'admin:core_exam_change' item.exam.id %}" target="_blank"
+           title="Manage Exam & Roster in Django Admin"
+           class="text-center font-medium text-examtext/80 bg-white/5 hover:bg-white/10 border border-white/15 py-2 px-3 rounded-xl text-xs transition-colors">
+          ⚙️ Admin
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

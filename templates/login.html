@@ -62,7 +62,12 @@
       </form>
     {% endif %}
   </div>
-  <p class="text-center text-xs text-examtext/40 mt-4">Tab switching and devtools use are monitored during the exam.</p>
+  <p class="text-center text-xs text-examtext/40 mt-4">
+    Tab switching and devtools use are monitored during the exam.
+    <br>
+    Teachers: <a href="{% url 'teacher_dashboard' %}" class="text-examtext/60 hover:text-white underline">Teacher Portal</a>
+    &middot; <a href="{% url 'teacher_signup' %}" class="text-examaccent hover:text-white underline">Create Teacher Account</a>
+  </p>
 </div>
 
 <script>
