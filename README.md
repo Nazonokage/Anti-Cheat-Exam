@@ -1,7 +1,7 @@
 # Anti-Cheat Exam App
 
 A server-authoritative, one-question-at-a-time classroom exam system built
-with **Django + Tailwind + SQLite**, per `plan.md`.
+with **Django + local CSS + SQLite**, per `plan.md`.
 
 - ✅ Server owns the timer — a dropped Wi-Fi connection can't buy extra time
 - ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, redundant client-side guards
@@ -16,7 +16,7 @@ with **Django + Tailwind + SQLite**, per `plan.md`.
   - [Exam JSON format](#exam-json-format)
   - [Bulk student roster import](#bulk-student-roster-import)
   - [Docker](#docker)
-  - [Styling uses the Tailwind CDN](#styling-uses-the-tailwind-cdn)
+  - [Styling and offline use](#styling-and-offline-use)
 - [Teacher Monitoring Hub & Multi-Teacher Accounts (latest)](#teacher-monitoring-hub--multi-teacher-accounts-latest)
 - [Newer additions (this round)](#newer-additions-this-round)
 - [Game Mode + image support + polish (latest round)](#game-mode--image-support--polish-latest-round)
@@ -322,19 +322,13 @@ docker compose exec web python -c "import django,os; os.environ.setdefault('DJAN
 If that doesn't print the origin you expect, rebuild with
 `docker compose up -d --build`.
 
-### Styling uses the Tailwind CDN
+### Styling and offline use
 
-`base.html` pulls in `@tailwindcss/browser@4` from `cdn.jsdelivr.net` and
-defines the emerald palette inline via a `<style type="text/tailwindcss">`
-block with `@theme`. No Node/npm tooling, no build step, no `package.json`
-— it's plain Django + a CDN script, matching the rest of the stack.
+`base.html` loads the local `static/css/app.css` stylesheet plus self-hosted
+Outfit and IBM Plex Mono files in `static/fonts/`. No Node/npm tooling,
+build step, or network download is required for the interface.
 
-**Trade-off to know about:** this means the app needs internet access to
-load its styling (the CDN script itself). If you're deploying on a school
-LAN with no outside internet, the pages will still work but will render
-unstyled until that script loads. If that ever becomes a problem, the fix
-is to self-host a built Tailwind CSS file instead of the CDN script — just
-say the word and it can be swapped back.
+This keeps the interface fully styled on a school LAN or in an offline demo.
 
 ## Teacher Monitoring Hub & Multi-Teacher Accounts (latest)
 
@@ -542,8 +536,8 @@ The full feature set, mapped to where it lives in the code:
   `exam_results_20260718_061427.csv`), and normal teacher/staff account
   management (multiple teachers
   supported via ordinary Django staff users).
-- Emerald glassmorphism theme via the Tailwind v4 CDN script (no build
-  step) matching the plan's palette, applied across login/exam/review/
+- Emerald glassmorphism theme via the local stylesheet (no network
+  dependency) matching the plan's palette, applied across login/exam/review/
   locked/teacher-monitor screens.
 
 ## Smoke-tested during the build (Django test client)

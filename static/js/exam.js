@@ -130,7 +130,7 @@
 
   const fsBanner = document.createElement('div');
   fsBanner.id = 'fs-return-banner';
-  fsBanner.className = 'mb-3 items-center justify-between gap-3 rounded-xl border border-examaccent/40 bg-examprimary/15 px-3 py-2';
+  fsBanner.className = 'exam-fullscreen-banner';
   fsBanner.innerHTML =
     '<p class="text-xs text-examtext/80">Fullscreen is required during the exam.</p>' +
     '<button type="button" id="fs-return-btn" class="shrink-0 rounded-lg border border-examaccent/50 bg-examsurface text-examaccent text-xs font-semibold px-3 py-1.5">Return to Fullscreen</button>';

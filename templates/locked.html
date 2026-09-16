@@ -4,7 +4,10 @@
 <div class="w-full max-w-md text-center" id="lock-root" data-remaining="{{ remaining_seconds }}" data-exam-url="{% url 'exam' %}">
   <div class="glass rounded-3xl shadow-2xl p-10">
     <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-red-500/15 border border-red-400/40 mb-4">
-      <span class="text-red-300 text-2xl">⏸</span>
+      <svg class="mark text-red-300" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+        <rect x="6" y="5" width="4" height="14" rx="1"/>
+        <rect x="14" y="5" width="4" height="14" rx="1"/>
+      </svg>
     </div>
     <h1 class="text-2xl font-semibold text-white mb-2">Exam Temporarily Locked</h1>
     <p class="text-sm text-examtext/70">Repeated tab switching was detected. Please stay on this tab.</p>

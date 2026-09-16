@@ -35,7 +35,7 @@ window.__examInitGame = function () {
   // --- Floating toast ------------------------------------------------------
   function showToast(html, ms) {
     const el = document.createElement('div');
-    el.className = 'toast-float glass rounded-2xl px-5 py-3 shadow-2xl text-sm text-white max-w-xs text-center';
+    el.className = 'toast-float toast-card glass';
     el.innerHTML = html;
     toastRoot.appendChild(el);
     setTimeout(() => {

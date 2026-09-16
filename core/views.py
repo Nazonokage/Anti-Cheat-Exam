@@ -613,6 +613,14 @@ def review_view(request):
         submission.save()
         return render(request, "exam.html", _done_context(submission))
 
+    order = submission.question_order or list(
+        submission.exam.questions.order_by("order").values_list("id", flat=True)
+    )
+    try:
+        q_number = order.index(answer.question_id) + 1
+    except ValueError:
+        q_number = 0
+
     question = answer.question
     return render(request, "review.html", {
             "submission": submission,
@@ -621,8 +629,8 @@ def review_view(request):
             "remaining_seconds": int(remaining),
             "bank_seconds": submission.review_bank_seconds,
             "remaining_count": len(pending),
-            "q_number": q_number,               # ← NEW
-            "q_total": len(order),              # ← NEW
+            "q_number": q_number,
+            "q_total": len(order),
             "hints_enabled": submission.exam.hints_enabled,
             "done": False,
             **_game_context(submission),

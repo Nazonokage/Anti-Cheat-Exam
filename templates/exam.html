@@ -3,10 +3,12 @@
 
 {% block content %}
 {% if done %}
-<div class="w-full max-w-xl">
-  <div class="glass rounded-3xl shadow-2xl p-10 text-center">
+<div class="exam-complete w-full max-w-xl">
+  <div class="glass exam-complete-card rounded-3xl shadow-2xl p-10 text-center">
     <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-4">
-      <span class="text-examaccent text-2xl">✓</span>
+      <svg class="mark text-examaccent" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M5 12.5l4.2 4.2L19 7.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
     </div>
     <h1 class="text-2xl font-semibold text-white mb-2">
       {% if no_questions %}Exam Not Ready{% else %}Exam Submitted{% endif %}
@@ -37,11 +39,11 @@
   </div>
 
   {% if not no_questions and question_review %}
-  <div class="glass rounded-3xl shadow-2xl p-8 mt-6 text-left">
+  <div class="glass exam-results-card rounded-3xl shadow-2xl p-8 mt-6 text-left">
     <div class="flex items-center justify-between mb-4">
       <h2 class="text-sm uppercase tracking-widest text-examtext/60">Your Answers ({{ question_review|length }})</h2>
       <button type="button" id="export-review-csv"
-              class="text-xs rounded-lg border border-white/15 px-3 py-1.5 text-examtext/80 hover:border-examaccent/60 hover:text-examaccent transition-colors">
+              class="exam-export-btn text-xs rounded-lg px-3 py-1.5 transition-colors">
         ⬇ Export CSV
       </button>
     </div>
@@ -106,7 +108,7 @@
 </script>
 
 {% else %}
-<div class="w-full {% if question.image_url %}max-w-3xl{% else %}max-w-xl{% endif %}"
+<div class="exam-workspace w-full {% if question.image_url %}max-w-3xl{% else %}max-w-xl{% endif %}"
      id="exam-root"
      data-status-url="{% url 'status_api' %}"
      data-tab-url="{% url 'tab_violation' %}"
@@ -117,7 +119,7 @@
      data-remaining="{{ remaining_seconds }}"
      data-total="{{ total_seconds }}">
 
-  <div class="flex items-center justify-between mb-4">
+  <div class="exam-hud">
     <span class="text-xs uppercase tracking-widest text-examtext/50">Question {{ q_number }} of {{ q_total }}</span>
     <div class="flex items-center gap-2">
       <div id="timer-bar-track" class="w-28 h-1.5 rounded-full bg-white/10 overflow-hidden">
@@ -129,7 +131,7 @@
 
   {% include "_game_ui.html" %}
 
-  <div class="glass rounded-3xl shadow-2xl p-8">
+  <div class="glass exam-question-card rounded-3xl shadow-2xl p-8">
     <div class="flex flex-col md:flex-row md:items-start gap-6">
       {% if question.image_url %}
       <div class="img-3d-frame md:w-2/5 md:shrink-0">
@@ -138,7 +140,7 @@
       {% endif %}
 
       <div class="flex-1 min-w-0">
-        <p class="text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
+        <p class="exam-question text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
 
         <form method="post" action="{% url 'submit_answer' %}" id="answer-form" class="space-y-3">
           {% csrf_token %}
@@ -166,13 +168,13 @@
           </details>
           {% endif %}
 
-          <div class="flex gap-3 pt-2">
+          <div class="exam-action-row pt-2">
             <button type="submit" id="submit-btn"
                     class="flex-1 rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
               Submit Answer
             </button>
             <button type="button" id="skip-btn"
-                    class="rounded-xl border border-white/20 text-white/80 hover:bg-white/5 px-5 py-2.5 text-sm">
+                    class="exam-secondary-btn rounded-xl px-5 py-2.5 text-sm">
               Skip for Now
             </button>
           </div>

@@ -7,8 +7,8 @@
   <!-- Overview Stats Header -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
     <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-      <div class="h-12 w-12 rounded-2xl bg-examprimary/20 border border-examprimary/40 flex items-center justify-center text-xl text-examaccent">
-        📚
+      <div class="h-12 w-12 rounded-2xl bg-examprimary/20 border border-examprimary/40 flex items-center justify-center">
+        <span class="nav-mark text-examaccent" aria-hidden="true"></span>
       </div>
       <div>
         <p class="text-xs text-examtext/60 font-medium">Total Managed Exams</p>
@@ -30,8 +30,8 @@
     </div>
 
     <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-      <div class="h-12 w-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-xl text-amber-300">
-        ⚠️
+      <div class="h-12 w-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center">
+        <span class="stat-dot warn" aria-hidden="true"></span>
       </div>
       <div>
         <p class="text-xs text-examtext/60 font-medium">Total Tab Violations</p>
@@ -51,8 +51,8 @@
 
   {% if not exams_data %}
   <div class="glass rounded-3xl p-12 text-center border border-white/10">
-    <div class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-white/5 border border-white/15 mb-4 text-3xl">
-      📋
+    <div class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-white/5 border border-white/15 mb-4">
+      <span class="nav-mark text-examtext/60" aria-hidden="true"></span>
     </div>
     <h3 class="text-lg font-semibold text-white mb-2">No Exams Found</h3>
     <p class="text-xs text-examtext/60 max-w-md mx-auto mb-6">

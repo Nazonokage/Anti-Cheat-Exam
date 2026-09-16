@@ -2,7 +2,7 @@
 {% block title %}Review Phase{% endblock %}
 
 {% block content %}
-<div class="w-full max-w-xl"
+<div class="exam-workspace w-full max-w-xl"
      id="exam-root"
      data-status-url="{% url 'status_api' %}"
      data-tab-url="{% url 'tab_violation' %}"
@@ -14,7 +14,7 @@
      data-total="{{ bank_seconds }}"
      data-review="1">
 
-  <div class="flex items-center justify-between mb-4">
+  <div class="exam-hud">
     <span class="text-xs uppercase tracking-widest text-examtext/50">
       Review · Q{{ q_number }} of {{ q_total }} · {{ remaining_count }} left
     </span>
@@ -26,8 +26,8 @@
 
   {% include "_game_ui.html" %}
 
-  <div class="glass rounded-3xl shadow-2xl p-8">
-    <div class="mb-3 inline-block text-[11px] px-2 py-0.5 rounded-full bg-examprimary/15 text-examaccent border border-examprimary/30">
+  <div class="glass exam-question-card rounded-3xl shadow-2xl p-8">
+    <div class="exam-review-badge mb-3 inline-block text-[11px] px-2 py-0.5 rounded-full">
       Skipped question · originally Q{{ q_number }}
     </div>
     <div class="flex flex-col md:flex-row md:items-start gap-6">
@@ -37,7 +37,7 @@
       </div>
       {% endif %}
       <div class="flex-1 min-w-0">
-    <p class="text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
+    <p class="exam-question text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
 
     <form method="post" action="{% url 'submit_review_answer' %}" id="answer-form" class="space-y-3">
       {% csrf_token %}
@@ -65,13 +65,13 @@
       </details>
       {% endif %}
 
-      <div class="flex gap-3 pt-2">
+      <div class="exam-action-row pt-2">
         <button type="submit" id="submit-btn"
                 class="flex-1 rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
           Submit Answer
         </button>
         <button type="button" id="skip-btn"
-                class="rounded-xl border border-white/20 text-white/80 hover:bg-white/5 px-5 py-2.5 text-sm">
+                class="exam-secondary-btn rounded-xl px-5 py-2.5 text-sm">
           Leave for Later
         </button>
       </div>
@@ -81,13 +81,13 @@
 
     <form method="post" action="{% url 'finalize_submission' %}" id="final-submit-form" class="mt-4 pt-4 border-t border-white/10">
       {% csrf_token %}
-      <button type="submit" class="w-full text-sm text-examtext/60 hover:text-red-300 transition-colors">
+      <button type="submit" class="exam-final-submit-btn w-full rounded-xl text-sm transition-colors">
         Final Submit Exam Now
       </button>
     </form>
   </div>
 
-  <p class="text-center text-xs text-examtext/40 mt-4">
+  <p class="exam-review-note text-center text-xs text-examtext/40 mt-4">
     The review bank is shared across all remaining questions — once it runs out, the exam auto-submits.
   </p>
 </div>
