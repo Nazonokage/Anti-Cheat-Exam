@@ -29,4 +29,4 @@ RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
     chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["gunicorn", "exam_system.wsgi:application", "--bind", "0.0.0.0:8090", "--workers", "3"]
+CMD ["sh", "-c", "exec gunicorn exam_system.wsgi:application --bind 0.0.0.0:${PORT:-8090} --workers 3"]
