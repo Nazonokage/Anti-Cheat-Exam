@@ -17,6 +17,9 @@ class Exam(models.Model):
     # Whether each student gets a shuffled question order (see login_view).
     # Off by default — opt in per exam via the admin or "random": true in JSON.
     randomize_questions = models.BooleanField(default=False)
+    # Whether students can see the post-exam question breakdown and correct answers.
+    # Set to False to prevent cheating (e.g. sacrificing one student to get answers).
+    show_review_answers = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

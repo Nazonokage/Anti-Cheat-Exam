@@ -158,12 +158,21 @@ def _question_review(submission):
 
 
 def _done_context(submission, no_questions=False):
-    ctx = {"submission": submission, "done": True, "no_questions": no_questions}
+    ctx = {
+        "submission": submission,
+        "done": True,
+        "no_questions": no_questions,
+        "show_review_answers": getattr(submission.exam, "show_review_answers", True),
+    }
     if not no_questions:
         ctx.update(_score_summary(submission))
         ctx.update(_game_context(submission))
-        ctx["question_review"] = _question_review(submission)
-        ctx["question_review_json"] = json.dumps(ctx["question_review"])
+        if ctx["show_review_answers"]:
+            ctx["question_review"] = _question_review(submission)
+            ctx["question_review_json"] = json.dumps(ctx["question_review"])
+        else:
+            ctx["question_review"] = []
+            ctx["question_review_json"] = "[]"
     return ctx
 
 

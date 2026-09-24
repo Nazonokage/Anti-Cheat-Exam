@@ -9,6 +9,13 @@
 </head>
 <body class="min-h-screen text-examtext font-sans antialiased{% block body_class %}{% endblock %}"
       {% block body_attrs %}{% endblock %}>
+
+  <!-- Page system metadata rail -->
+  <div style="position:fixed;top:0;left:0;right:0;z-index:50;pointer-events:none;padding:6px 20px;display:flex;justify-content:space-between;align-items:center;opacity:.35;">
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.12em;text-transform:uppercase;color:#34d399;">ACE-SYS · {% block page_code %}SECURE-SESSION{% endblock %}</span>
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:.55rem;letter-spacing:.1em;text-transform:uppercase;color:#34d399;" id="sys-clock"></span>
+  </div>
+
   <div class="min-h-screen flex flex-col items-center justify-center p-4">
     {% block content %}{% endblock %}
   </div>
@@ -18,9 +25,21 @@
       <div class="loading-gif-frame mx-auto mb-4">
         <img src="{% static 'img/pedro.gif' %}" alt="">
       </div>
-      <p id="loading-text" class="text-sm text-examaccent tracking-wide">Loading…</p>
+      <p id="loading-text" class="text-sm text-examaccent tracking-wide font-mono" style="letter-spacing:.08em;text-transform:uppercase;font-size:.75rem;">Loading…</p>
     </div>
   </div>
+
   <script src="{% static 'js/ui.js' %}"></script>
+  <script>
+    // Mono system clock in page rail
+    (function tick() {
+      const el = document.getElementById('sys-clock');
+      if (el) {
+        const now = new Date();
+        el.textContent = now.toLocaleTimeString('en-US', { hour12: false });
+      }
+      setTimeout(tick, 1000);
+    })();
+  </script>
 </body>
 </html>

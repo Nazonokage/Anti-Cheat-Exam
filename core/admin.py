@@ -187,19 +187,21 @@ class ExamAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
         "hints_enabled",
         "game_mode",
         "randomize_questions",
+        "show_review_answers",
         "created_by",
         "question_count",
         "student_count",
         "monitor_link",
         "created_at",
     )
-    list_editable = ("title", "game_mode", "randomize_questions", "seconds_per_question", "hints_enabled")
-    list_filter = ("is_active", "is_archived", "game_mode", "subject")
+    list_editable = ("title", "game_mode", "randomize_questions", "show_review_answers", "seconds_per_question", "hints_enabled")
+    list_filter = ("is_active", "is_archived", "game_mode", "randomize_questions", "show_review_answers", "subject")
     inlines = [QuestionInline, StudentInline]
     readonly_fields = ("id",)
     fields = ("id", "subject", "title", "seconds_per_question", "hints_enabled", "game_mode",
-              "randomize_questions", "created_by", "is_active", "is_archived")
+              "randomize_questions", "show_review_answers", "created_by", "is_active", "is_archived")
     actions = ["activate_exams", "deactivate_exams", "archive_exams", "toggle_game_mode",
+               "hide_review_answers_action", "show_review_answers_action",
                "export_results_csv", "reset_exam_data"]
     change_list_template = "admin/core/exam/change_list.html"
     change_form_template = "admin/core/exam/change_form.html"
@@ -259,6 +261,14 @@ class ExamAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
             exam.game_mode = not exam.game_mode
             exam.save(update_fields=["game_mode"])
     toggle_game_mode.short_description = "Toggle Game Mode on/off for selected exams"
+
+    def hide_review_answers_action(self, request, queryset):
+        queryset.update(show_review_answers=False)
+    hide_review_answers_action.short_description = "Hide review answers (anti-cheat)"
+
+    def show_review_answers_action(self, request, queryset):
+        queryset.update(show_review_answers=True)
+    show_review_answers_action.short_description = "Show review answers to students"
 
     def export_results_csv(self, request, queryset):
         timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")

@@ -1,147 +1,166 @@
 {% extends "base.html" %}
 {% block title %}Teacher Monitoring Dashboard{% endblock %}
+{% block page_code %}DASHBOARD-HUB{% endblock %}
 {% block content %}
 <div class="w-full max-w-6xl my-4">
   {% include "components/teacher_nav.html" %}
 
   <!-- Overview Stats Header -->
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-      <div class="h-12 w-12 rounded-2xl bg-examprimary/20 border border-examprimary/40 flex items-center justify-center">
+
+    <!-- Stat: Total exams -->
+    <div class="glass rounded-2xl p-5 flex items-center gap-4" style="background:var(--surface-1);border-color:rgba(52,211,153,.15);">
+      <div class="h-11 w-11 rounded-xl bg-examprimary/15 border border-examprimary/35 flex items-center justify-center" style="box-shadow:0 0 10px -3px rgba(16,185,129,.2);">
         <span class="nav-mark text-examaccent" aria-hidden="true"></span>
       </div>
       <div>
-        <p class="text-xs text-examtext/60 font-medium">Total Managed Exams</p>
-        <h3 class="text-2xl font-bold text-white">{{ exams_data|length }}</h3>
+        <p class="font-mono uppercase text-examtext/50" style="font-size:.6rem;letter-spacing:.14em;">Total Exams</p>
+        <h3 class="text-2xl font-bold text-white font-mono" style="letter-spacing:-.01em;">{{ exams_data|length }}</h3>
       </div>
     </div>
 
-    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-      <div class="h-12 w-12 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-xl text-emerald-400">
+    <!-- Stat: Live test-takers -->
+    <div class="glass rounded-2xl p-5 flex items-center gap-4" style="background:var(--surface-1);border-color:rgba(52,211,153,.15);">
+      <div class="h-11 w-11 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
         <span class="relative flex h-3 w-3">
           <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
           <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
         </span>
       </div>
       <div>
-        <p class="text-xs text-examtext/60 font-medium">Live Active Test-Takers</p>
-        <h3 class="text-2xl font-bold text-emerald-300">{{ total_active_students }}</h3>
+        <p class="font-mono uppercase text-examtext/50" style="font-size:.6rem;letter-spacing:.14em;">Live Test-Takers</p>
+        <h3 class="text-2xl font-bold text-emerald-300 font-mono" style="letter-spacing:-.01em;">{{ total_active_students }}</h3>
       </div>
     </div>
 
-    <div class="glass rounded-2xl p-5 border border-white/10 flex items-center gap-4">
-      <div class="h-12 w-12 rounded-2xl bg-amber-500/20 border border-amber-400/40 flex items-center justify-center">
-        <span class="stat-dot warn" aria-hidden="true"></span>
+    <!-- Stat: Violations -->
+    <div class="glass rounded-2xl p-5 flex items-center gap-4" style="background:var(--surface-1);border-color:rgba(52,211,153,.15);">
+      <div class="h-11 w-11 rounded-xl bg-amber-500/15 border border-amber-400/30 flex items-center justify-center">
+        <span class="stat-dot warn inline-block h-3 w-3 rounded-full" aria-hidden="true"></span>
       </div>
       <div>
-        <p class="text-xs text-examtext/60 font-medium">Total Tab Violations</p>
-        <h3 class="text-2xl font-bold text-amber-300">{{ total_violations_today }}</h3>
+        <p class="font-mono uppercase text-examtext/50" style="font-size:.6rem;letter-spacing:.14em;">Tab Violations</p>
+        <h3 class="text-2xl font-bold text-amber-300 font-mono" style="letter-spacing:-.01em;">{{ total_violations_today }}</h3>
       </div>
     </div>
+
   </div>
 
-  <!-- Main Section Title -->
+  <!-- Section header -->
   <div class="flex items-center justify-between mb-4">
-    <h2 class="text-lg font-semibold text-white tracking-wide">Exams Overview</h2>
+    <div>
+      <p class="font-mono uppercase text-examtext/40 mb-0.5" style="font-size:.6rem;letter-spacing:.16em;">ACE · EXAM-INDEX</p>
+      <h2 class="text-base font-semibold text-white tracking-wide">Exams Overview</h2>
+    </div>
     <a href="{% url 'admin:core_exam_add' %}" target="_blank"
-       class="inline-flex items-center gap-1.5 text-xs text-black font-semibold rounded-xl holo-btn px-4 py-2 hover:scale-[1.02] transition-transform">
-      + Create New Exam in Admin
+       class="inline-flex items-center gap-1.5 text-xs font-semibold text-black rounded-xl holo-btn px-4 py-2 hover:scale-[1.02] transition-transform font-mono" style="letter-spacing:.04em;text-transform:uppercase;font-size:.7rem;">
+      + New Exam
     </a>
   </div>
 
   {% if not exams_data %}
-  <div class="glass rounded-3xl p-12 text-center border border-white/10">
-    <div class="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-white/5 border border-white/15 mb-4">
-      <span class="nav-mark text-examtext/60" aria-hidden="true"></span>
+  <div class="glass rounded-2xl p-12 text-center" style="background:var(--surface-1);border-color:rgba(52,211,153,.12);">
+    <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white/5 border border-white/12 mb-4">
+      <span class="nav-mark text-examtext/40" aria-hidden="true"></span>
     </div>
-    <h3 class="text-lg font-semibold text-white mb-2">No Exams Found</h3>
-    <p class="text-xs text-examtext/60 max-w-md mx-auto mb-6">
-      You haven't created any active exams yet. Use the Django Admin panel or import a JSON questionnaire to get started.
+    <p class="font-mono uppercase text-examtext/40 mb-1" style="font-size:.6rem;letter-spacing:.14em;">NULL · NO-RECORDS</p>
+    <h3 class="text-base font-semibold text-white mb-2">No Exams Found</h3>
+    <p class="text-xs text-examtext/50 max-w-md mx-auto mb-6 font-mono" style="letter-spacing:.02em;">
+      No active exams created yet. Use Admin or import a JSON questionnaire to get started.
     </p>
     <a href="{% url 'admin:core_exam_add' %}" target="_blank"
        class="inline-flex items-center gap-2 text-xs font-semibold text-black holo-btn px-5 py-2.5 rounded-xl">
       Create Exam Now
     </a>
   </div>
+
   {% else %}
   <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
     {% for item in exams_data %}
-    <div class="glass rounded-3xl border border-white/15 p-6 flex flex-col justify-between hover:border-white/25 transition-all shadow-xl">
-      <div>
-        <!-- Card Header -->
+
+    <!-- Exam card — matte shell, gradient border corner, emerald underglow -->
+    <div class="glass rounded-2xl flex flex-col justify-between hover:border-examaccent/30 transition-all shadow-xl"
+         style="background:var(--surface-1);border-color:rgba(52,211,153,.14);box-shadow:0 0 30px -15px rgba(16,185,129,.08),0 20px 40px -16px rgba(0,0,0,.6);">
+
+      <div class="p-5">
+
+        <!-- Card header -->
         <div class="flex items-start justify-between gap-2 mb-3">
           <div>
-            <span class="text-[10px] uppercase font-bold tracking-wider text-examaccent/80 px-2 py-0.5 rounded-md bg-examprimary/10 border border-examprimary/20">
+            <!-- Subject code chip -->
+            <span class="font-mono uppercase text-examaccent/70 px-2 py-0.5 rounded-md border border-examprimary/25 bg-examprimary/8" style="font-size:.6rem;letter-spacing:.12em;background:rgba(16,185,129,.08);">
               {{ item.exam.subject }}
             </span>
-            <h3 class="text-base font-bold text-white mt-1 line-clamp-1" title="{{ item.exam.title }}">
-              {{ item.exam.title }}
-            </h3>
-            <span class="text-[10px] font-medium text-examtext/60 block mt-0.5">
+            <h3 class="text-sm font-semibold text-white mt-1.5 line-clamp-1" title="{{ item.exam.title }}">{{ item.exam.title }}</h3>
+            <span class="font-mono text-examtext/40" style="font-size:.6rem;letter-spacing:.05em;display:block;margin-top:2px;">
               👤 {{ item.exam.created_by.first_name|default:item.exam.created_by.username }}
             </span>
           </div>
           {% if item.exam.is_active %}
-            <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded-full shrink-0">
-              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Active
+            <span class="inline-flex items-center gap-1 font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/25 px-2 py-0.5 rounded-full shrink-0" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;">
+              <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span> LIVE
             </span>
           {% else %}
-            <span class="text-[11px] font-medium text-examtext/40 bg-white/5 border border-white/10 px-2.5 py-0.5 rounded-full shrink-0">
-              Inactive
+            <span class="font-mono text-examtext/35 bg-white/4 border border-white/8 px-2 py-0.5 rounded-full shrink-0" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;background:rgba(255,255,255,.04);">
+              IDLE
             </span>
           {% endif %}
         </div>
 
-        <!-- Mode Badges -->
-        <div class="flex items-center gap-2 mb-4 text-[11px]">
+        <!-- Mode badges -->
+        <div class="flex items-center flex-wrap gap-1.5 mb-4" style="min-height:1.25rem;">
           {% if item.exam.game_mode %}
-            <span class="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 border border-purple-400/30 font-mono">
-              🎮 Game Mode
+            <span class="font-mono px-2 py-0.5 rounded-md bg-purple-500/15 text-purple-300 border border-purple-400/25" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;">
+              ◈ Game
             </span>
           {% endif %}
           {% if item.exam.randomize_questions %}
-            <span class="px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-400/30 font-mono">
-              🔀 Shuffled Qs
+            <span class="font-mono px-2 py-0.5 rounded-md bg-blue-500/15 text-blue-300 border border-blue-400/25" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;">
+              ⇄ Shuffled
+            </span>
+          {% endif %}
+          {% if not item.exam.show_review_answers %}
+            <span class="font-mono px-2 py-0.5 rounded-md bg-amber-500/15 text-amber-300 border border-amber-400/25" title="Post-exam answer review is hidden" style="font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;">
+              ⊘ Answers Hidden
             </span>
           {% endif %}
         </div>
 
-        <!-- Metrics Grid -->
-        <div class="grid grid-cols-2 gap-2 text-xs mb-5">
-          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
-            <span class="text-examtext/50 block text-[10px]">Questions</span>
-            <strong class="text-white text-sm font-semibold">{{ item.total_questions }}</strong>
+        <!-- Metrics grid -->
+        <div class="grid grid-cols-2 gap-2 text-xs">
+          <div class="rounded-xl p-2.5" style="background:var(--surface-0);border:1px solid rgba(52,211,153,.08);">
+            <span class="font-mono uppercase text-examtext/40 block" style="font-size:.58rem;letter-spacing:.1em;">Questions</span>
+            <strong class="text-white text-sm font-semibold font-mono">{{ item.total_questions }}</strong>
           </div>
-          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
-            <span class="text-examtext/50 block text-[10px]">Roster Size</span>
-            <strong class="text-white text-sm font-semibold">{{ item.student_count }}</strong>
+          <div class="rounded-xl p-2.5" style="background:var(--surface-0);border:1px solid rgba(52,211,153,.08);">
+            <span class="font-mono uppercase text-examtext/40 block" style="font-size:.58rem;letter-spacing:.1em;">Roster</span>
+            <strong class="text-white text-sm font-semibold font-mono">{{ item.student_count }}</strong>
           </div>
-          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
-            <span class="text-examtext/50 block text-[10px]">Live / Done</span>
-            <strong class="text-emerald-300 text-sm font-semibold">{{ item.active_students }}</strong>
-            <span class="text-examtext/40 text-[10px]">/ {{ item.completed_students }} done</span>
+          <div class="rounded-xl p-2.5" style="background:var(--surface-0);border:1px solid rgba(52,211,153,.08);">
+            <span class="font-mono uppercase text-examtext/40 block" style="font-size:.58rem;letter-spacing:.1em;">Live / Done</span>
+            <strong class="text-emerald-300 text-sm font-semibold font-mono">{{ item.active_students }}</strong>
+            <span class="text-examtext/35 font-mono" style="font-size:.65rem;"> / {{ item.completed_students }}</span>
           </div>
-          <div class="bg-white/5 rounded-xl p-2.5 border border-white/5">
-            <span class="text-examtext/50 block text-[10px]">Violations</span>
-            <strong class="{% if item.violation_count > 0 %}text-amber-300{% else %}text-white{% endif %} text-sm font-semibold">
-              {{ item.violation_count }}
-            </strong>
+          <div class="rounded-xl p-2.5" style="background:var(--surface-0);border:1px solid rgba(52,211,153,.08);">
+            <span class="font-mono uppercase text-examtext/40 block" style="font-size:.58rem;letter-spacing:.1em;">Violations</span>
+            <strong class="{% if item.violation_count > 0 %}text-amber-300{% else %}text-white{% endif %} text-sm font-semibold font-mono">{{ item.violation_count }}</strong>
           </div>
         </div>
       </div>
 
-      <!-- Action Footer -->
-      <div class="flex items-center gap-2 pt-3 border-t border-white/10">
+      <!-- Card footer actions -->
+      <div class="flex items-center gap-2 px-5 py-3.5" style="border-top:1px solid rgba(52,211,153,.1);">
         <a href="{% url 'teacher_monitor' item.exam.id %}"
-           class="flex-1 text-center font-semibold text-black bg-examaccent hover:bg-emerald-300 transition-colors py-2 px-3 rounded-xl text-xs shadow-md">
-          🟢 Monitor Live
+           class="flex-1 text-center font-semibold text-black holo-btn py-2 px-3 rounded-xl font-mono transition-transform hover:scale-[1.01]" style="font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;">
+          ● Monitor
         </a>
         <a href="{% url 'admin:core_exam_change' item.exam.id %}" target="_blank"
-           title="Manage Exam & Roster in Django Admin"
-           class="text-center font-medium text-examtext/80 bg-white/5 hover:bg-white/10 border border-white/15 py-2 px-3 rounded-xl text-xs transition-colors">
-          ⚙️ Admin
+           title="Manage Exam in Admin"
+           class="text-center font-mono text-examtext/60 hover:text-examaccent transition-colors py-2 px-3 rounded-xl" style="font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;background:var(--surface-0);border:1px solid rgba(52,211,153,.12);">
+          ⚙ Admin
         </a>
       </div>
+
     </div>
     {% endfor %}
   </div>

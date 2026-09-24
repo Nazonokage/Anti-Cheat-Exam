@@ -114,6 +114,16 @@ def import_exam_from_dict(data: dict, created_by) -> Exam:
         if field not in data:
             raise ImportError_(f"Missing required field: {field}")
 
+    show_review_answers = True
+    if "showReviewAnswers" in data:
+        show_review_answers = bool(data["showReviewAnswers"])
+    elif "show_review_answers" in data:
+        show_review_answers = bool(data["show_review_answers"])
+    elif "hideReviewAnswers" in data:
+        show_review_answers = not bool(data["hideReviewAnswers"])
+    elif "hide_review_answers" in data:
+        show_review_answers = not bool(data["hide_review_answers"])
+
     exam = Exam.objects.create(
         subject=data["subject"],
         title=data["title"],
@@ -121,6 +131,7 @@ def import_exam_from_dict(data: dict, created_by) -> Exam:
         hints_enabled=data.get("hintsEnabled", True),
         game_mode=bool(data.get("gameMode", False)),
         randomize_questions=bool(data.get("random", False)),
+        show_review_answers=show_review_answers,
         created_by=created_by,
     )
 

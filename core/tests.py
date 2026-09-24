@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.test import Client, TestCase
 
-from core.models import Exam, Student, Submission
+from core.models import Exam, Student, Submission, Question, Choice, Answer
 from core.services.importer import import_exam_from_dict
 
 
@@ -223,4 +223,101 @@ class TeacherLoginAndAccountCreationTests(TestCase):
         self.assertTrue(other.login(username="teacher_new", password="ComplexPass123"))
         admin_home = other.get("/admin/")
         self.assertEqual(admin_home.status_code, 200)
+
+
+class ReviewAnswersVisibilityTests(TestCase):
+    def setUp(self):
+        self.teacher = User.objects.create_user("teacher", password="pass", is_staff=True)
+        self.exam = Exam.objects.create(
+            subject="Security",
+            title="Anti Cheat Exam",
+            created_by=self.teacher,
+            is_active=True,
+            show_review_answers=True,
+        )
+        self.q1 = Question.objects.create(
+            exam=self.exam,
+            qtype="multipleChoice",
+            text="What is 2+2?",
+            order=1,
+        )
+        self.c1 = Choice.objects.create(question=self.q1, text="4", is_correct=True, order=0)
+        self.c2 = Choice.objects.create(question=self.q1, text="5", is_correct=False, order=1)
+        self.student = Student.objects.create(exam=self.exam, name="Charlie", passcode="123456")
+
+    def test_show_review_answers_enabled_displays_answers_and_csv(self):
+        sub = Submission.objects.create(
+            student_name="Charlie",
+            exam=self.exam,
+            phase="done",
+            closed=True,
+            question_order=[self.q1.id],
+        )
+        Answer.objects.create(
+            submission=sub,
+            question=self.q1,
+            answered=True,
+            answer_text=str(self.c2.id),
+            is_correct=False,
+        )
+        session = self.client.session
+        session["submission_id"] = sub.id
+        session.save()
+
+        response = self.client.get("/exam/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Your Answers")
+        self.assertContains(response, "Export CSV")
+        self.assertContains(response, "What is 2+2?")
+        self.assertContains(response, "Correct answer: 4")
+
+    def test_show_review_answers_disabled_hides_answers_and_csv(self):
+        self.exam.show_review_answers = False
+        self.exam.save()
+
+        sub = Submission.objects.create(
+            student_name="Charlie",
+            exam=self.exam,
+            phase="done",
+            closed=True,
+            question_order=[self.q1.id],
+        )
+        Answer.objects.create(
+            submission=sub,
+            question=self.q1,
+            answered=True,
+            answer_text=str(self.c2.id),
+            is_correct=False,
+        )
+        session = self.client.session
+        session["submission_id"] = sub.id
+        session.save()
+
+        response = self.client.get("/exam/")
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Your Answers")
+        self.assertNotContains(response, "Export CSV")
+        self.assertNotContains(response, "Correct answer:")
+        self.assertContains(response, "Answer Review Hidden")
+
+    def test_json_import_respects_show_review_answers(self):
+        exam_imported = import_exam_from_dict(
+            {
+                "subject": "AntiCheat",
+                "title": "Hidden Answers Test",
+                "showReviewAnswers": False,
+                "questions": [
+                    {
+                        "id": "q1",
+                        "type": "true_false",
+                        "text": "True or False?",
+                        "options": ["True", "False"],
+                        "answerIndex": 0,
+                    }
+                ],
+            },
+            self.teacher,
+        )
+        self.assertFalse(exam_imported.show_review_answers)
+
 

@@ -1,37 +1,46 @@
 {% extends "base.html" %}
 {% block title %}Exam Login{% endblock %}
+{% block page_code %}STUDENT-AUTH{% endblock %}
 {% block content %}
 <div class="w-full max-w-md">
-  <div class="glass rounded-3xl shadow-2xl p-8">
-    <div class="mb-6 text-center">
-      <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-3">
-        <svg class="mark text-examaccent" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-          <path d="M5 12.5l4.2 4.2L19 7.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+
+  <!-- Framed login card -->
+  <div class="glass rounded-2xl shadow-2xl p-8" style="background:var(--surface-1);border-color:rgba(52,211,153,.2);box-shadow:0 0 40px -20px rgba(16,185,129,.12),0 28px 56px -24px rgba(0,0,0,.8);">
+
+    <!-- System header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-examprimary/15 border border-examprimary/35 text-examaccent" style="box-shadow:0 0 12px -4px rgba(16,185,129,.28);">
+          <svg class="mark text-examaccent" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M5 12.5l4.2 4.2L19 7.8" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <p class="font-mono text-examaccent/60 uppercase" style="font-size:.6rem;letter-spacing:.16em;line-height:1;margin-bottom:2px;">ACE · STUDENT-LOGIN</p>
+          <h1 class="text-lg font-semibold text-white leading-tight">Exam Login<span id="subject-suffix" class="text-examaccent/70"></span></h1>
+        </div>
       </div>
-      <p class="text-[10px] uppercase tracking-widest text-examaccent/80 mb-2">Secure session</p>
-      <h1 class="text-2xl font-semibold text-white">
-        Exam Login<span id="subject-suffix"></span>
-      </h1>
-      <p class="text-sm text-examtext/70 mt-1" id="subject-tagline">Select your subject and name to begin.</p>
+      <p class="text-xs text-examtext/60 font-mono" id="subject-tagline" style="letter-spacing:.02em;">Select your subject and name to begin.</p>
     </div>
 
     {% if not exams %}
-      <p class="text-center text-examtext/70 text-sm py-6">No exam is currently active. Ask your teacher.</p>
+      <p class="text-center text-examtext/60 text-sm py-6 font-mono" style="letter-spacing:.03em;">No exam is currently active. Ask your teacher.</p>
     {% else %}
       {% if error %}
-      <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-sm px-4 py-2">
+      <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-xs px-4 py-3 font-mono" style="letter-spacing:.02em;">
         {{ error }}
       </div>
       {% endif %}
 
       <form method="post" class="space-y-4" id="login-form">
         {% csrf_token %}
+
         <div>
-          <label class="block text-sm mb-1 text-examtext/80">Subject</label>
+          <label class="block font-mono uppercase text-examtext/50 mb-1.5" style="font-size:.65rem;letter-spacing:.12em;">Subject</label>
           <select name="exam_id" id="exam-select" required
-                  class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-examprimary">
-            <option value="" disabled selected class="bg-examsurface">-- select your subject --</option>
+                  class="w-full rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-examprimary"
+                  style="background:var(--surface-0);border:1px solid rgba(52,211,153,.18);">
+            <option value="" disabled selected class="bg-examsurface">— select your subject —</option>
             {% for exam in exams %}
             <option value="{{ exam.id }}" class="bg-examsurface"
                     data-subject="{{ exam.subject|escapejs }}"
@@ -44,31 +53,35 @@
         </div>
 
         <div>
-          <label class="block text-sm mb-1 text-examtext/80">Your name</label>
+          <label class="block font-mono uppercase text-examtext/50 mb-1.5" style="font-size:.65rem;letter-spacing:.12em;">Your name</label>
           <select name="student_id" id="student-select" required disabled
-                  class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white focus:outline-none focus:ring-2 focus:ring-examprimary disabled:opacity-50">
-            <option value="" class="bg-examsurface">-- select your subject first --</option>
+                  class="w-full rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-examprimary disabled:opacity-50"
+                  style="background:var(--surface-0);border:1px solid rgba(52,211,153,.18);">
+            <option value="" class="bg-examsurface">— select your subject first —</option>
           </select>
         </div>
 
         <div>
-          <label class="block text-sm mb-1 text-examtext/80">Login code (given by your teacher)</label>
+          <label class="block font-mono uppercase text-examtext/50 mb-1.5" style="font-size:.65rem;letter-spacing:.12em;">Login code</label>
           <input type="text" name="passcode" inputmode="numeric" required autocomplete="off"
-                 class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+                 class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+                 style="background:var(--surface-0);border:1px solid rgba(52,211,153,.18);"
                  placeholder="e.g. 4821">
         </div>
 
         <button type="submit" id="start-exam-btn"
-                class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01]">
-          Start / Resume Exam
+                class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01] text-sm mt-1">
+          Start / Resume Exam →
         </button>
       </form>
     {% endif %}
   </div>
-  <p class="text-center text-xs text-examtext/40 mt-4">
-    Tab switching and devtools use are monitored during the exam.
-    <br>
-    Teachers: <a href="{% url 'teacher_login' %}" class="text-examaccent hover:text-white underline">Teacher login</a>
+
+  <!-- Bottom meta -->
+  <p class="text-center font-mono text-examtext/35 mt-4" style="font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;">
+    Tab switching and devtools are monitored during the exam.
+    <br class="mb-1">
+    <a href="{% url 'teacher_login' %}" class="text-examaccent/60 hover:text-examaccent transition-colors underline">Teacher login →</a>
   </p>
 </div>
 
@@ -90,7 +103,7 @@
       studentSelect.disabled = true;
       return;
     }
-    studentSelect.innerHTML = '<option value="" disabled selected class="bg-examsurface">-- select your name --</option>' +
+    studentSelect.innerHTML = '<option value="" disabled selected class="bg-examsurface">— select your name —</option>' +
       students.map(s => `<option value="${s.id}" class="bg-examsurface">${s.name}</option>`).join('');
     studentSelect.disabled = false;
   }

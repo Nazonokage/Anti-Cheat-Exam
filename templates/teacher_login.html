@@ -1,18 +1,26 @@
 {% extends "base.html" %}
 {% block title %}Teacher Login{% endblock %}
+{% block page_code %}TEACHER-AUTH{% endblock %}
 {% block content %}
 <div class="w-full max-w-md my-6">
-  <div class="glass rounded-3xl shadow-2xl p-8 border border-white/15">
-    <div class="mb-6 text-center">
-      <div class="inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-examprimary/20 border border-examprimary/40 mb-3 text-examaccent">
-        <span class="nav-mark" aria-hidden="true"></span>
+  <div class="glass rounded-2xl shadow-2xl p-8" style="background:var(--surface-1);border-color:rgba(52,211,153,.2);box-shadow:0 0 40px -20px rgba(16,185,129,.12),0 28px 56px -24px rgba(0,0,0,.8);">
+
+    <!-- System header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-examprimary/15 border border-examprimary/35 text-examaccent" style="box-shadow:0 0 12px -4px rgba(16,185,129,.28);">
+          <span class="nav-mark" aria-hidden="true"></span>
+        </div>
+        <div>
+          <p class="font-mono text-examaccent/60 uppercase" style="font-size:.6rem;letter-spacing:.16em;line-height:1;margin-bottom:2px;">ACE · TEACHER-AUTH</p>
+          <h1 class="text-lg font-semibold text-white leading-tight">Teacher Login</h1>
+        </div>
       </div>
-      <h1 class="text-2xl font-bold text-white">Teacher Login</h1>
-      <p class="text-xs text-examtext/70 mt-1">Use the staff account created for you by a superuser.</p>
+      <p class="text-xs text-examtext/50 font-mono" style="letter-spacing:.03em;">Staff account required. Contact a superuser if you need access.</p>
     </div>
 
     {% if error %}
-    <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-xs px-4 py-2.5">
+    <div class="mb-4 rounded-xl border border-red-400/40 bg-red-500/10 text-red-200 text-xs px-4 py-3 font-mono" style="letter-spacing:.02em;">
       {{ error }}
     </div>
     {% endif %}
@@ -22,29 +30,32 @@
       {% if next %}
       <input type="hidden" name="next" value="{{ next }}">
       {% endif %}
+
       <div>
-        <label class="block text-xs mb-1 text-examtext/80 font-medium">Username</label>
+        <label class="block font-mono uppercase text-examtext/50 mb-1.5" style="font-size:.65rem;letter-spacing:.12em;">Username</label>
         <input type="text" name="username" required autocomplete="username"
-               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               style="background:var(--surface-0);border:1px solid rgba(52,211,153,.18);"
                placeholder="e.g. janedoe">
       </div>
 
       <div>
-        <label class="block text-xs mb-1 text-examtext/80 font-medium">Password</label>
+        <label class="block font-mono uppercase text-examtext/50 mb-1.5" style="font-size:.65rem;letter-spacing:.12em;">Password</label>
         <input type="password" name="password" required autocomplete="current-password"
-               class="w-full rounded-xl bg-white/5 border border-white/15 px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               class="w-full rounded-xl px-4 py-2.5 text-sm text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-examprimary"
+               style="background:var(--surface-0);border:1px solid rgba(52,211,153,.18);"
                placeholder="••••••••">
       </div>
 
       <button type="submit"
-              class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01] text-sm mt-2">
-        Sign in &rarr;
+              class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01] text-sm mt-1">
+        Sign in →
       </button>
     </form>
 
-    <div class="mt-6 pt-4 border-t border-white/10 text-center text-xs text-examtext/60">
-      Django Admin is at
-      <a href="{% url 'admin:login' %}?next={% url 'admin:index' %}" class="text-examaccent hover:underline font-semibold ml-1">
+    <div class="mt-5 pt-4 border-t border-white/8 text-center font-mono text-examtext/40" style="font-size:.6rem;letter-spacing:.08em;text-transform:uppercase;">
+      Django Admin at
+      <a href="{% url 'admin:login' %}?next={% url 'admin:index' %}" class="text-examaccent/70 hover:text-examaccent transition-colors font-semibold ml-1">
         /admin/
       </a>
     </div>

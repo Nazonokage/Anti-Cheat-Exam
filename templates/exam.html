@@ -93,6 +93,16 @@
       });
     })();
   </script>
+  {% elif not no_questions and not show_review_answers %}
+  <div class="glass exam-results-card rounded-3xl shadow-2xl p-6 mt-6 text-center">
+    <div class="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-amber-500/10 border border-amber-400/30 mb-2 text-amber-300">
+      🔒
+    </div>
+    <h2 class="text-sm font-semibold text-white mb-1">Answer Review Hidden</h2>
+    <p class="text-xs text-examtext/60 max-w-sm mx-auto">
+      The instructor has disabled the answer key and question breakdown for this exam.
+    </p>
+  </div>
   {% endif %}
 </div>
 <script>
