@@ -34,4 +34,7 @@ fi
 echo "Running migrations..."
 python manage.py migrate --noinput
 
+echo "Creating superuser if needed..."
+python manage.py createsuperuser --noinput || true
+
 exec "$@"
