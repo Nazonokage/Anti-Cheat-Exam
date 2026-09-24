@@ -6,6 +6,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate, login, logout
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.cache import cache
+from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
@@ -214,6 +215,27 @@ def teacher_login(request):
         "error": error,
         "next": request.GET.get("next") or request.POST.get("next") or "",
     })
+
+
+def permission_denied(request, exception=None):
+    """Render a friendly 403 page instead of Django's default debug-style error."""
+    if request.user.is_authenticated:
+        if request.user.is_staff:
+            message = (
+                "This account does not have access to that resource. "
+                "Ask a superuser or the exam owner for permission."
+            )
+        else:
+            message = (
+                "This account is not allowed to access the admin area. "
+                "Use a staff account or ask a superuser to enable Staff status."
+            )
+    else:
+        message = (
+            "Please sign in with a valid staff account to access this area. "
+            "Teachers log in at /teacher/login/ and admin accounts are created by a superuser."
+        )
+    return render(request, "403.html", {"message": message}, status=403)
 
 
 def teacher_signup(request):
@@ -803,7 +825,7 @@ def teacher_dashboard(request):
 def teacher_monitor(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
     if not _teacher_can_access_exam(request.user, exam):
-        return HttpResponseForbidden("You do not have permission to view or monitor this exam.")
+        raise PermissionDenied("You do not have permission to view or monitor this exam.")
     all_exams = _teacher_exam_qs(request.user)
     return render(request, "teacher_monitor.html", {
         "exam": exam,

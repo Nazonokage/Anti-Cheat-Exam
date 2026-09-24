@@ -7,7 +7,8 @@ from django.contrib.admin.helpers import ACTION_CHECKBOX_NAME
 from django.contrib.auth.admin import GroupAdmin as DjangoGroupAdmin
 from django.contrib.auth.admin import UserAdmin as DjangoUserAdmin
 from django.contrib.auth.models import Group, User
-from django.http import HttpResponse, HttpResponseForbidden
+from django.core.exceptions import PermissionDenied
+from django.http import HttpResponse
 from django import forms
 from django.urls import path, reverse
 from django.utils.html import format_html
@@ -335,7 +336,7 @@ class ExamAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
 
     def import_json_view(self, request):
         if not self.has_add_permission(request):
-            return HttpResponseForbidden("You do not have permission to import exams.")
+            raise PermissionDenied("You do not have permission to import exams.")
         if request.method == "POST":
             form = JSONImportForm(request.POST, request.FILES)
             if form.is_valid():
@@ -356,7 +357,7 @@ class ExamAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
 
     def import_roster_view(self, request, exam_id):
         if not self.has_change_permission(request):
-            return HttpResponseForbidden("You do not have permission to import a roster.")
+            raise PermissionDenied("You do not have permission to import a roster.")
         exam = self.get_object(request, exam_id)
         if exam is None:
             messages.error(request, "Exam not found.")
@@ -412,7 +413,7 @@ class StudentAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
 
     def import_roster_view(self, request):
         if not self.has_add_permission(request):
-            return HttpResponseForbidden("You do not have permission to import a roster.")
+            raise PermissionDenied("You do not have permission to import a roster.")
         results = None
         exam = None
         if request.method == "POST":
@@ -420,7 +421,7 @@ class StudentAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
             if form.is_valid():
                 exam = form.cleaned_data["exam"]
                 if not request.user.is_superuser and exam.created_by_id != request.user.id:
-                    return HttpResponseForbidden("You do not have permission to import a roster for this exam.")
+                    raise PermissionDenied("You do not have permission to import a roster for this exam.")
                 try:
                     entries = _parse_roster_upload(request.FILES["roster_file"])
                     if not entries:

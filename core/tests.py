@@ -59,6 +59,8 @@ class TeacherAdminIsolationTests(TestCase):
         client.login(username="teacher1", password="pass")
         response = client.get(f"/teacher/monitor/{self.exam2.pk}/")
         self.assertEqual(response.status_code, 403)
+        self.assertContains(response, "Access denied", status_code=403)
+        self.assertContains(response, "permission", status_code=403)
         data = client.get(f"/teacher/monitor/{self.exam2.pk}/data/")
         self.assertEqual(data.status_code, 403)
 

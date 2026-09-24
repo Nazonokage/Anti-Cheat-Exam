@@ -288,13 +288,13 @@ and `"phpmyadmin"` both match), but genuine misspellings still fail.
 ```bash
 docker compose up -d --build
 ```
-That builds the image (installing `requirements.txt`, which includes
-`whitenoise` and `gunicorn`, and running `collectstatic`), runs migrations
-automatically on start (`docker-entrypoint.sh`), and serves the app on
-`http://localhost:8090` via gunicorn, with the SQLite database persisted in
-a named volume (`exam_data`) so it survives rebuilds — as long as you don't
-run `docker compose down -v` or delete the volume directly, your data
-outlives the container.
+This builds the app image, starts a local MySQL 8 container for the exam
+backend, runs migrations automatically on start (`docker-entrypoint.sh`),
+and serves the app on `http://localhost:8090` via gunicorn. The MySQL data
+is persisted in a named Docker volume (`mysql_data`), so it survives rebuilds
+and container restarts unless you explicitly remove the volume. The host
+port is mapped to `3307` to avoid clashing with any existing local XAMPP/
+MySQL install already using `3306`.
 
 **Every time after that** (e.g. restarting the machine, or just running the
 existing container again), you only need:
@@ -306,10 +306,15 @@ rebuild automatically, so an old container will silently keep running old
 code even though `docker-compose.yml`'s env vars look up to date.
 
 Then create your teacher account inside the running container (one-time,
-survives in the volume after that):
+survives in the database after that):
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
+
+The default Docker database is MySQL, configured through the `web` service's
+`DB_*` environment variables and the `db` service container. If you want to
+run the app with SQLite instead, adjust the env values in
+`docker-compose.yml` and remove the MySQL service.
 
 Environment variables (set in `docker-compose.yml`, all optional):
 - `DJANGO_DEBUG` — defaults to `False` in Docker (vs. `True` for local
@@ -323,8 +328,8 @@ Environment variables (set in `docker-compose.yml`, all optional):
   the tunnel. If you're on a paid ngrok plan/custom domain, or deploying
   behind something else entirely, add that origin here too.
 - `DJANGO_SECRET_KEY` — set a real one if this ever leaves a closed LAN.
-- `DJANGO_DB_PATH` — defaults to `/app/data/db.sqlite3`, matching the
-  mounted volume; change both together if you move it.
+- `DB_ENGINE`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` —
+  the MySQL connection settings used by the app in Docker.
 
 **Quick troubleshooting:** if you get `Forbidden (403) CSRF verification
 failed` after exposing the app through a new tunnel URL, first check the
