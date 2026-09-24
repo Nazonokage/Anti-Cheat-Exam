@@ -3,10 +3,10 @@ import random
 from datetime import timedelta
 
 from django.contrib.admin.views.decorators import staff_member_required
-from django.contrib.auth import login
-from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.core.cache import cache
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, request
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden
 from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -166,124 +166,70 @@ def _done_context(submission, no_questions=False):
     return ctx
 
 
-from django.contrib.auth import login, logout, authenticate
-from django.contrib.auth.models import User
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponseForbidden, request
-
-
-# --- Teacher Registration & Management -----------------------------------
+# --- Teacher login (accounts are created by a superuser in /admin/) --------
 
 def teacher_logout(request):
     logout(request)
-    return redirect("login")
+    return redirect("teacher_login")
 
 
-def teacher_signup(request):
+def _safe_next_url(request):
+    candidate = request.POST.get("next") or request.GET.get("next") or ""
+    if candidate and url_has_allowed_host_and_scheme(
+        candidate, allowed_hosts={request.get_host()}, require_https=request.is_secure()
+    ):
+        return candidate
+    return None
+
+
+def teacher_login(request):
     if request.user.is_authenticated and request.user.is_staff:
-        return redirect("teacher_dashboard")
+        return redirect(_safe_next_url(request) or "teacher_dashboard")
 
     error = None
     if request.method == "POST":
         username = request.POST.get("username", "").strip()
         password = request.POST.get("password", "")
-        confirm_password = request.POST.get("confirm_password", "")
-        full_name = request.POST.get("full_name", "").strip()
-        email = request.POST.get("email", "").strip()
-
         if not username or not password:
             error = "Username and password are required."
-        elif password != confirm_password:
-            error = "Passwords do not match."
-        elif User.objects.filter(username__iexact=username).exists():
-            error = f"Username '{username}' is already taken. Please choose another."
         else:
-            first_name = full_name
-            last_name = ""
-            if " " in full_name:
-                parts = full_name.split(" ", 1)
-                first_name, last_name = parts[0], parts[1]
+            user = authenticate(request, username=username, password=password)
+            if user is None:
+                error = (
+                    "Invalid username or password. Teacher accounts are created "
+                    "by a superuser in Django Admin (Staff status must be checked)."
+                )
+            elif not user.is_active:
+                error = "This account is disabled."
+            elif not user.is_staff:
+                error = (
+                    "This account is not a teacher account. Ask a superuser to "
+                    "check Staff status on the user in /admin/."
+                )
+            else:
+                login(request, user)
+                return redirect(_safe_next_url(request) or "teacher_dashboard")
 
-            user = User.objects.create_user(
-                username=username,
-                password=password,
-                email=email,
-                first_name=first_name,
-                last_name=last_name,
-                is_staff=True,  # Grant staff permission for Teacher Portal and Admin access
-            )
-            login(request, user)
-            return redirect("teacher_dashboard")
-
-    return render(request, "teacher_signup.html", {"error": error})
-
-
-# --- Teacher live monitoring -----------------------------------------------
-
-@staff_member_required
-def teacher_dashboard(request):
-    now = timezone.now()
-    if request.user.is_superuser:
-        all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
-    else:
-        all_exams = Exam.objects.filter(created_by=request.user, is_archived=False).order_by("-is_active", "-created_at")
-
-    exams_data = []
-    total_active_students = 0
-    total_violations_today = 0
-
-    for exam in all_exams:
-        total_questions = exam.questions.count()
-        student_count = exam.students.count()
-        submissions = exam.submissions.all()
-        total_subs = submissions.count()
-
-        active_subs = submissions.filter(closed=False, last_heartbeat__gte=now - timedelta(seconds=15)).count()
-        completed_subs = submissions.filter(closed=True).count()
-        violation_count = Violation.objects.filter(submission__exam=exam).count()
-
-        total_active_students += active_subs
-        total_violations_today += violation_count
-
-        exams_data.append({
-            "exam": exam,
-            "total_questions": total_questions,
-            "student_count": student_count,
-            "total_submissions": total_subs,
-            "active_students": active_subs,
-            "completed_students": completed_subs,
-            "violation_count": violation_count,
-        })
-
-    return render(request, "teacher_dashboard.html", {
-        "exams_data": exams_data,
-        "all_exams": all_exams,
-        "total_active_students": total_active_students,
-        "total_violations_today": total_violations_today,
+    return render(request, "teacher_login.html", {
+        "error": error,
+        "next": request.GET.get("next") or request.POST.get("next") or "",
     })
 
 
-@staff_member_required
-def teacher_monitor(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
-    if not request.user.is_superuser and exam.created_by != request.user:
-        return HttpResponseForbidden("You do not have permission to view or monitor this exam.")
-
-    if request.user.is_superuser:
-        all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
-    else:
-        all_exams = Exam.objects.filter(created_by=request.user, is_archived=False).order_by("-is_active", "-created_at")
-
-    return render(request, "teacher_monitor.html", {
-        "exam": exam,
-        "all_exams": all_exams,
-    })
+def teacher_signup(request):
+    """Old public registration URL — teachers sign in; accounts are admin-created."""
+    return redirect("teacher_login")
 
 
-@staff_member_required
-def teacher_monitor_data(request, exam_id):
-    exam = get_object_or_404(Exam, id=exam_id)
-    if not request.user.is_superuser and exam.created_by != request.user:
-        return JsonResponse({"error": "forbidden"}, status=403)
+def _teacher_can_access_exam(user, exam):
+    return user.is_superuser or exam.created_by_id == user.id
+
+
+def _teacher_exam_qs(user):
+    qs = Exam.objects.filter(is_archived=False)
+    if not user.is_superuser:
+        qs = qs.filter(created_by=user)
+    return qs.order_by("-is_active", "-created_at")
 
 
 # --- Login -----------------------------------------------------------------
@@ -813,10 +759,10 @@ def status_api(request):
 
 # --- Teacher live monitoring -----------------------------------------------
 
-@staff_member_required
+@staff_member_required(login_url="teacher_login")
 def teacher_dashboard(request):
     now = timezone.now()
-    all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+    all_exams = _teacher_exam_qs(request.user)
 
     exams_data = []
     total_active_students = 0
@@ -853,19 +799,23 @@ def teacher_dashboard(request):
     })
 
 
-@staff_member_required
+@staff_member_required(login_url="teacher_login")
 def teacher_monitor(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
-    all_exams = Exam.objects.filter(is_archived=False).order_by("-is_active", "-created_at")
+    if not _teacher_can_access_exam(request.user, exam):
+        return HttpResponseForbidden("You do not have permission to view or monitor this exam.")
+    all_exams = _teacher_exam_qs(request.user)
     return render(request, "teacher_monitor.html", {
         "exam": exam,
         "all_exams": all_exams,
     })
 
 
-@staff_member_required
+@staff_member_required(login_url="teacher_login")
 def teacher_monitor_data(request, exam_id):
     exam = get_object_or_404(Exam, id=exam_id)
+    if not _teacher_can_access_exam(request.user, exam):
+        return JsonResponse({"error": "forbidden"}, status=403)
     now = timezone.now()
     total_questions = exam.questions.count()
     rows = []
@@ -1051,6 +1001,3 @@ def game_choose_buff(request):
         "defense_charges": submission.defense_charges,
         "time_boost_charges": submission.time_boost_charges,
     })
-
-
-### Somekindofpasswordfrom1

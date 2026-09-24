@@ -12,6 +12,7 @@ urlpatterns = [
     path("tab-violation/", views.tab_violation, name="tab_violation"),
     path("report-violation/", views.report_violation, name="report_violation"),
     path("status/", views.status_api, name="status_api"),
+    path("teacher/login/", views.teacher_login, name="teacher_login"),
     path("teacher/signup/", views.teacher_signup, name="teacher_signup"),
     path("teacher/logout/", views.teacher_logout, name="teacher_logout"),
     path("teacher/monitor/", views.teacher_dashboard, name="teacher_dashboard"),

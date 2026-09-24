@@ -1,7 +1,9 @@
 # Anti-Cheat Exam App
 
 A server-authoritative, one-question-at-a-time classroom exam system built
-with **Django + local CSS + SQLite**, per `plan.md`.
+with **Django + local CSS**, per `plan.md`. Copy `.env.example` to `.env` to
+use local XAMPP MySQL (`anticheat_exam`); otherwise SQLite. Set
+`DATABASE_URL` later for Railway without changing the `DB_*` layout.
 
 - ✅ Server owns the timer — a dropped Wi-Fi connection can't buy extra time
 - ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, redundant client-side guards
@@ -17,6 +19,7 @@ with **Django + local CSS + SQLite**, per `plan.md`.
   - [Bulk student roster import](#bulk-student-roster-import)
   - [Docker](#docker)
   - [Styling and offline use](#styling-and-offline-use)
+  - [Creating teacher accounts](#creating-teacher-accounts-staff-not-superuser)
 - [Teacher Monitoring Hub & Multi-Teacher Accounts (latest)](#teacher-monitoring-hub--multi-teacher-accounts-latest)
 - [Newer additions (this round)](#newer-additions-this-round)
 - [Game Mode + image support + polish (latest round)](#game-mode--image-support--polish-latest-round)
@@ -102,7 +105,17 @@ venv/Scripts/activate                                   # optional but recommend
 pip install -r requirements.txt
 
 python3 manage.py migrate
-python3 manage.py createsuperuser                      # this account is your first "teacher"
+python3 manage.py createsuperuser                      # this account is your first superuser / admin
+
+# Local XAMPP MySQL: copy .env.example to .env (gitignored). settings.py
+# loads .env automatically so you do not need to export DB_* every session.
+#   copy .env.example .env
+#
+# Django 5.2+/6 officially need MySQL 8.0+ or MariaDB 10.5+. Stock
+# XAMPP 8.2 ships MariaDB 10.4. Keep DJANGO_RELAX_MYSQL_VERSION=1 in
+# .env for local XAMPP only (already in .env.example).
+#
+# Resolution order: DATABASE_URL (Railway) → DB_* from env/.env → SQLite.
 
 python3 manage.py import_exam data/sampletopic.json --teacher <your_username>
 # (omit --teacher to default to the first superuser)
@@ -330,6 +343,35 @@ build step, or network download is required for the interface.
 
 This keeps the interface fully styled on a school LAN or in an offline demo.
 
+### Creating teacher accounts (staff, not superuser)
+
+Regular teachers should **not** be superusers, and they cannot register
+themselves. Create them from Django Admin, then they sign in at
+`/teacher/login/` or `/admin/`.
+
+1. Log in as superuser → go to `/admin/`
+2. **Users → Add user**
+3. Fill username + password
+4. Important settings:
+   - **Staff status** = checked (this is now the default on Add user)
+   - **Superuser status** = unchecked
+5. Save (then Save again on the change form if Django takes you there)
+
+You do **not** need to tick individual model permissions. Staff teachers
+automatically get access to the admin for exams they created
+(`created_by` = themselves). They can import JSON exams, import rosters,
+activate/archive, edit questions/students/passcodes, export CSV, and use
+the live monitor — and they cannot see other teachers' data.
+
+If a new teacher cannot log in, open their user and confirm **Active** and
+**Staff status** are both checked. Changing only the password does not
+save those flags.
+
+A later switch to Railway can use `DATABASE_URL` (e.g.
+`mysql://user:pass@host:3306/anticheat_exam`) without changing the XAMPP
+`DB_*` setup: `DATABASE_URL` wins when set; otherwise `DB_*` / `.env`;
+otherwise SQLite.
+
 ## Teacher Monitoring Hub & Multi-Teacher Accounts (latest)
 
 - **Teacher Monitoring Hub (`/teacher/monitor/`)**:
@@ -339,8 +381,10 @@ This keeps the interface fully styled on a school LAN or in an offline demo.
 - **Embedded Navigation & Exam Switcher**:
   - Top navigation bar included on all teacher monitoring pages (`templates/components/teacher_nav.html`).
   - Interactive **Exam Switcher** `<select>` dropdown lets teachers switch between live exam monitors with a single click.
-- **Multi-Teacher Sign-Up & Data Isolation (`/teacher/signup/`)**:
-  - Teachers can register their own accounts (`is_staff=True` granted automatically).
+- **Teacher login (`/teacher/login/`)**:
+  - Staff teachers sign in here (or at `/admin/`).
+  - `/teacher/signup/` redirects here. There is no public teacher registration.
+  - Superuser creates staff accounts in Django Admin (`is_staff=True`, `is_superuser=False`).
   - Strict data isolation: regular teacher accounts only view, edit, and monitor exams created by their account (`created_by = request.user`) in both the Monitoring Hub and Django Admin.
   - Superuser accounts maintain global visibility across all teachers' exams with teacher ownership tags (`👤 Teacher Name`).
 - **Enhanced Django Admin Integration**:
@@ -353,6 +397,29 @@ This keeps the interface fully styled on a school LAN or in an offline demo.
 <details>
 <summary>Expand changelog</summary>
 
+- **Teacher login instead of public signup**: `/teacher/login/` is a login
+  form. `/teacher/signup/` redirects there and no longer creates staff
+  users. Superuser adds teachers in `/admin/` (Staff status defaults on).
+- **Fixed staff login after Add user**: the admin Add user form includes
+  Staff status (checked by default) so new teachers can log into `/admin/`
+  without a second forgotten Save on the change form.
+- **Loads `.env` for XAMPP MySQL**: `DB_ENGINE` / `DB_NAME` / `DB_USER` /
+  `DB_PASSWORD` / `DB_HOST` / `DB_PORT` from `.env` (see `.env.example`).
+  `DATABASE_URL` still wins for Railway; SQLite remains the fallback.
+- **Fixed multi-teacher admin access**: regular staff users (`is_staff=True`,
+  `is_superuser=False`) can use `/admin/` for their own exams without extra
+  permission checkboxes. Superusers still see everything.
+- **Hardened ownership filtering** on Exam, Student, Question, Submission,
+  Answer, and Violation admins (querysets, FK pickers, list filters, and
+  JSON/roster import always attach `created_by` to the current user).
+- **Enforced ownership** on `/teacher/monitor/` and
+  `/teacher/monitor/<exam_id>/` (403 if the exam is not yours).
+- **Confirmed MySQL (XAMPP) support** via `DB_ENGINE` / `DB_NAME` /
+  `DB_USER` / `DB_PASSWORD` / `DB_HOST` / `DB_PORT`, with SQLite as
+  fallback and `DATABASE_URL` ready for Railway. Local XAMPP 8.2
+  (MariaDB 10.4) needs `DJANGO_RELAX_MYSQL_VERSION=1` in `.env`.
+- **Documented teacher account creation**: staff=True, superuser=False
+  (see [Creating teacher accounts](#creating-teacher-accounts-staff-not-superuser)).
 - **Per-student question randomization**: each student gets their own
   shuffled question order (`Submission.question_order`), set once at first
   login. Makes "question 5 is X" harder to share between students taking

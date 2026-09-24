@@ -9,10 +9,36 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
+from urllib.parse import unquote, urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+
+def _load_env_file(path: Path) -> None:
+    """Load KEY=VALUE lines from a .env file without overriding existing env vars."""
+    if not path.is_file():
+        return
+    try:
+        text = path.read_text(encoding="utf-8")
+    except OSError:
+        return
+    for raw_line in text.splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, _, value = line.partition("=")
+        key = key.strip()
+        value = value.strip()
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        if key and key not in os.environ:
+            os.environ[key] = value
+
+
+_load_env_file(BASE_DIR / ".env")
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -93,19 +119,115 @@ WSGI_APPLICATION = 'exam_system.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+#
+# Resolution order:
+# 1. DATABASE_URL (Railway / hosted MySQL or Postgres, e.g. mysql://user:pass@host:3306/db)
+# 2. Discrete env vars for local XAMPP MySQL:
+#    DB_ENGINE, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
+# 3. SQLite fallback (DJANGO_DB_PATH or BASE_DIR/db.sqlite3)
 
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
-# Overridable via DJANGO_DB_PATH (e.g. in Docker, pointing at a mounted
-# volume so the database survives container rebuilds). Defaults to the
-# same BASE_DIR/db.sqlite3 as always for local dev.
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / 'db.sqlite3')),
+def _engine_from_scheme(scheme: str) -> str:
+    scheme = (scheme or "").split("+")[0].lower()
+    mapping = {
+        "postgres": "django.db.backends.postgresql",
+        "postgresql": "django.db.backends.postgresql",
+        "pgsql": "django.db.backends.postgresql",
+        "mysql": "django.db.backends.mysql",
+        "mariadb": "django.db.backends.mysql",
+        "sqlite": "django.db.backends.sqlite3",
+        "django.db.backends.mysql": "django.db.backends.mysql",
+        "django.db.backends.postgresql": "django.db.backends.postgresql",
+        "django.db.backends.sqlite3": "django.db.backends.sqlite3",
     }
-}
+    if scheme not in mapping:
+        raise ValueError(f"Unsupported database engine/scheme: {scheme}")
+    return mapping[scheme]
+
+
+def _mysql_options():
+    return {
+        "charset": "utf8mb4",
+        "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+    }
+
+
+def _db_from_url(url: str) -> dict:
+    parsed = urlparse(url)
+    engine = _engine_from_scheme(parsed.scheme)
+    if engine.endswith("sqlite3"):
+        name = unquote(parsed.path)
+        if name.startswith("/") and len(name) > 1 and not name.startswith("//"):
+            name = name
+        return {"ENGINE": engine, "NAME": name or ":memory:"}
+
+    config = {
+        "ENGINE": engine,
+        "NAME": unquote((parsed.path or "").lstrip("/")),
+        "USER": unquote(parsed.username or ""),
+        "PASSWORD": unquote(parsed.password or ""),
+        "HOST": parsed.hostname or "",
+        "PORT": str(parsed.port or ""),
+    }
+    if engine.endswith("mysql"):
+        config["OPTIONS"] = _mysql_options()
+    return config
+
+
+def _configure_databases() -> dict:
+    database_url = os.environ.get("DATABASE_URL", "").strip()
+    if database_url:
+        return {"default": _db_from_url(database_url)}
+
+    db_engine = os.environ.get("DB_ENGINE", "").strip()
+    db_name = os.environ.get("DB_NAME", "").strip()
+    if db_engine or db_name:
+        engine = _engine_from_scheme(db_engine or "mysql")
+        config = {
+            "ENGINE": engine,
+            "NAME": db_name or "anticheat_exam",
+            "USER": os.environ.get("DB_USER", "root"),
+            "PASSWORD": os.environ.get("DB_PASSWORD", ""),
+            "HOST": os.environ.get("DB_HOST", "127.0.0.1"),
+            "PORT": os.environ.get("DB_PORT", "3306" if engine.endswith("mysql") else ""),
+        }
+        if engine.endswith("mysql"):
+            config["OPTIONS"] = _mysql_options()
+        if engine.endswith("sqlite3"):
+            config = {
+                "ENGINE": engine,
+                "NAME": db_name or os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")),
+            }
+        return {"default": config}
+
+    return {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.environ.get("DJANGO_DB_PATH", str(BASE_DIR / "db.sqlite3")),
+        }
+    }
+
+
+DATABASES = _configure_databases()
+
+# Tests always use in-memory SQLite so `manage.py test` cannot wipe XAMPP data.
+if "test" in sys.argv:
+    DATABASES = {
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": ":memory:",
+        }
+    }
+
+# Stock XAMPP (MariaDB 10.4) is below Django 5.2+/6's MariaDB 10.5 floor.
+# Local-only: set DJANGO_RELAX_MYSQL_VERSION=1 in .env. Do not use in production.
+if os.environ.get("DJANGO_RELAX_MYSQL_VERSION", "").strip() in {"1", "true", "True", "yes"}:
+    from django.db.backends.base.base import BaseDatabaseWrapper
+    from django.db.backends.mysql.features import DatabaseFeatures
+
+    BaseDatabaseWrapper.check_database_version_supported = lambda self: None
+    DatabaseFeatures.can_return_columns_from_insert = property(
+        lambda self: self.connection.mysql_is_mariadb and self.connection.mysql_version >= (10, 5, 0)
+    )
 
 
 # Password validation
@@ -150,3 +272,7 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = (
     "whitenoise.storage.CompressedManifestStaticFilesStorage"
 )
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

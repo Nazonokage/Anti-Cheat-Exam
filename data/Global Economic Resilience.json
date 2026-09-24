@@ -1,0 +1,281 @@
+{
+  "subject": "Global Economic Resilience",
+  "title": "Trade, Finance & Development Quiz",
+  "secondsPerQuestion": 60,
+  "hintsEnabled": true,
+  "gameMode": false,
+  "random": false,
+
+  "questions": [
+    {
+      "id": "q1",
+      "module": "Global Growth",
+      "type": "identification",
+      "text": "What is the projected global growth rate in 2025?",
+      "answer": "3.2%",
+      "imageLink": null,
+      "hint": "It's a figure just above 3%."
+    },
+    {
+      "id": "q2",
+      "module": "Global Growth",
+      "type": "identification",
+      "text": "What is the US growth rate in 2026?",
+      "answer": "1.8%",
+      "imageLink": null,
+      "hint": "Below 2%."
+    },
+    {
+      "id": "q3",
+      "module": "Global Growth",
+      "type": "identification",
+      "text": "What is China's growth rate in 2026?",
+      "answer": "4.2%",
+      "imageLink": null,
+      "hint": "Above 4%."
+    },
+    {
+      "id": "q4",
+      "module": "Global Growth",
+      "type": "identification",
+      "text": "What share of global growth comes from developing economies in 2025?",
+      "answer": "70%",
+      "imageLink": null,
+      "hint": "A large majority share."
+    },
+    {
+      "id": "q5",
+      "module": "Climate & Finance",
+      "type": "identification",
+      "text": "By how many percentage points do climate risks raise borrowing costs?",
+      "answer": "1.5%",
+      "imageLink": null,
+      "hint": "A relatively small percentage-point increase."
+    },
+    {
+      "id": "q6",
+      "module": "Trade Finance",
+      "type": "identification",
+      "text": "What percentage of world trade depends on trade finance?",
+      "answer": "90%",
+      "imageLink": null,
+      "hint": "Nearly all of world trade."
+    },
+    {
+      "id": "q7",
+      "module": "Financialization",
+      "type": "identification",
+      "text": "What global factor makes trade more sensitive under financialization?",
+      "answer": "Cycles",
+      "imageLink": null,
+      "hint": "Relates to boom-and-bust patterns."
+    },
+    {
+      "id": "q8",
+      "module": "Financialization",
+      "type": "identification",
+      "text": "Where do food traders earn most profits — trade or finance?",
+      "answer": "Finance",
+      "imageLink": null,
+      "hint": "Not from selling the physical good."
+    },
+    {
+      "id": "q9",
+      "module": "Currency & Debt",
+      "type": "identification",
+      "text": "What burden does currency volatility worsen in developing countries?",
+      "answer": "Debt",
+      "imageLink": null,
+      "hint": "Related to what countries owe."
+    },
+    {
+      "id": "q10",
+      "module": "Financialization",
+      "type": "identification",
+      "text": "What does speculation in food prices cause?",
+      "answer": "Instability",
+      "imageLink": null,
+      "hint": "Opposite of stability."
+    },
+    {
+      "id": "q11",
+      "module": "Dollar Dominance",
+      "type": "identification",
+      "text": "What currency remains dominant in global finance?",
+      "answer": "Dollar",
+      "imageLink": null,
+      "hint": "The US currency."
+    },
+    {
+      "id": "q12",
+      "module": "Dollar Dominance",
+      "type": "identification",
+      "text": "What percentage of SWIFT payments are in dollars (2024)?",
+      "answer": "47%",
+      "imageLink": null,
+      "hint": "Just under half."
+    },
+    {
+      "id": "q13",
+      "module": "Dollar Dominance",
+      "type": "identification",
+      "text": "What percentage of FX trades involve the dollar?",
+      "answer": "90%",
+      "imageLink": null,
+      "hint": "Nearly all foreign exchange trades."
+    },
+    {
+      "id": "q14",
+      "module": "Dollar Dominance",
+      "type": "identification",
+      "text": "What share of global equity market value is held by the US?",
+      "answer": "42%",
+      "imageLink": null,
+      "hint": "Just over two-fifths."
+    },
+    {
+      "id": "q15",
+      "module": "Dollar Dominance",
+      "type": "identification",
+      "text": "What does dollar dominance reinforce for developing countries?",
+      "answer": "Asymmetry",
+      "imageLink": null,
+      "hint": "An imbalance in power or access."
+    },
+    {
+      "id": "q16",
+      "module": "Global South Finance",
+      "type": "identification",
+      "text": "What percentage of global FDI inflows go to developing economies?",
+      "answer": "50%",
+      "imageLink": null,
+      "hint": "Exactly half."
+    },
+    {
+      "id": "q17",
+      "module": "Global South Finance",
+      "type": "identification",
+      "text": "What is the financial market share of the global South?",
+      "answer": "20%",
+      "imageLink": null,
+      "hint": "One-fifth."
+    },
+    {
+      "id": "q18",
+      "module": "Borrowing Costs",
+      "type": "identification",
+      "text": "Compared to advanced economies, borrowing costs in developing countries are?",
+      "answer": "Higher",
+      "imageLink": null,
+      "hint": "Not lower, not equal."
+    },
+    {
+      "id": "q19",
+      "module": "Capital Flows",
+      "type": "identification",
+      "text": "What happens when global rates rise — inflows or outflows?",
+      "answer": "Outflows",
+      "imageLink": null,
+      "hint": "Capital moves away."
+    },
+    {
+      "id": "q20",
+      "module": "Debt Burden",
+      "type": "identification",
+      "text": "What is reduced by high interest payments in the global South?",
+      "answer": "Limited",
+      "imageLink": null,
+      "hint": "Refers to fiscal space becoming constrained."
+    },
+    {
+      "id": "q21",
+      "module": "Climate & Debt",
+      "type": "identification",
+      "text": "What do climate shocks worsen in debt terms?",
+      "answer": "Distress",
+      "imageLink": null,
+      "hint": "A state of severe difficulty with repayment."
+    },
+    {
+      "id": "q22",
+      "module": "Regional Cooperation",
+      "type": "identification",
+      "text": "What financial instrument can regional cooperation strengthen?",
+      "answer": "Bonds",
+      "imageLink": null,
+      "hint": "A common debt security instrument."
+    },
+    {
+      "id": "q23",
+      "module": "Domestic Finance",
+      "type": "identification",
+      "text": "What does stronger domestic financial ecosystems improve?",
+      "answer": "Autonomy",
+      "imageLink": null,
+      "hint": "Self-reliance or independence."
+    },
+    {
+      "id": "q24",
+      "module": "Financial Risk",
+      "type": "identification",
+      "text": "What does shadow banking create?",
+      "answer": "Vulnerabilities",
+      "imageLink": null,
+      "hint": "Weak points or exposures to risk."
+    },
+    {
+      "id": "q25",
+      "module": "Governance",
+      "type": "identification",
+      "text": "What type of governance strengthens resilience?",
+      "answer": "Inclusive",
+      "imageLink": null,
+      "hint": "Governance that involves broader participation."
+    },
+    {
+      "id": "q26",
+      "module": "Trade Cycles",
+      "type": "identification",
+      "text": "What follows inventory restocking and energy demand in trade?",
+      "answer": "Slowdown",
+      "imageLink": null,
+      "hint": "A deceleration in activity."
+    },
+    {
+      "id": "q27",
+      "module": "Trade Cycles",
+      "type": "identification",
+      "text": "What directly influences trade flows — cycles or shocks?",
+      "answer": "Cycles",
+      "imageLink": null,
+      "hint": "Recurring patterns, not sudden events."
+    },
+    {
+      "id": "q28",
+      "module": "Debt Reform",
+      "type": "identification",
+      "text": "What reform provides climate-linked debt support?",
+      "answer": "Relief",
+      "imageLink": null,
+      "hint": "Easing the burden of repayment."
+    },
+    {
+      "id": "q29",
+      "module": "Policy Integration",
+      "type": "identification",
+      "text": "What does policy integration ensure?",
+      "answer": "Coherence",
+      "imageLink": null,
+      "hint": "Consistency across policies."
+    },
+    {
+      "id": "q30",
+      "module": "Resilience",
+      "type": "identification",
+      "text": "What does UNCTAD define resilience as — adaptation or return?",
+      "answer": "Adaptation",
+      "imageLink": null,
+      "hint": "Adjusting to change, not reverting to a prior state."
+    }
+  ]
+}
