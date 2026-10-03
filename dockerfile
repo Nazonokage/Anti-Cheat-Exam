@@ -7,24 +7,30 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+# System packages needed to build mysqlclient (must come BEFORE pip install)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        gcc \
+        pkg-config \
+        default-libmysqlclient-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
 # Collect static files at build time so whitenoise's manifest storage has
-# everything it needs (this needs DEBUG=False-safe settings, which is the
-# default in this image — see exam_system/settings.py).
+# everything it needs (DEBUG=False-safe settings, see exam_system/settings.py).
 RUN python manage.py collectstatic --noinput
 
-# Bring your own persistent volume for db.sqlite3 in production (see
-# docker-compose.yml) so the database survives container rebuilds.
+# Bring your own persistent volume for db.sqlite3 when not using MySQL, so the
+# database survives container rebuilds.
 VOLUME ["/app/data"]
 
 EXPOSE 8090
 
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-
+# Entrypoint: wait for DB, run migrations, create superuser, then start app.
+# sed strips Windows CRLF line endings so the script runs on Linux.
 RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
     chmod +x /app/docker-entrypoint.sh
 
