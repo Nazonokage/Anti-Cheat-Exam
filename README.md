@@ -29,6 +29,43 @@ use local XAMPP MySQL (`anticheat_exam`); otherwise SQLite. Set
 
 ## Flowcharts
 
+### Score, focus detection, and review fixes (October 2026)
+
+- The teacher monitor shows correct answers out of all exam questions, with
+  answered and unanswered counts separately (for example, `7/15 correct`,
+  `7 answered · 8 unanswered`). CSV grading remains correct / total.
+- Window blur counts toward the same attempt limit as switching tabs. Saving
+  an answer no longer suppresses blur detection for three seconds. Fullscreen
+  exits caused by intentional navigation and focus events from warning dialogs
+  remain suppressed; overlapping departure events are deduplicated.
+- A focus-state check backs up the blur listener on mobile. Ordinary warnings
+  stay on the page until acknowledged, including when their response arrives
+  in the background. A popup also appears when the page is visible and focused;
+  warnings received while away are queued until the student returns. This
+  cannot detect overlays the browser reports as focused.
+- At zero, the countdown immediately checks server time before advancing.
+  Expired questions are saved for review, including the final question.
+- Student login requires confirmed browser fullscreen before submission.
+  Leaving fullscreen hides the exam and blocks form interaction until it is
+  restored; the server timer continues running. Browsers without document
+  fullscreen support cannot start. Navigation can require entering fullscreen
+  again on the exam page. This browser gate cannot prevent OS app switching
+  or authenticate fullscreen state to the server.
+- Review starts a fresh timer using the saved time bank. Leaving an item for
+  later moves it to the back of the review queue without changing its original
+  question number. Once the bank expires, late answers are rejected.
+- Review requires saved time from questions submitted or skipped early. No
+  saved time means the exam closes without an additional review opportunity.
+
+When installing these changes, run `python manage.py migrate` before starting
+the updated app; migration `0010_submission_review_order` stores the review
+queue. The existing Docker entrypoint and hosted Procfile already run migrations
+on startup. Restart the app and refresh existing student pages to load the new
+JavaScript. These fixes do not reconstruct missing answers in old submissions.
+
+Regression checks: `python manage.py test` and
+`node --test tests/exam_focus.test.cjs tests/exam_timer.test.cjs tests/login_fullscreen.test.cjs`.
+
 These render automatically on GitHub/most Markdown viewers (Mermaid). If
 your viewer doesn't support Mermaid, the code blocks are still readable as
 plain step-by-step diagrams.
@@ -65,12 +102,12 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    V["visibilitychange hidden<br/>OR window blur"] --> Sup{"Caused by our own alert()<br/>or a form submit?"}
+    V["visibilitychange hidden<br/>OR window blur<br/>OR fullscreen exit"] --> Sup{"Caused by our own alert()<br/>or fullscreen exit during a form submit?"}
     Sup -- yes --> Ignore[Ignored — not a real violation]
     Sup -- no --> Rep[POST /tab-violation/]
     Rep --> N[attempts += 1, logged to Violation table]
     N --> C1{attempts}
-    C1 -- 1 to 6 --> Warn[alert warning with running count]
+    C1 -- 1 to 6 --> Warn[Persistent on-page warning with running count]
     C1 -- 7 / 8 / 9 --> Lock[Locked 10s / 20s / 30s<br/>redirect to /locked/]
     C1 -- 10 --> Close[Exam force-closed & submitted<br/>as-is, finished or not]
 ```

@@ -5,3 +5,4 @@ staticfiles/
 venv/
 .env
 node_modules/
+.test-deps/

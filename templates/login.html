@@ -73,6 +73,8 @@
                 class="w-full rounded-xl holo-btn text-black font-semibold py-2.5 transition-transform hover:scale-[1.01] text-sm mt-1">
           Start / Resume Exam →
         </button>
+        <p id="fullscreen-error" role="alert" class="text-sm text-red-300" hidden></p>
+        <p class="text-xs text-examtext/60">Fullscreen is required to start or resume. If your browser cannot enter fullscreen, use a supported browser or another device.</p>
       </form>
     {% endif %}
   </div>
@@ -114,22 +116,44 @@
   }
 
   const startExamBtn = document.getElementById('start-exam-btn');
-  if (startExamBtn) {
-    startExamBtn.addEventListener('click', () => {
-      const el = document.documentElement;
-      if (document.fullscreenElement || document.webkitFullscreenElement) return;
-      if (el.requestFullscreen) {
-        el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
-      } else if (el.webkitRequestFullscreen) {
-        el.webkitRequestFullscreen();
-      }
-    });
-  }
-
   const loginForm = document.getElementById('login-form');
   if (loginForm) {
-    loginForm.addEventListener('submit', () => {
-      if (window.ExamUI) window.ExamUI.showLoading('Preparing your exam…');
+    let starting = false;
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (starting) return;
+      starting = true;
+      const error = document.getElementById('fullscreen-error');
+      error.hidden = true;
+      const inFullscreen = () => !!(document.fullscreenElement || document.webkitFullscreenElement);
+      try {
+        const el = document.documentElement;
+        if (!inFullscreen()) {
+          if (el.requestFullscreen) {
+            await el.requestFullscreen({ navigationUI: 'hide' });
+          } else if (el.webkitRequestFullscreen) {
+            el.webkitRequestFullscreen();
+            // Older implementations signal success only through an event.
+            await new Promise(resolve => {
+              const finish = () => {
+                clearTimeout(timeout);
+                document.removeEventListener('webkitfullscreenchange', finish);
+                resolve();
+              };
+              const timeout = setTimeout(finish, 1500);
+              document.addEventListener('webkitfullscreenchange', finish);
+              if (inFullscreen()) finish();
+            });
+          }
+        }
+        if (!inFullscreen()) throw new Error('Fullscreen unavailable');
+        if (window.ExamUI) window.ExamUI.showLoading('Preparing your exam…');
+        HTMLFormElement.prototype.submit.call(loginForm);
+      } catch (e) {
+        error.textContent = 'The exam has not started. Allow fullscreen and try again. If fullscreen is unavailable, use another browser or device.';
+        error.hidden = false;
+        starting = false;
+      }
     });
   }
 </script>

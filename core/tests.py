@@ -3,6 +3,179 @@ from django.test import Client, TestCase
 
 from core.models import Exam, Student, Submission, Question, Choice, Answer
 from core.services.importer import import_exam_from_dict
+from datetime import timedelta
+import re
+from unittest.mock import patch
+from django.utils import timezone
+
+
+class SkipAndReviewFlowTests(TestCase):
+    def setUp(self):
+        self.now = timezone.now()
+        self.clock = patch("core.views.timezone.now", return_value=self.now)
+        self.clock.start()
+        self.addCleanup(self.clock.stop)
+        self.exam = Exam.objects.create(
+            title="Review flow", seconds_per_question=60,
+            created_by=User.objects.create_user("review_teacher"),
+        )
+        self.questions = [Question.objects.create(
+            exam=self.exam, qtype="identification", text=f"Question {n}",
+            identification_answer="yes", order=n,
+        ) for n in range(1, 4)]
+        self.sub = Submission.objects.create(
+            exam=self.exam, student_name="Student",
+            question_order=[q.pk for q in self.questions],
+        )
+        for q in self.questions:
+            Answer.objects.create(submission=self.sub, question=q)
+        self.sub.answers.filter(question=self.questions[0]).update(question_started_at=self.now)
+        session = self.client.session
+        session["submission_id"] = self.sub.pk
+        session.save()
+
+    def skip_all(self):
+        for _ in self.questions:
+            self.client.post("/exam/answer/", {"action": "skip"})
+        self.sub.refresh_from_db()
+
+    def test_manual_skip_returns_with_fresh_review_timer_and_can_be_answered(self):
+        self.sub.answers.filter(question=self.questions[0]).update(
+            question_started_at=self.now - timedelta(seconds=50))
+        self.skip_all()
+        response = self.client.get("/review/")
+        self.assertEqual(response.context["remaining_seconds"], 130)
+        self.assertEqual(response.context["question"], self.questions[0])
+        self.client.post("/review/answer/", {"action": "submit", "answer_text": "yes"})
+        answer = self.sub.answers.get(question=self.questions[0])
+        self.assertTrue(answer.answered)
+        self.assertTrue(answer.is_correct)
+        self.assertFalse(answer.skipped)
+        self.assertEqual(self.client.get("/review/").context["question"], self.questions[1])
+
+    def test_review_skip_rotates_and_preserves_original_question_numbers(self):
+        self.skip_all()
+        self.client.post("/review/answer/", {"action": "skip"})
+        response = self.client.get("/review/")
+        self.assertEqual(response.context["question"], self.questions[1])
+        self.assertEqual(response.context["q_number"], 2)
+        for _ in range(2):
+            self.client.post("/review/answer/", {"action": "skip"})
+        self.assertEqual(self.client.get("/review/").context["question"], self.questions[0])
+
+    def test_expired_question_is_automatically_skipped(self):
+        self.sub.answers.filter(question=self.questions[0]).update(
+            question_started_at=self.now - timedelta(seconds=61))
+        self.assertTrue(self.client.get("/status/").json()["expired"])
+        response = self.client.get("/exam/")
+        self.assertEqual(response.context["question"], self.questions[1])
+        answer = self.sub.answers.get(question=self.questions[0])
+        self.assertTrue(answer.skipped)
+        self.assertFalse(answer.answered)
+        for _ in range(2):
+            self.client.post("/exam/answer/", {"action": "submit", "answer_text": "yes"})
+        self.assertEqual(self.client.get("/review/").context["question"], self.questions[0])
+
+    def test_final_question_timeout_enters_review_without_looping(self):
+        self.sub.current_question = 3
+        self.sub.review_bank_seconds = 30
+        self.sub.save()
+        self.sub.answers.filter(question=self.questions[2]).update(
+            question_started_at=self.now - timedelta(seconds=61))
+        self.assertRedirects(self.client.get("/exam/"), "/review/", fetch_redirect_response=False)
+        self.assertEqual(self.client.get("/review/").context["remaining_seconds"], 30)
+
+    def test_expired_review_rejects_late_answer(self):
+        self.skip_all()
+        self.sub.answers.filter(question=self.questions[0]).update(
+            question_started_at=self.now - timedelta(seconds=181))
+        self.client.post("/review/answer/", {"action": "submit", "answer_text": "yes"})
+        self.sub.refresh_from_db()
+        self.assertTrue(self.sub.closed)
+        self.assertFalse(self.sub.answers.get(question=self.questions[0]).answered)
+
+    def test_no_banked_time_closes_exam(self):
+        self.skip_all()
+        self.sub.review_bank_seconds = 0
+        self.sub.save()
+        self.client.get("/review/")
+        self.sub.refresh_from_db()
+        self.assertTrue(self.sub.closed)
+
+    def test_window_blur_counts_as_tab_attempt_and_is_audited(self):
+        response = self.client.post("/tab-violation/", {"type": "window-blur"},
+                                    content_type="application/json")
+        self.assertEqual(response.json()["attempts"], 1)
+        self.sub.refresh_from_db()
+        self.assertEqual(self.sub.tab_attempts, 1)
+        self.assertEqual(self.sub.violations.get().violation_type, "window-blur")
+
+    def test_rendered_csrf_token_allows_focus_reports_with_httponly_cookie(self):
+        client = Client(enforce_csrf_checks=True)
+        session = client.session
+        session["submission_id"] = self.sub.pk
+        session.save()
+        page = client.get("/exam/")
+        token = re.search(r'data-csrf-token="([A-Za-z0-9]+)"', page.content.decode()).group(1)
+        self.assertEqual(len(token), 64)
+        self.assertTrue(page.cookies["csrftoken"]["httponly"])
+        rejected = client.post("/tab-violation/", {"type": "window-blur"},
+                               content_type="application/json", HTTP_X_CSRFTOKEN="null")
+        self.assertEqual(rejected.status_code, 403)
+        self.sub.refresh_from_db()
+        self.assertEqual(self.sub.tab_attempts, 0)
+        for n in range(1, 11):
+            response = client.post("/tab-violation/", {"type": "window-blur"},
+                                   content_type="application/json", HTTP_X_CSRFTOKEN=token)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()["attempts"], n)
+            if n == 7:
+                self.assertTrue(response.json()["locked"])
+        self.sub.refresh_from_db()
+        self.assertEqual(self.sub.tab_attempts, 10)
+        self.assertEqual(self.sub.violations.count(), 10)
+        self.assertTrue(self.sub.closed)
+
+    def test_review_page_token_also_allows_audit_reports(self):
+        self.skip_all()
+        client = Client(enforce_csrf_checks=True)
+        session = client.session
+        session["submission_id"] = self.sub.pk
+        session.save()
+        page = client.get("/review/")
+        token = re.search(r'data-csrf-token="([A-Za-z0-9]+)"', page.content.decode()).group(1)
+        response = client.post("/report-violation/", {"type": "copy_attempt"},
+                               content_type="application/json", HTTP_X_CSRFTOKEN=token)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(self.sub.violations.get().violation_type, "copy_attempt")
+
+    def test_finished_status_does_not_update_last_heartbeat(self):
+        last_seen = self.now - timedelta(seconds=125)
+        for state in ({"closed": True, "phase": "review"},
+                      {"closed": False, "phase": "done"}):
+            Submission.objects.filter(pk=self.sub.pk).update(last_heartbeat=last_seen, **state)
+            self.client.get("/status/")
+            self.sub.refresh_from_db()
+            self.assertEqual(self.sub.last_heartbeat, last_seen)
+
+    def test_monitor_only_tracks_last_seen_for_active_submissions(self):
+        teacher = self.exam.created_by
+        teacher.is_staff = True
+        teacher.save()
+        self.client.force_login(teacher)
+        self.sub.last_heartbeat = self.now - timedelta(seconds=125)
+        self.sub.save()
+        url = f"/teacher/monitor/{self.exam.pk}/data/"
+        active = self.client.get(url).json()["students"][0]
+        self.assertEqual(active["seconds_ago"], 125)
+        self.assertTrue(active["stale"])
+        self.sub.phase = "done"
+        self.sub.save()
+        for now in (self.now, self.now + timedelta(minutes=5)):
+            with patch("core.views.timezone.now", return_value=now):
+                done = self.client.get(url).json()["students"][0]
+            self.assertIsNone(done["seconds_ago"])
+            self.assertFalse(done["stale"])
 
 
 class TeacherAdminIsolationTests(TestCase):

@@ -403,7 +403,7 @@ def _advance_past_expired_questions(submission, questions):
     """
     exam = submission.exam
     total = len(questions)
-    while submission.current_question <= total:
+    while submission.phase == "question" and submission.current_question <= total:
         q = questions[submission.current_question - 1]
         answer, _ = Answer.objects.get_or_create(submission=submission, question=q)
         if not answer.question_started_at:
@@ -470,6 +470,11 @@ def _move_to_next_question(submission, questions):
 
     if submission.current_question >= total:
         submission.phase = "review"
+        pending = _pending_review_answers(submission)
+        submission.review_order = [a.question_id for a in pending]
+        submission.answers.filter(skipped=True, answered=False).update(question_started_at=None)
+        if pending:
+            Answer.objects.filter(pk=pending[0].pk).update(question_started_at=timezone.now())
         submission.save()
         return
     submission.current_question += 1
@@ -546,10 +551,9 @@ def _grade(question, submitted_text):
 # --- Review phase --------------------------------------------------------
 
 def _pending_review_answers(submission):
-    """Skipped/unanswered Answers, ordered to match this student's
-    randomized question order (falls back to natural order)."""
+    """Pending answers in review queue order, initially the exam order."""
     pending = list(submission.answers.filter(skipped=True, answered=False).select_related("question"))
-    order = submission.question_order or []
+    order = submission.review_order or submission.question_order or []
     if order:
         index = {qid: i for i, qid in enumerate(order)}
         pending.sort(key=lambda a: index.get(a.question_id, 10**9))
@@ -566,6 +570,8 @@ def review_view(request):
         return render(request, "exam.html", _done_context(submission))
     if submission.phase == "question":
         return redirect("exam")
+    if submission.lock_until and submission.lock_until > timezone.now():
+        return redirect("locked")
 
     pending = _pending_review_answers(submission)
 
@@ -619,6 +625,12 @@ def submit_review_answer(request):
     submission = _get_submission(request)
     if not submission or submission.phase != "review" or submission.closed:
         return redirect("review")
+    if submission.lock_until and submission.lock_until > timezone.now():
+        return redirect("locked")
+
+    action = request.POST.get("action")
+    if action not in ("submit", "skip"):
+        return HttpResponseBadRequest("Unknown action")
 
     pending = _pending_review_answers(submission)
     if not pending:
@@ -628,14 +640,21 @@ def submit_review_answer(request):
         return redirect("review")
 
     answer = pending[0]
+    if not answer.question_started_at:
+        return redirect("review")
     elapsed = (timezone.now() - answer.question_started_at).total_seconds()
+    if elapsed >= submission.review_bank_seconds:
+        submission.review_bank_seconds = 0
+        submission.phase = "done"
+        submission.closed = True
+        submission.save()
+        return redirect("review")
     spent = min(elapsed, submission.review_bank_seconds)
-
-    action = request.POST.get("action")
     if action == "submit":
         submitted_text = request.POST.get("answer_text", "")
         answer.answer_text = submitted_text
         answer.answered = True
+        answer.skipped = False
         answer.is_correct = _grade(answer.question, submitted_text)
         answer.time_spent_seconds = spent
     # "skip" (leave for later / out of time): stays skipped, unanswered.
@@ -646,6 +665,13 @@ def submit_review_answer(request):
         _check_buff_milestone(submission)
 
     submission.review_bank_seconds = max(0, int(submission.review_bank_seconds - spent))
+    submission.review_order = [a.question_id for a in pending[1:]]
+    if action == "skip":
+        submission.review_order.append(answer.question_id)
+    if submission.review_order:
+        submission.answers.filter(question_id=submission.review_order[0]).update(
+            question_started_at=timezone.now()
+        )
     submission.save()
     return redirect("review")
 
@@ -752,8 +778,9 @@ def status_api(request):
     if not submission:
         return JsonResponse({"error": "no session"}, status=400)
 
-    submission.last_heartbeat = timezone.now()
-    submission.save(update_fields=["last_heartbeat"])
+    if not submission.closed and submission.phase != "done":
+        submission.last_heartbeat = timezone.now()
+        submission.save(update_fields=["last_heartbeat"])
 
     locked = bool(submission.lock_until and submission.lock_until > timezone.now())
     lock_remaining = (int((submission.lock_until - timezone.now()).total_seconds())
@@ -851,9 +878,10 @@ def teacher_monitor_data(request, exam_id):
     total_questions = exam.questions.count()
     rows = []
     for sub in exam.submissions.all().order_by("student_name"):
-        stale = True
+        finished = sub.closed or sub.phase == "done"
+        stale = not finished
         seconds_ago = None
-        if sub.last_heartbeat:
+        if sub.last_heartbeat and not finished:
             seconds_ago = (now - sub.last_heartbeat).total_seconds()
             stale = seconds_ago > 15
 

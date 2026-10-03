@@ -32,9 +32,10 @@
   const root = document.getElementById('exam-root');
   if (!root) return;
 
-  function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
+  function csrfToken() {
+    // CSRF_COOKIE_HTTPONLY prevents reading the cookie. Read Django's
+    // rendered token from the current root, including after question swaps.
+    return liveRoot()?.dataset.csrfToken || '';
   }
 
   const tabUrl = root.dataset.tabUrl;
@@ -48,10 +49,53 @@
   let reporting = false;
   let lastReportAt = 0;
   let suppressFocusEvents = false;
+  let suppressFullscreenEvents = false;
+  let navigationTimer;
+  let focusLossObserved = false;
+  let pendingWarning = null;
+
+  function alertPendingWarning() {
+    if (!pendingWarning || suppressFocusEvents || !liveRoot()) return;
+    if (document.visibilityState === 'hidden' ||
+        (typeof document.hasFocus === 'function' && !document.hasFocus())) return;
+    const message = pendingWarning;
+    pendingWarning = null;
+    // Our own dialog can generate focus events; don't count those as leaving.
+    suppressFocusEvents = true;
+    try {
+      alert(message);
+    } finally {
+      setTimeout(() => { suppressFocusEvents = false; }, 400);
+    }
+  }
+
+  function showFocusWarning(message) {
+    let notice = document.getElementById('exam-focus-warning');
+    if (!notice) {
+      notice = document.createElement('div');
+      notice.id = 'exam-focus-warning';
+      notice.setAttribute('role', 'alert');
+      notice.style.cssText = 'position:fixed;top:12px;left:12px;right:12px;z-index:99999;padding:16px;border:2px solid #fbbf24;border-radius:12px;background:#291d05;color:#fff;box-shadow:0 4px 20px #0008;';
+      document.body.appendChild(notice);
+    }
+    notice.replaceChildren();
+    const text = document.createElement('p');
+    text.textContent = message;
+    const dismiss = document.createElement('button');
+    dismiss.type = 'button';
+    dismiss.textContent = 'Understood';
+    dismiss.style.cssText = 'margin-top:8px;padding:6px 12px;border:1px solid #fbbf24;border-radius:6px;';
+    dismiss.addEventListener('click', () => notice.remove());
+    notice.appendChild(text);
+    notice.appendChild(dismiss);
+  }
 
   function markIntentionalNav() {
-    suppressFocusEvents = true;
-    setTimeout(() => { suppressFocusEvents = false; }, 3000);
+    // In-place question changes may exit fullscreen, but must not give
+    // students a three-second window to switch apps without being counted.
+    suppressFullscreenEvents = true;
+    clearTimeout(navigationTimer);
+    navigationTimer = setTimeout(() => { suppressFullscreenEvents = false; }, 3000);
   }
   window.__examMarkIntentionalNav = markIntentionalNav;
   document.addEventListener('submit', markIntentionalNav, true);
@@ -74,37 +118,76 @@
     fetch(tabUrl, {
       method: 'POST',
       credentials: 'same-origin',
+      keepalive: true,
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': csrfToken(),
       },
       body: JSON.stringify({ type }),
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error(`Report rejected (${res.status})`);
+        return res.json();
+      })
       .then(data => {
         reporting = false;
         const n = data.attempts;
         const max = data.max || 10;
 
-        suppressFocusEvents = true;
         if (data.closed) {
+          suppressFocusEvents = true;
           alert(`Exam closed: you reached ${n}/${max} focus / fullscreen violations. Your exam has been submitted as-is.`);
           window.location.href = examUrl;
         } else if (data.locked) {
+          suppressFocusEvents = true;
           alert(`Locked (attempt ${n}/${max}): leaving the exam screen or exiting fullscreen is not allowed. Locked for ${data.lock_seconds}s.`);
           window.location.href = lockedUrl;
         } else {
-          alert(`Warning ${n}/${max}: switching apps, leaving this window, or exiting fullscreen is being logged.`);
-          setTimeout(() => { suppressFocusEvents = false; }, 400);
+          const message = `Warning ${n}/${max}: switching apps, leaving this window, or exiting fullscreen is being logged.`;
+          showFocusWarning(message);
+          // Queue background warnings until the exam is visible and focused,
+          // when the browser can actually present its popup.
+          pendingWarning = message;
+          alertPendingWarning();
         }
       })
-      .catch(() => { reporting = false; });
+      .catch(() => {
+        reporting = false;
+        const message = 'The focus violation could not be recorded. Refresh the exam page and tell your teacher if this warning continues.';
+        showFocusWarning(message);
+        pendingWarning = message;
+        alertPendingWarning();
+      });
   }
 
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') reportViolation('tab-switch');
+    else alertPendingWarning();
   });
-  window.addEventListener('blur', () => reportViolation('window-blur'));
+  window.addEventListener('blur', () => {
+    if (suppressFocusEvents) return;
+    focusLossObserved = true;
+    reportViolation('window-blur');
+  });
+  window.addEventListener('focus', () => {
+    focusLossObserved = false;
+    alertPendingWarning();
+  });
+
+  // Some mobile browsers update focus state without delivering window.blur.
+  // Report once per observed loss; covering the page is not itself proof
+  // of a loss if the browser continues reporting hasFocus() === true.
+  setInterval(() => {
+    if (!liveRoot() || suppressFocusEvents || typeof document.hasFocus !== 'function') return;
+    const unfocused = document.visibilityState === 'hidden' || !document.hasFocus();
+    if (!unfocused) {
+      focusLossObserved = false;
+      alertPendingWarning();
+    } else if (!focusLossObserved) {
+      focusLossObserved = true;
+      reportViolation('window-blur');
+    }
+  }, 500);
 
   // ---------- Fullscreen: report exits only; never auto-re-enter ----------
   // requestFullscreen() is allowed ONLY from the "Return to Fullscreen"
@@ -114,27 +197,52 @@
   function isFullscreen() {
     return !!(document.fullscreenElement || document.webkitFullscreenElement);
   }
+  window.__examCanInteract = isFullscreen;
+  // Includes Final Submit as well as the ordinary answer form.
+  document.addEventListener('submit', (event) => {
+    if (liveRoot() && !isFullscreen()) {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      setBannerVisible(true);
+    }
+  }, true);
 
   let allowEnterFullscreen = false;
-  function enterFullscreen() {
+  async function enterFullscreen() {
     if (!allowEnterFullscreen) return;
     allowEnterFullscreen = false;
     if (isFullscreen()) return;
     const el = document.documentElement;
-    if (el.requestFullscreen) {
-      el.requestFullscreen({ navigationUI: 'hide' }).catch(() => {});
-    } else if (el.webkitRequestFullscreen) {
-      el.webkitRequestFullscreen();
+    try {
+      if (el.requestFullscreen) {
+        await el.requestFullscreen({ navigationUI: 'hide' });
+      } else if (el.webkitRequestFullscreen) {
+        el.webkitRequestFullscreen();
+      } else {
+        throw new Error('Fullscreen unavailable');
+      }
+    } catch (e) {
+        fsBanner.querySelector('p').textContent = 'Fullscreen was not allowed. Allow fullscreen to continue, or use another browser or device.';
     }
   }
 
   const fsBanner = document.createElement('div');
   fsBanner.id = 'fs-return-banner';
   fsBanner.className = 'exam-fullscreen-banner';
+  fsBanner.setAttribute('role', 'dialog');
+  fsBanner.setAttribute('aria-modal', 'true');
+  fsBanner.setAttribute('aria-label', 'Fullscreen required');
+  fsBanner.style.cssText = 'position:fixed;inset:0;z-index:99998;margin:0;border-radius:0;background:#07110e;align-items:center;justify-content:center;flex-direction:column;padding:24px;text-align:center;';
   fsBanner.innerHTML =
-    '<p class="text-xs text-examtext/80">Fullscreen is required during the exam.</p>' +
+    '<p class="text-sm text-examtext/80">Fullscreen is required. Questions and answering are blocked until you return to fullscreen. Your exam timer continues running.</p>' +
     '<button type="button" id="fs-return-btn" class="shrink-0 rounded-lg border border-examaccent/50 bg-examsurface text-examaccent text-xs font-semibold px-3 py-1.5">Return to Fullscreen</button>';
   function setBannerVisible(show) {
+    fsBanner.style.display = show ? 'flex' : 'none';
+    const host = liveRoot();
+    if (host) {
+      host.inert = show;
+      host.style.visibility = show ? 'hidden' : '';
+    }
     if (show) {
       fsBanner.classList.add('flex');
       fsBanner.classList.remove('hidden');
@@ -146,8 +254,8 @@
   function attachFsBanner() {
     const host = liveRoot();
     if (!host) return;
-    if (!host.contains(fsBanner)) {
-      host.insertBefore(fsBanner, host.firstChild);
+    if (!document.body.contains(fsBanner)) {
+      document.body.appendChild(fsBanner);
     }
     const btn = document.getElementById('fs-return-btn');
     if (btn && !btn.dataset.bound) {
@@ -168,7 +276,7 @@
   function onFullscreenChange() {
     const inFs = isFullscreen();
     setBannerVisible(!inFs);
-    if (inFs || suppressFocusEvents) return;
+    if (inFs || suppressFocusEvents || suppressFullscreenEvents) return;
     reportViolation('fullscreen-exit');
   }
   document.addEventListener('fullscreenchange', onFullscreenChange);
@@ -223,6 +331,8 @@
   window.__examSwapToUrl = swapToUrl;
 
   async function postAndStayFullscreen(form) {
+    if (navigating) return;
+    if (window.__examCanInteract && !window.__examCanInteract()) return;
     if (window.__examMarkIntentionalNav) window.__examMarkIntentionalNav();
     if (window.ExamUI) window.ExamUI.showLoading('Saving…');
     navigating = true;
@@ -282,20 +392,27 @@
     const form = document.getElementById('answer-form');
     const actionField = document.getElementById('action-field');
     const skipBtn = document.getElementById('skip-btn');
+    let syncing = false;
 
     timers.push(setInterval(() => {
       if (remaining > 0) {
         remaining -= 1;
         renderTimer();
       }
+      // Confirm expiration with the server immediately at zero.
+      if (remaining <= 0) syncStatus();
     }, 1000));
 
     async function syncStatus() {
-      if (navigating) return;
+      if (navigating || syncing || rootEl() !== root) return;
+      syncing = true;
       try {
         const res = await fetch(statusUrl, { credentials: 'same-origin' });
         if (!res.ok) return;
         const data = await res.json();
+
+        // Ignore a heartbeat for a question that is being submitted or replaced.
+        if (navigating || rootEl() !== root) return;
 
         if (data.locked) {
           navigating = true;
@@ -323,8 +440,10 @@
           swapToUrl(isReview ? reviewUrl : examUrl);
         }
       } catch (e) { /* transient network hiccup — next poll will retry */ }
+      finally { syncing = false; }
     }
     timers.push(setInterval(syncStatus, 4000));
+    if (remaining <= 0) syncStatus();
 
     if (skipBtn && form && actionField) {
       skipBtn.addEventListener('click', () => {
@@ -352,11 +471,6 @@
   const root = document.getElementById('exam-root');
   if (!root) return;
 
-  function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
-
   const reportUrl = '/report-violation/';
   function logViolation(type, extra) {
     fetch(reportUrl, {
@@ -364,7 +478,7 @@
       credentials: 'same-origin',
       headers: {
         'Content-Type': 'application/json',
-        'X-CSRFToken': getCookie('csrftoken'),
+        'X-CSRFToken': document.getElementById('exam-root')?.dataset.csrfToken || '',
       },
       body: JSON.stringify(Object.assign({ type }, extra || {})),
     }).catch(() => { /* best-effort logging; ignore network hiccups */ });
@@ -435,6 +549,7 @@
   }
 
   document.addEventListener('keydown', (e) => {
+    if (window.__examCanInteract && !window.__examCanInteract()) return;
     if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();

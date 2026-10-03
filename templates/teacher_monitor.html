@@ -48,7 +48,7 @@
             <th class="px-5 py-3.5">Score</th>
             <th class="px-5 py-3.5">Current Q</th>
             <th class="px-5 py-3.5">Phase</th>
-            <th class="px-5 py-3.5">Tab Attempts</th>
+            <th class="px-5 py-3.5">Focus / Tab Attempts</th>
             <th class="px-5 py-3.5">Violations</th>
             <th class="px-5 py-3.5">Status</th>
             <th class="px-5 py-3.5">Last Seen</th>
@@ -63,7 +63,7 @@
 
   <!-- Footer meta -->
   <div class="flex items-center justify-between font-mono text-examtext/30 mt-4 px-1" style="font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;">
-    <p>Score = correct / answered of total. "Violations" includes copy/paste + idle + tab-switch.</p>
+    <p>Score = correct / total questions. Answered is shown separately. Focus / tab attempts include window blur and fullscreen exits. "Violations" also includes copy/paste and idle.</p>
     <a href="{% url 'teacher_dashboard' %}" class="text-examaccent/60 hover:text-examaccent transition-colors underline shrink-0 ml-4">
       ← Dashboard
     </a>
@@ -74,15 +74,22 @@
   const dataUrl = "{% url 'teacher_monitor_data' exam.id %}";
   const body = document.getElementById('monitor-body');
 
+  function formatLastSeen(seconds) {
+    if (seconds === null || seconds === undefined) return '—';
+    const elapsed = Math.max(0, Math.floor(seconds));
+    return `${Math.floor(elapsed / 60)}m ${String(elapsed % 60).padStart(2, '0')}s ago`;
+  }
+
   function render(rows) {
     if (!rows.length) {
       body.innerHTML = '<tr><td colspan="9" class="px-5 py-8 text-center text-examtext/30 font-mono" style="font-size:.7rem;letter-spacing:.06em;text-transform:uppercase;">No students have started this exam yet.</td></tr>';
       return;
     }
     body.innerHTML = rows.map((r, i) => {
-      const statusColor = r.closed ? 'color:rgba(167,243,208,.35)' : (r.stale ? 'color:#fca5a5' : 'color:#34d399');
-      const statusLabel = r.closed ? 'CLOSED' : (r.stale ? 'DISCONN' : 'LIVE');
-      const seen = r.seconds_ago === null ? '—' : (r.seconds_ago + 's ago');
+      const finished = r.closed || r.phase === 'done';
+      const statusColor = finished ? 'color:rgba(167,243,208,.35)' : (r.stale ? 'color:#fca5a5' : 'color:#34d399');
+      const statusLabel = finished ? 'CLOSED' : (r.stale ? 'DISCONN' : 'LIVE');
+      const seen = finished ? 'Done' : formatLastSeen(r.seconds_ago);
       const tabColor = r.tab_attempts >= 8 ? 'color:#fca5a5' : (r.tab_attempts >= 1 ? 'color:#fcd34d' : 'color:rgba(167,243,208,.5)');
       const violColor = r.violation_count >= 5 ? 'color:#fca5a5' : (r.violation_count >= 1 ? 'color:#fcd34d' : 'color:rgba(167,243,208,.5)');
       const violBadge = r.recent_violation && !r.closed
@@ -91,7 +98,7 @@
       return `<tr style="${rowBg};border-bottom:1px solid rgba(52,211,153,.06);transition:background .15s ease;" onmouseover="this.style.background='rgba(16,185,129,.04)'" onmouseout="this.style.background='${r.stale && !r.closed ? 'rgba(239,68,68,.04)' : 'transparent'}'">
         <td class="px-5 py-3 font-mono text-examtext/30" style="font-size:.7rem;">${i + 1}</td>
         <td class="px-5 py-3 text-white font-medium">${r.student_name}</td>
-        <td class="px-5 py-3 font-mono text-examaccent font-semibold" style="font-size:.8rem;">${r.correct}/${r.answered} <span style="color:rgba(167,243,208,.35);font-weight:400;">of ${r.total_questions}</span></td>
+        <td class="px-5 py-3 font-mono text-examaccent font-semibold" style="font-size:.8rem;">${r.correct}/${r.total_questions} correct <span class="block text-examtext/60" style="font-weight:400;">${r.answered} answered · ${r.total_questions - r.answered} unanswered</span></td>
         <td class="px-5 py-3 font-mono text-examtext/60" style="font-size:.75rem;">${r.current_question}</td>
         <td class="px-5 py-3 font-mono capitalize text-examtext/50" style="font-size:.7rem;letter-spacing:.06em;">${r.phase}</td>
         <td class="px-5 py-3 font-mono font-semibold" style="${tabColor};font-size:.75rem;">${r.tab_attempts}</td>

@@ -98,6 +98,8 @@ class Submission(models.Model):
     # Populated once at first login so each student sees questions in a
     # different sequence, making it harder to share "question N is X".
     question_order = models.JSONField(default=list, blank=True)
+    # Separate review queue so deferring a question preserves its original number.
+    review_order = models.JSONField(default=list, blank=True)
     lock_until = models.DateTimeField(null=True, blank=True)
     last_heartbeat = models.DateTimeField(null=True, blank=True)
     closed = models.BooleanField(default=False)

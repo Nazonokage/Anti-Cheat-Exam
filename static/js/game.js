@@ -6,12 +6,8 @@ window.__examInitGame = function () {
   const bar = document.getElementById('game-bar');
   if (!bar) return;
 
-  function getCookie(name) {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
-    return match ? decodeURIComponent(match[2]) : null;
-  }
   function csrfHeaders(extra) {
-    return Object.assign({ 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') }, extra || {});
+    return Object.assign({ 'Content-Type': 'application/json', 'X-CSRFToken': document.getElementById('exam-root')?.dataset.csrfToken || '' }, extra || {});
   }
   function playSound(name) { if (window.ExamUI) window.ExamUI.playSound(name); }
 

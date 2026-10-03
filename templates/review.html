@@ -4,6 +4,7 @@
 {% block content %}
 <div class="exam-workspace w-full max-w-xl"
      id="exam-root"
+     data-csrf-token="{{ csrf_token }}"
      data-status-url="{% url 'status_api' %}"
      data-tab-url="{% url 'tab_violation' %}"
      data-answer-url="{% url 'submit_review_answer' %}"
@@ -95,8 +96,8 @@
 
 {% block extra_head %}
 {% load static %}
-<script src="{% static 'js/exam.js' %}?v=fs-stay2" defer></script>
-<script src="{% static 'js/game.js' %}?v=fs-stay2" defer></script>
+<script src="{% static 'js/exam.js' %}?v=csrf-token7" defer></script>
+<script src="{% static 'js/game.js' %}?v=csrf-token7" defer></script>
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const finalForm = document.getElementById('final-submit-form');
