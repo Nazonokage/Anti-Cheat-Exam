@@ -7,7 +7,9 @@ For hosting, follow [Deploy to Render with Neon](RENDER.md).
 Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settings.
 
 - ✅ Server owns the timer — a dropped Wi-Fi connection can't buy extra time
-- ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, redundant client-side guards
+- ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, proctoring prompt watermarks
+- ✅ Monospace Code Snippet & "Guess the Output" Terminal Rendering (`{% load exam_tags %}`)
+- ✅ Multilingual Anti-Cheat Prompts (RU, EN, ZH, AR) & Randomization
 - ✅ Optional **Game Mode** — buffs, attacks, and a live leaderboard on top of real grading
 - ✅ Live teacher dashboard + one-click CSV export
 - ✅ Tested end-to-end with the Django test client (see [Smoke-tested during the build](#smoke-tested-during-the-build-django-test-client))
@@ -15,6 +17,7 @@ Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settin
 ## Table of contents
 
 - [Flowcharts](#flowcharts)
+- [Code Snippets & Multilingual Anti-Cheat Prompts (v2.4)](#code-snippets--multilingual-anti-cheat-prompts-v24)
 - [Quickstart](#quickstart)
   - [Exam JSON format](#exam-json-format)
   - [Bulk student roster import](#bulk-student-roster-import)
@@ -27,6 +30,20 @@ Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settin
 - [What's implemented](#whats-implemented)
 - [Smoke-tested during the build](#smoke-tested-during-the-build-django-test-client)
 - [Notes before a real exam](#notes--things-to-double-check-before-a-real-exam)
+
+## Code Snippets & Multilingual Anti-Cheat Prompts (v2.4)
+
+- **Monospace Code Snippet & "Guess the Output" Terminal Box**:
+  - Automatically formats code snippets embedded in question text (` ```javascript ... ``` `, ` ```python ... ``` `) or supplied via `"code"` / `"codeSnippet"` / `"sampleCode"` in JSON imports.
+  - Rendered using custom template filter `{% load exam_tags %}` -> `{{ question.text|render_question_text }}`.
+  - UI features terminal window dots (`red`, `amber`, `emerald`), language badge (`JAVASCRIPT`, `PYTHON`, `CODE`), dark surface, emerald syntax accents (`#a7f3d0`), horizontal scrolling (`overflow-x-auto`), and copy deterrence (`user-select: none`).
+- **Flexible Media & Importer Schema**:
+  - Importer supports `imageLink`, `imageUrl`, and `image_url` keys across both flat and grouped JSON schemas.
+  - Questions can seamlessly feature both photo URLs and code blocks.
+- **Multilingual Anti-Cheat Prompts & Proctoring Integrity Notices**:
+  - Anti-cheat prompt box is rendered directly between the question text and answer controls (`templates/_anti_cheat_prompt.html`), preventing screenshot or photo cropping from stripping candidate identity.
+  - Cites active closed-book exam rules and AI terms of service prohibitions against assisting with live examinations.
+  - Includes Russian (`ru`), Chinese (`zh`), Arabic (`ar`), and English (`en`) prompt choices, with a "Randomize Prompt Language" toggle in Exam Admin.
 
 ## Flowcharts
 
@@ -306,7 +323,9 @@ question of each type — see `data/sia_exam_sample.json` for a full
 - `text` *(string, required)* — the question prompt
 - `options` *(array of strings)* — choice labels; `true_false` is always `["True", "False"]`; not used for `identification`
 - `answerIndex` *(integer)* — zero-based index into `options` for the correct choice; not used for `identification`
-- `imageLink` *(string or `null`, optional)* — image shown with the question
+- `imageLink` / `imageUrl` / `image_url` *(string or `null`, optional)* — image shown with the question
+- `code` / `codeSnippet` / `sampleCode` *(string, optional)* — code snippet for "guess the output" questions
+- `language` / `codeLanguage` *(string, optional)* — language badge label (e.g. `"javascript"`, `"python"`)
 - `hint` *(string, optional)* — only shown if `hintsEnabled` is `true`
 
 For `identification` questions, swap `options`/`answerIndex` for a plain

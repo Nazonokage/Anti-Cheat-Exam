@@ -611,3 +611,85 @@ class PromptLanguageTests(TestCase):
                         self.assertIn('&lt;Student &amp; Name&gt;', html)
                         if image:
                             self.assertLess(html.index(image), question_pos)
+
+
+class CodeSnippetAndMediaTests(TestCase):
+    def setUp(self):
+        self.teacher = User.objects.create_user("teacher_code", password="pass", is_staff=True)
+
+    def test_render_question_text_with_fenced_code(self):
+        from core.templatetags.exam_tags import render_question_text
+        raw = "What is the output?\n\n```javascript\nconst a = 10;\nconsole.log(a * 2);\n```\nSelect the best choice."
+        rendered = render_question_text(raw)
+        self.assertIn("What is the output?", rendered)
+        self.assertIn("exam-code-box", rendered)
+        self.assertIn("JAVASCRIPT", rendered)
+        self.assertIn("const a = 10;", rendered)
+        self.assertIn("console.log(a * 2);", rendered)
+        self.assertIn("Select the best choice.", rendered)
+
+    def test_render_question_text_with_implicit_code(self):
+        from core.templatetags.exam_tags import render_question_text
+        raw = "What is the output?\n\ndef add(a, b):\n    return a + b\n\nprint(add(2, 3))"
+        rendered = render_question_text(raw)
+        self.assertIn("exam-code-box", rendered)
+        self.assertIn("PYTHON", rendered)
+        self.assertIn("def add(a, b):", rendered)
+
+    def test_import_testing_questionnaire_with_code_and_images(self):
+        import os
+        from core.services.importer import import_exam_from_file
+        path = os.path.join("data", "testing_questionnaire.json")
+        exam = import_exam_from_file(path, self.teacher)
+        self.assertEqual(exam.questions.count(), 8)
+
+        # Q1 has photo URL
+        q1 = exam.questions.get(order=1)
+        self.assertTrue(q1.image_url.startswith("https://images.unsplash.com"))
+
+        # Q6 has code block
+        q6 = exam.questions.get(order=6)
+        self.assertIn("```javascript", q6.text)
+        self.assertEqual(q6.choices.count(), 4)
+        correct_choice = q6.choices.get(is_correct=True)
+        self.assertEqual(correct_choice.text, "[20, 40]")
+
+        # Q7 has photo URL and Python code
+        q7 = exam.questions.get(order=7)
+        self.assertTrue(q7.image_url.startswith("https://images.unsplash.com"))
+        self.assertIn("```python", q7.text)
+        self.assertEqual(q7.identification_answer, "125")
+
+        # Q8 had separate 'code' field, should be incorporated
+        q8 = exam.questions.get(order=8)
+        self.assertIn("```javascript", q8.text)
+        self.assertIn("verifySession", q8.text)
+
+    def test_exam_screen_renders_code_box(self):
+        exam = Exam.objects.create(
+            subject="Coding",
+            title="Code Test",
+            prompt_language="en",
+            created_by=self.teacher,
+            is_active=True,
+        )
+        q = Question.objects.create(
+            exam=exam,
+            qtype="multipleChoice",
+            text="What is the output?\n\n```javascript\nconsole.log(42);\n```",
+            order=1,
+            image_url="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80",
+        )
+        Choice.objects.create(question=q, text="42", is_correct=True, order=0)
+        sub = Submission.objects.create(exam=exam, student_name="CoderYoimiya", question_order=[q.id])
+        session = self.client.session
+        session["submission_id"] = sub.id
+        session.save()
+
+        response = self.client.get("/exam/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "exam-code-box")
+        self.assertContains(response, "JAVASCRIPT")
+        self.assertContains(response, "console.log(42);")
+        self.assertContains(response, "img-3d-frame")
+

@@ -4,7 +4,21 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [2.3] - 2026-10-06
+## [2.4] - 2026-10-06
+
+### Added
+- **Code Snippet & "Guess the Output" Rendering**: Introduced custom Django template filter (`exam_tags.py`) to render sample code blocks with terminal window headers, language badges, monospace typography (`IBM Plex Mono`), horizontal scrolling, and copy deterrence (`user-select: none`).
+- **Flexible JSON Importer Schema**: Expanded `core/services/importer.py` to support `code`, `codeSnippet`, `sampleCode`, `language`, `codeLanguage`, and flexible image URL fields (`imageLink`, `imageUrl`, `image_url`) across both flat and grouped JSON schemas.
+- **Multilingual Anti-Cheat Watermarks**: Added prompt template choices for Russian, Chinese, Arabic, and English, along with a "Randomize Prompt Language" toggle in Exam Admin.
+- **Updated Test Dataset**: Updated `data/testing_questionnaire.json` (8 items total) with photo URLs (Unsplash media) and JavaScript/Python guess-the-output sample code questions.
+
+### Changed
+- **Proctoring Integrity Framing**: Refined anti-cheat prompt text across all 4 languages to use official proctored examination notices citing academic integrity rules and AI Terms of Service prohibitions.
+- **Cropping-Resistant Watermark Placement**: Placed anti-cheat notices directly between the question text and answer controls so screenshot or photo attempts capture candidate credentials.
+
+### Validation
+- All 43 Django unit tests passed (`python manage.py test core`), including new test suite `CodeSnippetAndMediaTests` covering fenced code blocks, implicit code detection, and `testing_questionnaire.json` schema validation.
+- Rebuilt local Docker image (`docker compose up -d --build`) and verified container health at `http://localhost:8091/healthz/`.
 
 ### Added
 - Render Blueprint, Python runtime selection, build/start scripts, and a deployment guide for hosting the app with Neon PostgreSQL.

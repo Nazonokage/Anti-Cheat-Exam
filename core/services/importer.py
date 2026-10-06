@@ -54,8 +54,13 @@ def _import_flat_schema(exam, data):
     order = 1
     for item in data.get("questions", []):
         text = item.get("text", "")
+        code = item.get("code") or item.get("codeSnippet") or item.get("sampleCode") or ""
+        if code and code not in text:
+            lang = item.get("language") or item.get("codeLanguage") or ""
+            text = f"{text}\n\n```{lang}\n{code}\n```" if text else f"```{lang}\n{code}\n```"
+
         hint = item.get("hint", "")
-        image_url = item.get("imageLink") or ""
+        image_url = item.get("imageLink") or item.get("imageUrl") or item.get("image_url") or ""
         module = item.get("module") or ""
         qtype = (item.get("type") or "multiple_choice").lower()
 
@@ -82,17 +87,31 @@ def _import_grouped_schema(exam, data):
     order = 1
 
     for item in data.get("multipleChoice", []):
+        text = item["text"]
+        code = item.get("code") or item.get("codeSnippet") or item.get("sampleCode") or ""
+        if code and code not in text:
+            lang = item.get("language") or item.get("codeLanguage") or ""
+            text = f"{text}\n\n```{lang}\n{code}\n```"
+        image_url = item.get("imageLink") or item.get("imageUrl") or item.get("image_url") or ""
+
         _create_choice_question(
-            exam, order, item["text"], item.get("hint", ""),
+            exam, order, text, item.get("hint", ""),
             options=item.get("options", []), answer_index=item.get("answerIndex"),
-            image_url=item.get("imageLink", ""),
+            image_url=image_url,
         )
         order += 1
 
     for item in data.get("boolean", []):
+        text = item["text"]
+        code = item.get("code") or item.get("codeSnippet") or item.get("sampleCode") or ""
+        if code and code not in text:
+            lang = item.get("language") or item.get("codeLanguage") or ""
+            text = f"{text}\n\n```{lang}\n{code}\n```"
+        image_url = item.get("imageLink") or item.get("imageUrl") or item.get("image_url") or ""
+
         q = Question.objects.create(
-            exam=exam, qtype="boolean", text=item["text"], hint=item.get("hint", ""),
-            order=order, image_url=item.get("imageLink", ""),
+            exam=exam, qtype="boolean", text=text, hint=item.get("hint", ""),
+            order=order, image_url=image_url,
         )
         correct = bool(item.get("answer"))
         Choice.objects.create(question=q, text="True", is_correct=correct, order=0)
@@ -100,9 +119,16 @@ def _import_grouped_schema(exam, data):
         order += 1
 
     for item in data.get("identification", []):
+        text = item["text"]
+        code = item.get("code") or item.get("codeSnippet") or item.get("sampleCode") or ""
+        if code and code not in text:
+            lang = item.get("language") or item.get("codeLanguage") or ""
+            text = f"{text}\n\n```{lang}\n{code}\n```"
+        image_url = item.get("imageLink") or item.get("imageUrl") or item.get("image_url") or ""
+
         Question.objects.create(
-            exam=exam, qtype="identification", text=item["text"], hint=item.get("hint", ""),
-            order=order, image_url=item.get("imageLink", ""),
+            exam=exam, qtype="identification", text=text, hint=item.get("hint", ""),
+            order=order, image_url=image_url,
             identification_answer=item.get("answer", ""),
         )
         order += 1

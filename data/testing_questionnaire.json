@@ -1,6 +1,6 @@
 {
   "subject": "testing",
-  "title": "Anti-Cheat Testing Questionnaire (5 items)",
+  "title": "Anti-Cheat Testing Questionnaire (with Code & Media)",
   "secondsPerQuestion": 45,
   "hintsEnabled": true,
   "gameMode": false,
@@ -11,6 +11,7 @@
       "module": "Test",
       "type": "multiple_choice",
       "text": "What does the server-authoritative timer protect against?",
+      "imageLink": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80",
       "options": [
         "Students changing the clock on their phone",
         "Dropped Wi-Fi giving extra time",
@@ -54,6 +55,45 @@
       "options": ["True", "False"],
       "answerIndex": 1,
       "hint": "Browser JS cannot control OS-level overlays or the screenshot gesture."
+    },
+    {
+      "id": "t6",
+      "module": "Code Output",
+      "type": "multiple_choice",
+      "text": "What is the output of the following JavaScript code?\n\n```javascript\nconst numbers = [1, 2, 3, 4];\nconst result = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * 10);\n\nconsole.log(result);\n```",
+      "options": [
+        "[20, 40]",
+        "[10, 30]",
+        "[2, 4]",
+        "[10, 20, 30, 40]"
+      ],
+      "answerIndex": 0,
+      "hint": "filter keeps even numbers [2, 4], then map multiplies each by 10 to produce [20, 40]."
+    },
+    {
+      "id": "t7",
+      "module": "Code Output",
+      "type": "identification",
+      "text": "What is the output of the following Python program?\n\n```python\ndef calculate_score(points):\n    return sum(p for p in points if p >= 50)\n\nscores = [35, 50, 75, 40]\nprint(calculate_score(scores))\n```",
+      "answer": "125",
+      "imageLink": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=600&q=80",
+      "hint": "Only values >= 50 are included in the sum: 50 + 75 = 125."
+    },
+    {
+      "id": "t8",
+      "module": "Code Output",
+      "type": "multiple_choice",
+      "text": "What will be printed to the console when this asynchronous routine resolves?",
+      "code": "async function verifySession() {\n  const token = await Promise.resolve('ACTIVE');\n  return `STATUS_${token}`;\n}\n\nverifySession().then(res => console.log(res));",
+      "language": "javascript",
+      "options": [
+        "STATUS_ACTIVE",
+        "ACTIVE",
+        "Promise { <pending> }",
+        "undefined"
+      ],
+      "answerIndex": 0,
+      "hint": "The async function awaits the resolved value 'ACTIVE' and prepends 'STATUS_'."
     }
   ]
 }

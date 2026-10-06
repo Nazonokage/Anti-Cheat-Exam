@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load exam_tags %}
 {% block title %}Review Phase{% endblock %}
 
 {% block content %}
@@ -38,8 +39,7 @@
       </div>
       {% endif %}
       <div class="flex-1 min-w-0">
-
-        <p class="exam-question text-lg text-white leading-relaxed mb-6">{{ question.text }}</p>
+        {{ question.text|render_question_text }}
 
     <form method="post" action="{% url 'submit_review_answer' %}" id="answer-form" class="space-y-3">
       {% csrf_token %}
