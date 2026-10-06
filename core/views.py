@@ -391,6 +391,7 @@ def exam_view(request):
         "q_number": submission.current_question,
         "q_total": total,
         "hints_enabled": exam.hints_enabled,
+        "prompt_line": exam.get_prompt_line(submission.student_name),
         "done": False,
         **_game_context(submission),
     })
@@ -615,6 +616,7 @@ def review_view(request):
             "q_number": q_number,
             "q_total": len(order),
             "hints_enabled": submission.exam.hints_enabled,
+            "prompt_line": submission.exam.get_prompt_line(submission.student_name),
             "done": False,
             **_game_context(submission),
         })

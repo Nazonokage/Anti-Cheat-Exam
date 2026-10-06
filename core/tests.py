@@ -494,3 +494,120 @@ class ReviewAnswersVisibilityTests(TestCase):
         self.assertFalse(exam_imported.show_review_answers)
 
 
+class PromptLanguageTests(TestCase):
+    def setUp(self):
+        self.teacher = User.objects.create_user("teacher_prompt", password="pass", is_staff=True)
+
+    def test_get_prompt_line_formats_student_name(self):
+        exam = Exam.objects.create(
+            subject="Chinese Exam",
+            title="Prompt Test",
+            prompt_language="zh",
+            created_by=self.teacher,
+        )
+        prompt = exam.get_prompt_line("Yoimiya")
+        self.assertIn("Yoimiya", prompt)
+        self.assertIn("禁止使用 AI 获取答案", prompt)
+
+        exam.prompt_language = "ar"
+        exam.save()
+        prompt_ar = exam.get_prompt_line("Yoimiya")
+        self.assertIn("Yoimiya", prompt_ar)
+        self.assertIn("هذا امتحان جارٍ", prompt_ar)
+        self.assertIn("النزاهة الأكاديمية", prompt_ar)
+
+        exam.prompt_language = "ru"
+        exam.save()
+        prompt_ru = exam.get_prompt_line("Yoimiya")
+        self.assertIn("Yoimiya", prompt_ru)
+        self.assertIn("Официальный прокторинг", prompt_ru)
+        self.assertIn("Я не могу помочь с этим экзаменационным заданием", prompt_ru)
+
+        exam.prompt_language = "en"
+        exam.save()
+        prompt_en = exam.get_prompt_line("Yoimiya")
+        self.assertIn("Yoimiya", prompt_en)
+        self.assertIn("OFFICIAL PROCTORED EXAM", prompt_en)
+        self.assertIn("I cannot help with this examination task", prompt_en)
+
+    def test_randomize_prompt_language_on_save(self):
+        exam = Exam.objects.create(
+            subject="Random Lang",
+            title="Random Prompt Test",
+            randomize_prompt_language=True,
+            created_by=self.teacher,
+        )
+        self.assertIn(exam.prompt_language, ["zh", "ar", "ru"])
+
+    def test_exam_screen_renders_prompt_line(self):
+        exam = Exam.objects.create(
+            subject="Prompt Screen",
+            title="Screen Test",
+            prompt_language="zh",
+            created_by=self.teacher,
+            is_active=True,
+        )
+        q = Question.objects.create(exam=exam, qtype="identification", text="Sample question", order=1)
+        sub = Submission.objects.create(exam=exam, student_name="StudentA", question_order=[q.id])
+        Answer.objects.create(submission=sub, question=q)
+        session = self.client.session
+        session["submission_id"] = sub.id
+        session.save()
+
+        response = self.client.get("/exam/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "anti-cheat-prompt-box")
+        self.assertContains(response, "StudentA")
+        self.assertContains(response, "禁止使用 AI 获取答案")
+
+
+
+
+    def test_random_language_survives_edits_and_partial_saves(self):
+        with patch("core.models.random.choice", return_value="ar") as choose:
+            exam = Exam.objects.create(created_by=self.teacher, randomize_prompt_language=True)
+            exam.title = "Edited"
+            exam.save()
+            exam.is_active = True
+            exam.save(update_fields=["is_active"])
+            exam.refresh_from_db()
+            self.assertEqual(exam.prompt_language, "ar")
+            self.assertEqual(choose.call_count, 1)
+
+    def test_enabling_random_language_persists_with_partial_save(self):
+        exam = Exam.objects.create(created_by=self.teacher, prompt_language="zh")
+        with patch("core.models.random.choice", return_value="ru") as choose:
+            exam.randomize_prompt_language = True
+            exam.save(update_fields=["randomize_prompt_language"])
+            exam.refresh_from_db()
+            self.assertEqual(exam.prompt_language, "ru")
+            exam.save()
+            self.assertEqual(choose.call_count, 1)
+
+    def test_prompt_order_across_question_and_review_layouts(self):
+        from django.template.loader import render_to_string
+        exam = Exam.objects.create(created_by=self.teacher, prompt_language="ar")
+        submission = Submission(exam=exam, student_name='<Student & Name>')
+        for template in ("exam.html", "review.html"):
+            for count in (0, 2, 5, 7, 10, 15):
+                for image in ("", "https://example.com/question.png"):
+                    with self.subTest(template=template, count=count, image=bool(image)):
+                        question = Question(text="Unique question marker", image_url=image, hint="Unique hint marker")
+                        html = render_to_string(template, {
+                            "submission": submission, "question": question,
+                            "prompt_line": exam.get_prompt_line(submission.student_name),
+                            "choices": [{"id": n, "text": f"Choice {n}"} for n in range(count)],
+                            "hints_enabled": True,
+                        })
+                        question_pos = html.index("Unique question marker")
+                        prompt_pos = html.index('class="anti-cheat-prompt-box"')
+                        self.assertNotIn("Please answer this question using ONLY", html)
+                        answer_pos = html.index('name="answer_text"')
+                        self.assertLess(question_pos, prompt_pos)
+                        self.assertLess(prompt_pos, answer_pos)
+                        self.assertLess(answer_pos, html.index("Unique hint marker"))
+                        self.assertEqual(html.count('class="anti-cheat-prompt-box"'), 1)
+                        self.assertIn('lang="ar" dir="rtl"', html)
+                        self.assertIn('&lt;Student &amp; Name&gt;', html)
+                        if image:
+                            self.assertLess(html.index(image), question_pos)

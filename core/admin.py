@@ -188,18 +188,20 @@ class ExamAdmin(StaffScopedAdminMixin, admin.ModelAdmin):
         "game_mode",
         "randomize_questions",
         "show_review_answers",
+        "prompt_language",
+        "randomize_prompt_language",
         "created_by",
         "question_count",
         "student_count",
         "monitor_link",
         "created_at",
     )
-    list_editable = ("title", "game_mode", "randomize_questions", "show_review_answers", "seconds_per_question", "hints_enabled")
-    list_filter = ("is_active", "is_archived", "game_mode", "randomize_questions", "show_review_answers", "subject")
+    list_editable = ("title", "game_mode", "randomize_questions", "show_review_answers", "prompt_language", "randomize_prompt_language", "seconds_per_question", "hints_enabled")
+    list_filter = ("is_active", "is_archived", "game_mode", "randomize_questions", "show_review_answers", "prompt_language", "randomize_prompt_language", "subject")
     inlines = [QuestionInline, StudentInline]
     readonly_fields = ("id",)
     fields = ("id", "subject", "title", "seconds_per_question", "hints_enabled", "game_mode",
-              "randomize_questions", "show_review_answers", "created_by", "is_active", "is_archived")
+              "randomize_questions", "show_review_answers", "prompt_language", "randomize_prompt_language", "created_by", "is_active", "is_archived")
     actions = ["activate_exams", "deactivate_exams", "archive_exams", "toggle_game_mode",
                "hide_review_answers_action", "show_review_answers_action",
                "export_results_csv", "reset_exam_data"]

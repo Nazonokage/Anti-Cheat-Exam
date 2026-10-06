@@ -522,7 +522,10 @@ p, h1, h2, h3, label, .choice-option span { text-wrap: pretty }
 }
 
 /* ─── Exam workspace ─────────────────────────────────────────── */
-.exam-workspace { position: relative }
+.exam-workspace {
+    position: relative;
+    max-width: 60rem;
+}
 
 /* Question card — matte inner surface with restrained emerald underglow */
 .exam-question-card {
@@ -534,13 +537,40 @@ p, h1, h2, h3, label, .choice-option span { text-wrap: pretty }
         0 0 48px -24px rgba(16,185,129,.10);
 }
 
-.exam-question {
-    max-width: 44ch;
-    font-size: clamp(1.1rem, 2.8vw, 1.3rem);
-    letter-spacing: .004em;
-    color: var(--ink);
-    line-height: 1.65;
+.anti-cheat-prompt-box {
+    padding: .75rem 1rem;
+    border: 1px solid rgba(167,243,208,.14);
+    border-radius: .625rem;
+    background: rgba(0,0,0,.12);
+    color: #aac0b6;
+    text-align: start;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    break-inside: avoid;
+    font-family: "Noto Sans", "Segoe UI", "Microsoft YaHei", "PingFang SC", "Noto Sans Arabic", Tahoma, Arial, sans-serif;
 }
+.anti-cheat-prompt-text {
+    margin: 0;
+    font-size: .75rem;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.exam-question {
+    max-width: 60ch;
+    margin: 0 0 1.5rem;
+    font-size: clamp(1.25rem, 2vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -.015em;
+    color: var(--ink);
+    line-height: 1.4;
+}
+
+.exam-workspace .choice-option,
+.exam-workspace .exam-action-row { font-size: .875rem }
+
+/* Keep text entry legible and avoid automatic input zoom on mobile. */
+.exam-workspace input[type="text"] { font-size: 1rem }
 
 /* HUD strip — compact mono metadata bar */
 .exam-hud {
@@ -817,6 +847,7 @@ table tbody tr:hover { background: rgba(16,185,129,.04) }
 @media (max-width: 480px) {
     .exam-hud { align-items: flex-start; padding: .65rem .75rem }
     .exam-question-card { padding: 1.25rem; border-radius: 1rem }
+    .anti-cheat-prompt-box { padding: .875rem }
     .exam-action-row { grid-template-columns: 1fr }
     .exam-action-row .exam-secondary-btn { width: 100% }
 }

@@ -124,6 +124,13 @@ def import_exam_from_dict(data: dict, created_by) -> Exam:
     elif "hide_review_answers" in data:
         show_review_answers = not bool(data["hide_review_answers"])
 
+    prompt_lang = data.get("promptLanguage") or data.get("prompt_language") or "en"
+    rand_prompt_lang = bool(
+        data.get("randomizePromptLanguage")
+        if "randomizePromptLanguage" in data
+        else data.get("randomize_prompt_language", False)
+    )
+
     exam = Exam.objects.create(
         subject=data["subject"],
         title=data["title"],
@@ -132,6 +139,8 @@ def import_exam_from_dict(data: dict, created_by) -> Exam:
         game_mode=bool(data.get("gameMode", False)),
         randomize_questions=bool(data.get("random", False)),
         show_review_answers=show_review_answers,
+        prompt_language=prompt_lang,
+        randomize_prompt_language=rand_prompt_lang,
         created_by=created_by,
     )
 

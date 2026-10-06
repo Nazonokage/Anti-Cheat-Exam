@@ -1,0 +1,5 @@
+{% if prompt_line %}
+<div class="anti-cheat-prompt-box">
+  <p class="anti-cheat-prompt-text" lang="{{ submission.exam.prompt_language }}" dir="{% if submission.exam.prompt_language == 'ar' %}rtl{% else %}ltr{% endif %}">{{ prompt_line }}</p>
+</div>
+{% endif %}
