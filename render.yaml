@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: anti-cheat-exam
+    runtime: python
+    region: singapore
+    plan: free
+    buildCommand: bash build.sh
+    startCommand: bash start.sh
+    healthCheckPath: /healthz/
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DJANGO_DEBUG
+        value: "False"
+      - key: DJANGO_RELAX_MYSQL_VERSION
+        value: "0"
+      - key: CSRF_COOKIE_SECURE
+        value: "True"
+      - key: SESSION_COOKIE_SECURE
+        value: "True"
+      - key: SECURE_SSL_REDIRECT
+        value: "True"

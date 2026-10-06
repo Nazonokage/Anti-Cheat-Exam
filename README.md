@@ -1,9 +1,10 @@
 # Anti-Cheat Exam App
 
 A server-authoritative, one-question-at-a-time classroom exam system built
-with **Django + local CSS**, per `plan.md`. Copy `.env.example` to `.env` to
-use local XAMPP MySQL (`anticheat_exam`); otherwise SQLite. Set
-`DATABASE_URL` later for Railway without changing the `DB_*` layout.
+with **Django + local CSS**, per `plan.md`. Copy `.env.example` to `.env` and
+set `DATABASE_URL` to your Neon PostgreSQL connection string.
+For hosting, follow [Deploy to Render with Neon](RENDER.md).
+Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settings.
 
 - ✅ Server owns the timer — a dropped Wi-Fi connection can't buy extra time
 - ✅ Layered anti-cheat — tab-switch escalation, copy/paste logging, redundant client-side guards
@@ -141,18 +142,15 @@ python3 -m venv venv
 venv/Scripts/activate                                   # optional but recommended
 pip install -r requirements.txt
 
+# Copy .env.example to .env and replace DATABASE_URL with your Neon URL first.
+
 python3 manage.py migrate
 python3 manage.py createsuperuser                      # this account is your first superuser / admin
 
-# Local XAMPP MySQL: copy .env.example to .env (gitignored). settings.py
-# loads .env automatically so you do not need to export DB_* every session.
-#   copy .env.example .env
-#
-# Django 5.2+/6 officially need MySQL 8.0+ or MariaDB 10.5+. Stock
-# XAMPP 8.2 ships MariaDB 10.4. Keep DJANGO_RELAX_MYSQL_VERSION=1 in
-# .env for local XAMPP only (already in .env.example).
-#
-# Resolution order: DATABASE_URL (Railway) → DB_* from env/.env → SQLite.
+# Optional XAMPP: install requirements-mysql.txt, remove DATABASE_URL,
+# and enable the DB_* settings in .env.example. The MySQL version-relax
+# flag is only for local MariaDB 10.4.
+# Resolution order: DATABASE_URL → DB_* from env/.env → SQLite.
 
 python3 manage.py import_exam data/sampletopic.json --teacher <your_username>
 # (omit --teacher to default to the first superuser)
@@ -321,61 +319,31 @@ and `"phpmyadmin"` both match), but genuine misspellings still fail.
 
 ### Docker
 
-**First run, or after deleting the container:**
+Set `DATABASE_URL` in your local `.env` to the Neon connection string, then run:
+
 ```bash
 docker compose up -d --build
 ```
-This builds the app image, starts a local MySQL 8 container for the exam
-backend, runs migrations automatically on start (`docker-entrypoint.sh`),
-and serves the app on `http://localhost:8090` via gunicorn. The MySQL data
-is persisted in a named Docker volume (`mysql_data`), so it survives rebuilds
-and container restarts unless you explicitly remove the volume. The host
-port is mapped to `3307` to avoid clashing with any existing local XAMPP/
-MySQL install already using `3306`.
 
-**Every time after that** (e.g. restarting the machine, or just running the
-existing container again), you only need:
-```bash
-docker compose up -d
-```
-Only re-add `--build` when you've pulled code changes — Compose does *not*
-rebuild automatically, so an old container will silently keep running old
-code even though `docker-compose.yml`'s env vars look up to date.
+The default Compose configuration starts the Neon-backed web app at
+`http://localhost:8091`, runs migrations, and serves static files with
+WhiteNoise. It uses the `anti-cheat-neon` project and does not start MySQL.
+The database persists on Neon when the container is rebuilt or removed.
 
-Then create your teacher account inside the running container (one-time,
-survives in the database after that):
+Use `docker compose up -d` to restart, and add `--build` after pulling code
+changes. Create an administrator once, if the database does not have one:
+
 ```bash
 docker compose exec web python manage.py createsuperuser
 ```
 
-The default Docker database is MySQL, configured through the `web` service's
-`DB_*` environment variables and the `db` service container. If you want to
-run the app with SQLite instead, adjust the env values in
-`docker-compose.yml` and remove the MySQL service.
+The Docker test instance binds to localhost, disables debug mode, and uses
+HTTP cookies for local testing. For LAN or tunnel access, adjust the port
+binding, `DJANGO_ALLOWED_HOSTS`, and `DJANGO_CSRF_TRUSTED_ORIGINS` in
+`docker-compose.neon.yml`. Set a private `DJANGO_SECRET_KEY` in `.env` for
+shared use. Render uses separate HTTPS production settings.
 
-Environment variables (set in `docker-compose.yml`, all optional):
-- `DJANGO_DEBUG` — defaults to `False` in Docker (vs. `True` for local
-  `manage.py runserver`, unchanged from before).
-- `DJANGO_ALLOWED_HOSTS` — comma-separated, defaults to `*`.
-- `DJANGO_CSRF_TRUSTED_ORIGINS` — comma-separated list of origins Django
-  will accept CSRF-protected POSTs from, e.g.
-  `https://myschool.example.com`. Defaults to `https://*.ngrok-free.app` so
-  tunneling the app through a free [ngrok](https://ngrok.com) tunnel works
-  out of the box even though the subdomain changes every time you restart
-  the tunnel. If you're on a paid ngrok plan/custom domain, or deploying
-  behind something else entirely, add that origin here too.
-- `DJANGO_SECRET_KEY` — set a real one if this ever leaves a closed LAN.
-- `DB_ENGINE`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT` —
-  the MySQL connection settings used by the app in Docker.
-
-**Quick troubleshooting:** if you get `Forbidden (403) CSRF verification
-failed` after exposing the app through a new tunnel URL, first check the
-running container is actually serving current code:
-```bash
-docker compose exec web python -c "import django,os; os.environ.setdefault('DJANGO_SETTINGS_MODULE','exam_system.settings'); django.setup(); from django.conf import settings; print(settings.CSRF_TRUSTED_ORIGINS)"
-```
-If that doesn't print the origin you expect, rebuild with
-`docker compose up -d --build`.
+See [the Render and Neon deployment guide](RENDER.md) for hosting instructions.
 
 ### Styling and offline use
 
@@ -409,10 +377,8 @@ If a new teacher cannot log in, open their user and confirm **Active** and
 **Staff status** are both checked. Changing only the password does not
 save those flags.
 
-A later switch to Railway can use `DATABASE_URL` (e.g.
-`mysql://user:pass@host:3306/anticheat_exam`) without changing the XAMPP
-`DB_*` setup: `DATABASE_URL` wins when set; otherwise `DB_*` / `.env`;
-otherwise SQLite.
+Render uses Neon's `DATABASE_URL`; see [the deployment guide](RENDER.md).
+`DATABASE_URL` wins when set; otherwise `DB_*` / `.env`; otherwise SQLite.
 
 ## Teacher Monitoring Hub & Multi-Teacher Accounts (latest)
 

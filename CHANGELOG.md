@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+## [2.3] - 2026-10-06
+
+### Added
+- Render Blueprint, Python runtime selection, build/start scripts, and a deployment guide for hosting the app with Neon PostgreSQL.
+- Health endpoint and deployment regression tests for HTTPS behavior and PostgreSQL connection options.
+
+### Changed
+- Default Docker Compose now runs the web app against the Neon connection in `.env`, available locally at `http://localhost:8091`.
+- Startup applies migrations before launching Gunicorn. Render generates the application secret and enables secure cookies and HTTPS redirects.
+- Automatically allow the Render service hostname and trust its HTTPS origin for CSRF checks.
+- Keep MySQL dependencies in an optional requirements file. Remove embedded account credentials from the default Compose configuration.
+
+### Fixed
+- Preserve PostgreSQL URL options, including Neon's required SSL and channel binding settings.
+- Use Django 6's `STORAGES` setting for WhiteNoise compressed manifest assets.
+- Resolve the database host and port from `DATABASE_URL` in the Docker entrypoint and normalize shell-script line endings.
+
+### Validation
+- 36 Django tests and 16 JavaScript tests passed, including deployment regression coverage.
+- Docker image built and the running Neon-backed container passed health, login, admin login, and static-file checks.
+- Verified live Neon TLS, completed migrations, and ORM create/read/update operations with test records rolled back.
+- Verified administrator authentication; user confirmed data creation in Neon through Docker.
+- Render deployment is prepared but has not yet been tested on Render. Existing database contents require a separate transfer.
+
 ## [2.2] - 2026-10-03
 
 ### Fixed

@@ -11,16 +11,24 @@ if [ -n "$DATABASE_URL" ] || [ "$DB_ENGINE" = "django.db.backends.mysql" ] || [ 
 import os
 import socket
 import time
+from urllib.parse import urlparse
 
 host = os.environ.get('DB_HOST', '127.0.0.1')
 port = int(os.environ.get('DB_PORT', '3306'))
+database_url = os.environ.get('DATABASE_URL', '').strip()
+if database_url:
+    parsed = urlparse(database_url)
+    if parsed.scheme.startswith('sqlite'):
+        raise SystemExit(0)
+    host = parsed.hostname
+    port = parsed.port or (5432 if parsed.scheme.startswith(('postgres', 'pgsql')) else 3306)
 for attempt in range(1, 61):
     try:
         with socket.create_connection((host, port), timeout=2):
             break
     except OSError:
         if attempt == 60:
-            raise SystemExit(f"Timed out waiting for MySQL at {host}:{port}")
+            raise SystemExit(f"Timed out waiting for database at {host}:{port}")
         time.sleep(2)
 PY
 fi

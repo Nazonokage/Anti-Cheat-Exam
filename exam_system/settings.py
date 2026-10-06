@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import sys
 from pathlib import Path
-from urllib.parse import unquote, urlparse
+from urllib.parse import parse_qsl, unquote, urlparse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -57,7 +57,10 @@ DEBUG = os.environ.get("DJANGO_DEBUG", "True") == "True"
 # Comma-separated list via DJANGO_ALLOWED_HOSTS, e.g. "myexamapp.local,10.0.0.5"
 # Defaults to '*' (same as before) for easy LAN access out of the box.
 _allowed_hosts = os.environ.get("DJANGO_ALLOWED_HOSTS", "*")
-ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(",")] if _allowed_hosts else []
+_render_hostname = os.environ.get("RENDER_EXTERNAL_HOSTNAME", "").strip()
+if _render_hostname and "DJANGO_ALLOWED_HOSTS" not in os.environ:
+    _allowed_hosts = _render_hostname
+ALLOWED_HOSTS = [h.strip() for h in _allowed_hosts.split(",") if h.strip()]
 # Comma-separated list via DJANGO_CSRF_TRUSTED_ORIGINS
 # Example:
 # "https://abc.ngrok-free.app,https://mydomain.com"
@@ -72,12 +75,17 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in _csrf_trusted_origins.split(",")
     if origin.strip()
 ]
+if _render_hostname:
+    CSRF_TRUSTED_ORIGINS.append(f"https://{_render_hostname}")
 
 CSRF_COOKIE_SECURE = os.environ.get("CSRF_COOKIE_SECURE", "False").lower() in ("true", "1", "yes")
 SESSION_COOKIE_SECURE = os.environ.get("SESSION_COOKIE_SECURE", "False").lower() in ("true", "1", "yes")
 CSRF_COOKIE_HTTPONLY = True
 SESSION_COOKIE_HTTPONLY = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+SECURE_SSL_REDIRECT = os.environ.get("SECURE_SSL_REDIRECT", "False").lower() in ("true", "1", "yes")
+# Render's internal health probe can use HTTP.
+SECURE_REDIRECT_EXEMPT = [r"^healthz/$"]
 
 
 # Application definition
@@ -127,7 +135,7 @@ WSGI_APPLICATION = 'exam_system.wsgi.application'
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 #
 # Resolution order:
-# 1. DATABASE_URL (Railway / hosted MySQL or Postgres, e.g. mysql://user:pass@host:3306/db)
+# 1. DATABASE_URL (Neon Postgres / hosted MySQL)
 # 2. Discrete env vars for local XAMPP MySQL:
 #    DB_ENGINE, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT
 # 3. SQLite fallback (DJANGO_DB_PATH or BASE_DIR/db.sqlite3)
@@ -176,6 +184,8 @@ def _db_from_url(url: str) -> dict:
     }
     if engine.endswith("mysql"):
         config["OPTIONS"] = _mysql_options()
+    elif engine.endswith("postgresql"):
+        config["OPTIONS"] = dict(parse_qsl(parsed.query))
     return config
 
 
@@ -275,9 +285,10 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-STATICFILES_STORAGE = (
-    "whitenoise.storage.CompressedManifestStaticFilesStorage"
-)
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field

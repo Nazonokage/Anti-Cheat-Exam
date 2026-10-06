@@ -11,3 +11,4 @@ venv/
 .claude/
 .env
 *.log
+*.sql

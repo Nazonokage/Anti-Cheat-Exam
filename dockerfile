@@ -14,8 +14,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         default-libmysqlclient-dev \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt requirements-mysql.txt ./
+RUN pip install --no-cache-dir -r requirements-mysql.txt
 
 COPY . .
 
@@ -31,7 +31,7 @@ EXPOSE 8090
 
 # Entrypoint: wait for DB, run migrations, create superuser, then start app.
 # sed strips Windows CRLF line endings so the script runs on Linux.
-RUN sed -i 's/\r$//' /app/docker-entrypoint.sh && \
+RUN sed -i 's/\r$//' /app/docker-entrypoint.sh /app/start.sh /app/build.sh && \
     chmod +x /app/docker-entrypoint.sh
 
 ENTRYPOINT ["/app/docker-entrypoint.sh"]
