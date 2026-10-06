@@ -256,50 +256,67 @@ question of each type — see `data/sia_exam_sample.json` for a full
 
 ```json
 {
-  "subject": "",
-  "title": "",
-  "secondsPerQuestion": 60,
+  "subject": "testing",
+  "title": "Anti-Cheat Testing Questionnaire",
+  "secondsPerQuestion": 45,
   "hintsEnabled": true,
   "gameMode": false,
   "random": false,
+  "promptLanguage": "en",
+  "randomizePromptLanguage": false,
 
   "questions": [
     {
-      "id": "",
-      "module": "",
+      "id": "t1",
+      "module": "Test",
       "type": "multiple_choice",
-      "text": "",
+      "text": "What does the server-authoritative timer protect against?",
+      "imageLink": "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?auto=format&fit=crop&w=600&q=80",
       "options": [
-        "",
-        "",
-        "",
-        ""
+        "Students changing the clock on their phone",
+        "Dropped Wi-Fi giving extra time",
+        "Teachers editing scores later",
+        "Copy-paste only"
       ],
-      "answerIndex": 0,
-      "imageLink": null,
-      "hint": ""
+      "answerIndex": 1,
+      "hint": "The timer lives on the server, not the browser."
     },
     {
-      "id": "",
-      "module": "",
+      "id": "t2",
+      "module": "Test",
       "type": "true_false",
-      "text": "",
-      "options": [
-        "True",
-        "False"
-      ],
+      "text": "Switching to another app or leaving the exam tab is logged as a violation.",
+      "options": ["True", "False"],
       "answerIndex": 0,
-      "imageLink": null,
-      "hint": ""
+      "hint": "visibilitychange + blur are both watched."
     },
     {
-      "id": "",
-      "module": "",
+      "id": "t3",
+      "module": "Test",
       "type": "identification",
-      "text": "",
-      "answer": "",
-      "imageLink": null,
-      "hint": ""
+      "text": "What is the name of the phase where skipped questions can still be answered using banked time?",
+      "answer": "review",
+      "hint": "It comes after the main one-question-at-a-time phase."
+    },
+    {
+      "id": "t6",
+      "module": "Code Output",
+      "type": "multiple_choice",
+      "text": "What is the output of the following JavaScript code?\n\n```javascript\nconst numbers = [1, 2, 3, 4];\nconst result = numbers.filter(n => n % 2 === 0).map(n => n * 10);\nconsole.log(result);\n```",
+      "options": ["[20, 40]", "[10, 30]", "[2, 4]", "[10, 20, 30, 40]"],
+      "answerIndex": 0,
+      "hint": "filter keeps even numbers [2, 4], then map multiplies each by 10."
+    },
+    {
+      "id": "t8",
+      "module": "Code Output",
+      "type": "multiple_choice",
+      "text": "What will be printed to the console when this asynchronous routine resolves?",
+      "code": "async function verifySession() {\n  const token = await Promise.resolve('ACTIVE');\n  return `STATUS_${token}`;\n}\nverifySession().then(res => console.log(res));",
+      "language": "javascript",
+      "options": ["STATUS_ACTIVE", "ACTIVE", "Promise { <pending> }", "undefined"],
+      "answerIndex": 0,
+      "hint": "The async function awaits the resolved value 'ACTIVE' and prepends 'STATUS_'."
     }
   ]
 }
@@ -314,6 +331,8 @@ question of each type — see `data/sia_exam_sample.json` for a full
 - `random` *(boolean, optional, default `false`)* — shuffles each student's
   question order independently; when `false`, everyone sees the questions
   in the exact order they were authored/imported
+- `promptLanguage` *(string, optional, default `"en"`)* — language code for the anti-cheat prompt notice (`"en"`, `"ru"`, `"zh"`, `"ar"`)
+- `randomizePromptLanguage` *(boolean, optional, default `false`)* — enables random prompt language selection
 - `questions` *(array, required)* — list of question objects, in order
 
 **Each question:**

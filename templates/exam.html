@@ -36,7 +36,12 @@
     {% endif %}
     {% endif %}
 
-    <p class="text-xs text-examtext/40 mt-6">You may close this window.</p>
+    <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+      <a href="/" class="exam-primary-btn inline-flex items-center justify-center gap-2 px-6 py-2.5 text-sm font-semibold rounded-2xl bg-examprimary hover:bg-examprimary/80 text-white transition-all shadow-lg hover:shadow-examprimary/20">
+        🏠 Return to Home / Retake Exam
+      </a>
+    </div>
+    <p class="text-xs text-examtext/40 mt-3">You may close this window or return home to select another exam.</p>
   </div>
 
   {% if not no_questions and question_review %}

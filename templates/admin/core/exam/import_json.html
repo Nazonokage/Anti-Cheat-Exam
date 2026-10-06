@@ -6,8 +6,7 @@
   {{ form.as_p }}
   <input type="submit" value="Import" class="default">
 </form>
-<p>Expected format matches <code>data/sampletopic.json</code>: keys
+<p>Expected format matches <code>data/testing_questionnaire.json</code> (or <code>data/sia_exam_sample.json</code>): keys
 <code>subject</code>, <code>title</code>, <code>secondsPerQuestion</code>,
-<code>hintsEnabled</code>, <code>multipleChoice</code>, <code>boolean</code>,
-<code>identification</code>.</p>
+<code>hintsEnabled</code>, <code>promptLanguage</code>, <code>questions</code> (with <code>multiple_choice</code>, <code>true_false</code>, <code>identification</code>, photo URLs, and code snippets).</p>
 {% endblock %}
