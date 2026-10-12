@@ -1,7 +1,7 @@
 # Anti-Cheat Exam App
 
 A server-authoritative, one-question-at-a-time classroom exam system built
-with **Django + local CSS**, per `plan.md`. Copy `.env.example` to `.env` and
+with **Django + local CSS**. Copy `.env.example` to `.env` and
 set `DATABASE_URL` to your Neon PostgreSQL connection string.
 For hosting, follow [Deploy to Render with Neon](RENDER.md).
 Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settings.
@@ -16,6 +16,7 @@ Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settin
 
 ## Table of contents
 
+- [Release status and upgrade notes](#release-status-and-upgrade-notes)
 - [Flowcharts](#flowcharts)
 - [Code Snippets & Multilingual Anti-Cheat Prompts (v2.4)](#code-snippets--multilingual-anti-cheat-prompts-v24)
 - [Quickstart](#quickstart)
@@ -31,6 +32,40 @@ Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settin
 - [Smoke-tested during the build](#smoke-tested-during-the-build-django-test-client)
 - [Notes before a real exam](#notes--things-to-double-check-before-a-real-exam)
 
+## Release status and upgrade notes
+
+The latest documented release is **v2.4 (2026-10-06)**. See
+[CHANGELOG.md](CHANGELOG.md) for the release history; its Unreleased section
+currently has no entries.
+
+| Area | Implemented behavior |
+| --- | --- |
+| Question rendering (v2.4) | Code blocks, language badges, code-snippet import aliases, and flexible image URL fields in both JSON schemas. |
+| Integrity notices (v2.4) | Chinese, Arabic, Russian, and English notices between question text and answer controls, with an exam-level random-language option. |
+| Deployment (v2.4) | Neon-backed Docker setup, Render deployment files, `/healthz/`, PostgreSQL URL option preservation, and WhiteNoise `STORAGES` configuration. |
+| Exam flow fixes (v2.2) | CSRF-protected reports using the rendered token, persistent focus warnings, confirmed fullscreen entry, timer race fixes, a persistent review queue, and completed-student heartbeat handling. |
+| Review visibility (v2.1) | Per-exam control over the post-submission answer breakdown, including admin bulk actions and the `showReviewAnswers` import option. |
+
+**Planned, not implemented:** public trial access without a student account or
+passcode, unrecorded guest attempts, and immediate-save admin row switches.
+The current app still requires roster/passcode sign-in and saves exam attempts.
+Some settings have editable row checkboxes followed by **Save**; activation
+and archiving use the exam form or bulk actions. Trial mode will require a new
+exam setting and migration; no trial migration exists yet.
+
+After updating an existing installation, run `python manage.py migrate`.
+Current core migrations include `0010` (review queue), `0011` (prompt-language
+settings), and `0012` (language choices/default). Docker and the hosted startup
+script apply migrations automatically. Restart the app and refresh student
+pages to load updated scripts. Migrations do not recover previously missing
+answers or transfer data from an old database into Neon.
+
+The changelog records 43 passing core Django tests for the v2.4 rendering
+changes, and separate deployment validation with 36 Django and 16 JavaScript
+tests. These are historical validation results, not a fresh test run.
+Docker/Neon was verified locally; deployment on Render remains unverified
+according to the changelog.
+
 ## Code Snippets & Multilingual Anti-Cheat Prompts (v2.4)
 
 - **Monospace Code Snippet & "Guess the Output" Terminal Box**:
@@ -41,9 +76,10 @@ Local MySQL remains available through `requirements-mysql.txt` and `DB_*` settin
   - Importer supports `imageLink`, `imageUrl`, and `image_url` keys across both flat and grouped JSON schemas.
   - Questions can seamlessly feature both photo URLs and code blocks.
 - **Multilingual Anti-Cheat Prompts & Proctoring Integrity Notices**:
-  - Anti-cheat prompt box is rendered directly between the question text and answer controls (`templates/_anti_cheat_prompt.html`), preventing screenshot or photo cropping from stripping candidate identity.
-  - Cites active closed-book exam rules and AI terms of service prohibitions against assisting with live examinations.
+  - The notice appears directly between the question text and answer controls (`templates/_anti_cheat_prompt.html`) to keep the student name near the answers. Cropping can still exclude it; it is a visible deterrent, not a security boundary.
+  - The wording invokes closed-book exam rules and AI service terms. This text does not enforce an external service's policies or guarantee that an AI assistant will refuse to answer.
   - Includes Russian (`ru`), Chinese (`zh`), Arabic (`ar`), and English (`en`) prompt choices, with a "Randomize Prompt Language" toggle in Exam Admin.
+  - Randomization chooses Chinese, Arabic, or Russian when an exam is created with the option enabled or the option is switched on. The selected language then stays fixed for that exam, shared by its students. New admin-created exams default to Chinese; JSON imports default to English when no language is supplied.
 
 ## Flowcharts
 
@@ -325,14 +361,15 @@ question of each type — see `data/sia_exam_sample.json` for a full
 **Top level:**
 - `subject` *(string, required)* — short internal slug/id for the exam
 - `title` *(string, required)* — display name shown to students and admin
-- `secondsPerQuestion` *(integer, required)* — base per-question time bank
-- `hintsEnabled` *(boolean, optional, default `false`)* — shows the `hint` field to students
+- `secondsPerQuestion` *(integer, optional, default `60`)* — base per-question time bank
+- `hintsEnabled` *(boolean, optional, default `true`)* — shows the `hint` field to students
 - `gameMode` *(boolean, optional, default `false`)* — turns on buffs/attacks/leaderboard
 - `random` *(boolean, optional, default `false`)* — shuffles each student's
   question order independently; when `false`, everyone sees the questions
   in the exact order they were authored/imported
 - `promptLanguage` *(string, optional, default `"en"`)* — language code for the anti-cheat prompt notice (`"en"`, `"ru"`, `"zh"`, `"ar"`)
 - `randomizePromptLanguage` *(boolean, optional, default `false`)* — enables random prompt language selection
+- `showReviewAnswers` *(boolean, optional, default `true`)* — shows the post-submission question breakdown and correct answers; set to `false` to hide them
 - `questions` *(array, required)* — list of question objects, in order
 
 **Each question:**
@@ -704,15 +741,17 @@ The full feature set, mapped to where it lives in the code:
 
 ## Notes / things to double check before a real exam
 
-- `exam_system/settings.py` currently has `DEBUG = True` and
-  `ALLOWED_HOSTS = ['*']` for easy LAN testing. For a real exam, consider
-  setting `DEBUG = False` and restricting `ALLOWED_HOSTS` to your LAN
-  subnet/hostnames.
-- SQLite + Django's dev server (`runserver`) is fine for the target scale
-  (~50 concurrent students on a school LAN) per the plan, but the dev
-  server is single-threaded by default — for real use, run it with
-  `runserver` and consider `--noreload`, or front it with a small WSGI
-  server (e.g. `gunicorn` with a couple of workers) if you want real
-  concurrency headroom.
-- `SECRET_KEY` in `settings.py` is the Django-generated dev key — fine for
-  a closed LAN, but swap it out if this ever leaves your classroom network.
+- Settings read `DJANGO_DEBUG`, `DJANGO_ALLOWED_HOSTS`, and
+  `DJANGO_SECRET_KEY` from the environment. Local defaults enable debug,
+  allow all hosts, and use a development key. For shared use, configure a
+  private secret, disable debug, and specify allowed hostnames/IP addresses.
+  The Render Blueprint configures a generated secret, secure cookies, and
+  HTTPS redirects; follow [RENDER.md](RENDER.md) for deployment details.
+- Use the provided Gunicorn deployment setup for hosting. `runserver` is a
+  development server; verify capacity with your expected class size rather
+  than assuming a concurrency limit from the historical test logs.
+- Fullscreen/focus detection and integrity notices are browser-level
+  deterrents. They cannot prevent operating-system app switching, guarantee
+  AI refusal, or establish misconduct from a screenshot alone.
+- Review database backups, roster access, and `show_review_answers` before
+  starting a real exam. Public trial mode is still planned, not available.
